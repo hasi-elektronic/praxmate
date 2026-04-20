@@ -1,0 +1,59 @@
+{
+  "practice": {
+    "slug": "vayhinger",
+    "name": "Hausarztpraxis Vayhinger",
+    "specialty": "gp",
+    "street": "Stuttgarter Straße 45",
+    "postal_code": "71665",
+    "city": "Vaihingen an der Enz",
+    "country": "DE",
+    "phone": "07042 99999",
+    "email": "info@praxis-vayhinger.de",
+    "website": "https://www.praxis-vayhinger.de",
+    "brand_primary": "#1a5e3f",
+    "brand_accent": "#c9a03a",
+    "brand_ink": "#1a2a2a",
+    "legal_name": "Dr. Martin Vayhinger Hausarztpraxis",
+    "responsible_person": "Dr. Martin Vayhinger",
+    "professional_chamber": "Ärztekammer Baden-Württemberg",
+    "plan": "solo",
+    "plan_status": "trial"
+  },
+
+  "doctors": [
+    {
+      "key": "martin",
+      "name": "Dr. Martin Vayhinger",
+      "title": "Facharzt für Allgemeinmedizin",
+      "role": "Praxisinhaber",
+      "avatar_initials": "MV",
+      "sort_order": 1
+    }
+  ],
+
+  "appointment_types": [
+    { "code": "vorsorge",   "name": "Vorsorgeuntersuchung", "duration_minutes": 30, "icon": "❤" },
+    { "code": "blutabnahme","name": "Blutabnahme",          "duration_minutes": 10, "icon": "💉" },
+    { "code": "impfung",    "name": "Impfung",              "duration_minutes": 10, "icon": "💊" },
+    { "code": "akut",       "name": "Akut-Sprechstunde",    "duration_minutes": 15, "icon": "⚡" },
+    { "code": "beratung",   "name": "Beratungsgespräch",    "duration_minutes": 20, "icon": "💬" }
+  ],
+
+  "working_hours": [
+    { "day_of_week": 1, "shifts": [{ "start": "08:00", "end": "12:00" }, { "start": "14:00", "end": "18:00" }] },
+    { "day_of_week": 2, "shifts": [{ "start": "08:00", "end": "12:00" }, { "start": "14:00", "end": "18:00" }] },
+    { "day_of_week": 3, "shifts": [{ "start": "08:00", "end": "12:00" }] },
+    { "day_of_week": 4, "shifts": [{ "start": "08:00", "end": "12:00" }, { "start": "14:00", "end": "18:00" }] },
+    { "day_of_week": 5, "shifts": [{ "start": "08:00", "end": "13:00" }] }
+  ],
+
+  "users": [
+    {
+      "email": "martin@praxis-vayhinger.de",
+      "name": "Dr. Martin Vayhinger",
+      "role": "owner",
+      "doctor_key": "martin",
+      "password": "Praxmate2026!"
+    }
+  ]
+}

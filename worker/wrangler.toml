@@ -1,0 +1,8 @@
+name = "praxmate-api"
+main = "src/index.js"
+compatibility_date = "2026-04-20"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "praxmate"
+database_id = "d9548a59-aead-4d13-b082-ad82f602cfe4"

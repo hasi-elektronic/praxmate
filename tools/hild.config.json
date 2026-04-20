@@ -1,0 +1,98 @@
+{
+  "practice": {
+    "slug": "hild",
+    "name": "Zahnarztpraxis Hild & Kollegen",
+    "specialty": "dentist",
+    "street": "Lupinenweg 1",
+    "postal_code": "71665",
+    "city": "Vaihingen an der Enz",
+    "country": "DE",
+    "phone": "07042 14069",
+    "email": "mail@zahnarzthild.de",
+    "website": "https://www.zahnarzthild.de",
+    "brand_primary": "#2d6a8e",
+    "brand_accent": "#e9b949",
+    "brand_ink": "#1a2a3a",
+    "legal_name": "Dr. Wolfgang Hild & Juliane Hild Zahnarztpraxis",
+    "responsible_person": "Dr. Wolfgang Hild",
+    "professional_chamber": "Zahnärztekammer Baden-Württemberg",
+    "plan": "team",
+    "plan_status": "trial",
+    "max_doctors": 3
+  },
+
+  "doctors": [
+    {
+      "key": "juliane",
+      "name": "Frau Juliane Hild",
+      "title": "Zahnärztin",
+      "role": "Praxisinhaberin",
+      "specialty": "Allgemeine Zahnheilkunde",
+      "avatar_initials": "JH",
+      "sort_order": 1
+    },
+    {
+      "key": "wolfgang",
+      "name": "Herr Wolfgang Hild",
+      "title": "Zahnarzt",
+      "role": "Praxisinhaber",
+      "specialty": "Prothetik, Implantologie",
+      "avatar_initials": "WH",
+      "sort_order": 2
+    },
+    {
+      "key": "angestellter",
+      "name": "Angestellter Zahnarzt",
+      "title": "Zahnarzt",
+      "role": "Angestellt",
+      "specialty": "Allgemeine Zahnheilkunde",
+      "avatar_initials": "AZ",
+      "sort_order": 3
+    }
+  ],
+
+  "appointment_types": [
+    { "code": "kontrolle",     "name": "Kontrolle / Vorsorge",       "duration_minutes": 20, "icon": "🦷" },
+    { "code": "pzr",           "name": "Prophylaxe (PZR)",           "duration_minutes": 45, "icon": "✨" },
+    { "code": "fuellung",      "name": "Füllung",                    "duration_minutes": 30, "icon": "◉" },
+    { "code": "schmerz",       "name": "Schmerzbehandlung",          "duration_minutes": 20, "icon": "⚡" },
+    { "code": "prothetik",     "name": "Prothetik-Beratung",         "duration_minutes": 45, "icon": "⎈",
+      "doctor_keys": ["wolfgang"] },
+    { "code": "kinder",        "name": "Kinderbehandlung",           "duration_minutes": 30, "icon": "🧸" },
+    { "code": "weisheitszahn", "name": "Weisheitszahn-Beratung",     "duration_minutes": 30, "icon": "⌕",
+      "doctor_keys": ["wolfgang"] },
+    { "code": "neuaufnahme",   "name": "Neupatient-Aufnahme",        "duration_minutes": 45, "icon": "★",
+      "new_patient_only": true }
+  ],
+
+  "working_hours": [
+    { "day_of_week": 1, "shifts": [{ "start": "08:00", "end": "12:00" }, { "start": "15:00", "end": "18:00" }] },
+    { "day_of_week": 2, "shifts": [{ "start": "08:00", "end": "12:00" }, { "start": "15:00", "end": "18:00" }] },
+    { "day_of_week": 3, "shifts": [{ "start": "08:00", "end": "12:00" }, { "start": "15:00", "end": "18:00" }] },
+    { "day_of_week": 4, "shifts": [{ "start": "08:00", "end": "12:00" }, { "start": "13:00", "end": "17:00" }] },
+    { "day_of_week": 5, "shifts": [{ "start": "08:00", "end": "15:00" }] }
+  ],
+
+  "users": [
+    {
+      "email": "juliane@zahnarzthild.de",
+      "name": "Juliane Hild",
+      "role": "owner",
+      "doctor_key": "juliane",
+      "password": "Praxmate2026!"
+    },
+    {
+      "email": "wolfgang@zahnarzthild.de",
+      "name": "Wolfgang Hild",
+      "role": "doctor",
+      "doctor_key": "wolfgang",
+      "password": "Praxmate2026!"
+    },
+    {
+      "email": "elena@zahnarzthild.de",
+      "name": "Elena Schneider",
+      "role": "staff",
+      "password": "Praxmate2026!"
+    }
+  ]
+}
