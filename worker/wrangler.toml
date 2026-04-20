@@ -1,0 +1,9 @@
+name = "praxmate-api-hild"
+main = "src/index.js"
+compatibility_date = "2026-04-20"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "praxmate-hild"
+database_id = "613be9c6-b8c1-4972-a024-4d5723f03db8"

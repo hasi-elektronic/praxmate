@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2d6a8e">
+<meta name="robots" content="noindex, nofollow">
+<title>Praxmate Admin — Kalender</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232d6a8e'/%3E%3Ctext x='50' y='68' font-family='Georgia' font-size='50' font-weight='700' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+<style>
+:root {
+  --primary: #2d6a8e; --primary-dark: #1e4d6b; --primary-soft: #4a8eb0;
+  --accent: #e9b949;
+  --ink: #1a2a3a; --ink-soft: #3d5368; --muted: #7a8b9c;
+  --border: #dde4e9; --bg: #f4f8fa; --bg-card: #ffffff;
+  --error: #c84545; --success: #2d8e5f; --warning: #d68a1f;
+
+  --cal-hour-height: 52px;
+  --cal-row-height: 52px;
+  --cal-time-col-width: 62px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =============== HEADER (same as other admin pages) =============== */
+.header {
+  background: white; border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.brand-mark {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700;
+}
+.brand-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700;
+  color: var(--ink); letter-spacing: -0.02em;
+}
+.brand-sub {
+  font-size: 11px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  font-weight: 600; margin-top: -2px;
+}
+.nav-links {
+  display: flex; gap: 2px;
+  margin-left: 40px;
+}
+.nav-link {
+  padding: 8px 14px; border-radius: 8px;
+  font-size: 14px; font-weight: 500;
+  color: var(--ink-soft); text-decoration: none;
+  transition: background 0.12s;
+}
+.nav-link:hover { background: var(--bg); }
+.nav-link.active { background: var(--primary); color: white; }
+.user-menu {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 30px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.12s;
+}
+.user-menu:hover { border-color: var(--primary); background: var(--bg); }
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 12px;
+}
+.user-info { line-height: 1.2; }
+.user-name { font-weight: 600; color: var(--ink); }
+.user-role {
+  font-size: 10px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+/* =============== TOOLBAR =============== */
+.main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 24px 60px;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.toolbar-left { display: flex; align-items: center; gap: 10px; }
+.toolbar-center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+}
+.toolbar-right { display: flex; align-items: center; gap: 8px; }
+
+.cal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  min-width: 240px;
+  text-align: center;
+}
+
+.tb-btn {
+  width: 36px; height: 36px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px; font-weight: 700;
+  color: var(--ink-soft);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s;
+  font-family: inherit;
+}
+.tb-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+.tb-today {
+  padding: 0 14px;
+  width: auto;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* View switcher */
+.view-switcher {
+  display: inline-flex;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+.view-btn {
+  padding: 7px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px; font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.view-btn:hover:not(.active) {
+  color: var(--primary);
+}
+.view-btn.active {
+  background: var(--primary);
+  color: white;
+}
+
+.doctor-filter {
+  display: inline-flex;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+.doctor-chip {
+  padding: 6px 10px 6px 6px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px; font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.12s;
+}
+.doctor-chip-avatar {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--primary-soft); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700;
+}
+.doctor-chip.active {
+  background: var(--primary);
+  color: white;
+}
+.doctor-chip.active .doctor-chip-avatar {
+  background: var(--accent);
+  color: var(--primary-dark);
+}
+.doctor-chip:hover:not(.active) { color: var(--primary); }
+
+.btn-add {
+  padding: 9px 16px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.12s;
+  text-decoration: none;
+}
+.btn-add:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(45,106,142,0.3); }
+
+/* =============== CALENDAR CONTAINER =============== */
+.cal-container {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* =============== DAY VIEW =============== */
+.day-view { display: flex; flex-direction: column; }
+.day-header {
+  display: grid;
+  grid-template-columns: var(--cal-time-col-width) 1fr;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.day-header-doctors {
+  display: grid;
+  gap: 1px;
+  background: var(--border);
+}
+.day-header-doctor {
+  background: var(--bg);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.doctor-head-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--primary-soft); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+}
+.doctor-head-info { line-height: 1.2; min-width: 0; }
+.doctor-head-name { font-size: 13px; font-weight: 600; color: var(--ink); overflow:hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doctor-head-role { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.day-body {
+  display: grid;
+  grid-template-columns: var(--cal-time-col-width) 1fr;
+  position: relative;
+}
+.day-hours {
+  border-right: 1px solid var(--border);
+}
+.day-hour-label {
+  height: var(--cal-hour-height);
+  padding-right: 8px;
+  text-align: right;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid transparent;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-top: 0;
+  position: relative;
+  top: -7px;
+}
+.day-hour-label:first-child { top: 0; padding-top: 4px; }
+
+.day-tracks {
+  display: grid;
+  gap: 1px;
+  background: var(--border);
+  position: relative;
+}
+.day-track {
+  background: white;
+  position: relative;
+  min-height: calc(var(--cal-hour-height) * 12);
+}
+.day-hour-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: var(--cal-hour-height);
+  border-bottom: 1px solid var(--border);
+}
+.day-hour-line.half {
+  border-bottom-style: dashed;
+  border-bottom-color: #ecf1f4;
+}
+.day-working {
+  position: absolute;
+  left: 0; right: 0;
+  background: rgba(74, 142, 176, 0.04);
+}
+.day-non-working {
+  position: absolute;
+  left: 0; right: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 6px,
+    #eceff2 6px,
+    #eceff2 7px
+  );
+  pointer-events: none;
+}
+
+/* Now line */
+.now-line {
+  position: absolute;
+  left: calc(var(--cal-time-col-width) - 6px);
+  right: 0;
+  height: 2px;
+  background: var(--error);
+  z-index: 10;
+  pointer-events: none;
+}
+.now-line::before {
+  content: '';
+  position: absolute;
+  left: 0; top: -4px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--error);
+  box-shadow: 0 0 0 3px rgba(200, 69, 69, 0.2);
+}
+
+/* Appointment block */
+.appt-block {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  background: var(--primary);
+  color: white;
+  border-radius: 7px;
+  padding: 6px 9px;
+  font-size: 11px;
+  cursor: grab;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+  transition: box-shadow 0.12s, transform 0.12s;
+  border-left: 4px solid rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  line-height: 1.3;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.appt-block:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+  z-index: 5;
+}
+.appt-block.dragging {
+  cursor: grabbing;
+  opacity: 0.85;
+  z-index: 100;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+  transform: scale(1.02);
+  transition: none;
+}
+.appt-block.drag-ghost {
+  position: fixed !important;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.92;
+  transform: none !important;
+  box-shadow: 0 20px 48px rgba(0,0,0,0.4);
+}
+
+/* Drop zone highlight during drag */
+.day-track.drop-target {
+  background: rgba(74, 142, 176, 0.08);
+}
+.drop-indicator {
+  position: absolute;
+  left: 4px; right: 4px;
+  height: 2px;
+  background: var(--primary);
+  z-index: 50;
+  pointer-events: none;
+  box-shadow: 0 0 0 2px rgba(45, 106, 142, 0.25);
+}
+.drop-indicator::before {
+  content: attr(data-time);
+  position: absolute;
+  left: 0;
+  top: -10px;
+  background: var(--primary);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.drop-indicator.invalid {
+  background: var(--error);
+  box-shadow: 0 0 0 2px rgba(200, 69, 69, 0.25);
+}
+.drop-indicator.invalid::before {
+  background: var(--error);
+  content: attr(data-time) ' · belegt';
+}
+.drop-indicator.warning {
+  background: var(--warning);
+  box-shadow: 0 0 0 2px rgba(214, 138, 31, 0.25);
+}
+.drop-indicator.warning::before {
+  background: var(--warning);
+  content: attr(data-time) ' · außerhalb Öffnungszeiten';
+}
+.appt-block .ab-time {
+  font-size: 10.5px;
+  font-weight: 700;
+  opacity: 0.95;
+  margin-bottom: 2px;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.appt-block .ab-name {
+  font-weight: 700;
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+}
+.appt-block .ab-type {
+  font-size: 10.5px;
+  opacity: 0.92;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.appt-block.short {
+  padding: 4px 7px;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+}
+.appt-block.short .ab-time { font-size: 10px; margin-bottom: 0; }
+.appt-block.short .ab-name { font-size: 11.5px; }
+.appt-block.short .ab-type { display: none; }
+
+/* =============== COLOR VARIANTS BY TYPE - DISTINCT =============== */
+/* Kontrolle - deep blue (rutin, temel) */
+.appt-block[data-type="kontrolle"] {
+  background: #2d6a8e;
+  border-left-color: #14334a;
+}
+
+/* PZR - teal/turquoise (temizlik, ferahlık) */
+.appt-block[data-type="pzr"] {
+  background: #2a9d8f;
+  border-left-color: #176b62;
+}
+
+/* Füllung - indigo (dental işlem, farklı) */
+.appt-block[data-type="fuellung"] {
+  background: #5e48a6;
+  border-left-color: #3d2f70;
+}
+
+/* Schmerz - red (acil) */
+.appt-block[data-type="schmerz"] {
+  background: #c84545;
+  border-left-color: #8a2929;
+}
+
+/* Prothetik - warm brown */
+.appt-block[data-type="prothetik"] {
+  background: #8a6a3f;
+  border-left-color: #5c4627;
+}
+
+/* Kinder - green (neşeli) */
+.appt-block[data-type="kinder"] {
+  background: #2d8e5f;
+  border-left-color: #175a3a;
+}
+
+/* Weisheitszahn - purple */
+.appt-block[data-type="weisheitszahn"] {
+  background: #9a4d9e;
+  border-left-color: #6b2f6f;
+}
+
+/* Neuaufnahme - orange/amber (özel, yeni hasta) */
+.appt-block[data-type="neuaufnahme"] {
+  background: #e08a1f;
+  border-left-color: #a56215;
+  color: white;
+}
+
+/* New patient badge on block */
+.ab-new-dot {
+  position: absolute;
+  top: 4px; right: 5px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 1.5px white;
+}
+
+/* Status pills for cancelled/noshow */
+.appt-block.cancelled {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+.appt-block.noshow {
+  background: #a0a9b3 !important;
+  border-left-color: #6b7582 !important;
+}
+
+/* Empty slot click area */
+.day-empty-slot {
+  position: absolute;
+  left: 0; right: 0;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.day-empty-slot:hover {
+  background: rgba(74, 142, 176, 0.1);
+}
+.day-empty-slot::after {
+  content: '+ Termin';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  color: var(--primary);
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.day-empty-slot:hover::after { opacity: 1; }
+
+/* =============== WEEK VIEW =============== */
+.week-view {
+  display: flex;
+  flex-direction: column;
+}
+.week-header {
+  display: grid;
+  border-bottom: 1px solid var(--border);
+}
+.week-header-cell {
+  padding: 10px 8px;
+  text-align: center;
+  border-left: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.week-header-cell:first-child { border-left: none; }
+.week-header-cell:hover { background: rgba(74, 142, 176, 0.08); }
+.week-header-cell.today { background: rgba(45, 106, 142, 0.08); }
+.week-header-cell .wh-day {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+.week-header-cell .wh-date {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 2px;
+}
+.week-header-cell.today .wh-date {
+  color: var(--primary);
+}
+.week-header-cell .wh-count {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+  font-weight: 500;
+}
+.week-body {
+  display: grid;
+  position: relative;
+  min-height: calc(var(--cal-hour-height) * 12);
+}
+.week-hour-label {
+  position: absolute;
+  left: 4px;
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 2;
+}
+.week-day-col {
+  position: relative;
+  border-left: 1px solid var(--border);
+  min-height: calc(var(--cal-hour-height) * 12);
+}
+.week-day-col:first-child { border-left: none; padding-left: var(--cal-time-col-width); }
+.week-day-col:first-child .appt-block { left: calc(var(--cal-time-col-width) + 2px); }
+.week-hour-line-full {
+  position: absolute;
+  left: 0; right: 0;
+  height: var(--cal-hour-height);
+  border-bottom: 1px solid var(--border);
+}
+.week-hour-line-full.half { border-bottom: 1px dashed #ecf1f4; }
+.week-day-col .appt-block {
+  left: 2px;
+  right: 2px;
+  font-size: 10px;
+  padding: 3px 5px;
+}
+.week-day-col .appt-block .ab-time { font-size: 9px; }
+.week-day-col .appt-block .ab-name { font-size: 11px; }
+.week-day-col .appt-block .ab-type { display: none; }
+
+/* =============== LOADING & EMPTY =============== */
+.loading-overlay {
+  position: fixed; inset: 0;
+  background: rgba(244, 248, 250, 0.9);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 500;
+}
+.spinner-big {
+  width: 40px; height: 40px;
+  border: 3px solid rgba(45, 106, 142, 0.2);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* =============== MONTH VIEW =============== */
+.month-view {
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+.month-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.month-dayname {
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-left: 1px solid var(--border);
+}
+.month-dayname:first-child { border-left: none; }
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(118px, 1fr);
+  background: var(--border);
+  gap: 1px;
+}
+.month-cell {
+  background: white;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: background 0.12s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 118px;
+  overflow: hidden;
+}
+.month-cell:hover:not(.other-month) {
+  background: rgba(74, 142, 176, 0.05);
+}
+.month-cell.other-month {
+  background: #fafbfc;
+  cursor: default;
+}
+.month-cell.other-month .month-cell-date {
+  color: #c5ced6;
+}
+.month-cell.weekend:not(.other-month) {
+  background: #fafbfc;
+}
+.month-cell.today {
+  background: rgba(45, 106, 142, 0.04);
+}
+.month-cell-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+}
+.month-cell-date {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+}
+.month-cell-date.is-today {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-size: 13px;
+}
+.month-cell-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+.month-cell.today .month-cell-count {
+  background: var(--primary);
+  color: white;
+}
+.month-cell-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.month-appt {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  color: white;
+  background: var(--primary);
+  transition: all 0.1s;
+  line-height: 1.3;
+  min-height: 18px;
+  overflow: hidden;
+}
+.month-appt:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.month-appt.cancelled {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+.month-appt[data-type="kontrolle"] { background: #2d6a8e; }
+.month-appt[data-type="pzr"] { background: #2a9d8f; }
+.month-appt[data-type="fuellung"] { background: #5e48a6; }
+.month-appt[data-type="schmerz"] { background: #c84545; }
+.month-appt[data-type="prothetik"] { background: #8a6a3f; }
+.month-appt[data-type="kinder"] { background: #2d8e5f; }
+.month-appt[data-type="weisheitszahn"] { background: #9a4d9e; }
+.month-appt[data-type="neuaufnahme"] { background: #e08a1f; }
+.ma-time {
+  font-weight: 700;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  opacity: 0.95;
+}
+.ma-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+.ma-new-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.month-more {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  padding: 2px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.month-more:hover {
+  background: rgba(45, 106, 142, 0.08);
+}
+@media (max-width: 900px) {
+  .month-grid { grid-auto-rows: minmax(90px, 1fr); }
+  .month-cell { padding: 4px 5px; min-height: 90px; }
+  .month-cell-date { font-size: 13px; }
+  .month-cell-date.is-today { width: 22px; height: 22px; font-size: 12px; }
+  .ma-name { font-size: 10px; }
+  .ma-time { font-size: 9px; }
+  .month-appt { padding: 1px 4px; font-size: 10px; min-height: 16px; }
+}
+@media (max-width: 640px) {
+  .month-dayname { font-size: 9px; padding: 6px 2px; }
+  .month-grid { grid-auto-rows: minmax(70px, 1fr); }
+  .month-cell { padding: 3px; min-height: 70px; }
+  .ma-time { display: none; }
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 11px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-soft);
+}
+.legend-dot {
+  width: 12px; height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* =============== MODAL (reused from dashboard) =============== */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(26, 42, 58, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  background: white;
+  border-radius: 16px;
+  max-width: 520px; width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  animation: modalIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-head {
+  padding: 22px 24px 12px;
+  display: flex; align-items: start; justify-content: space-between;
+  gap: 16px;
+}
+.modal-close {
+  width: 32px; height: 32px;
+  border-radius: 8px; border: none;
+  background: var(--bg); color: var(--ink-soft);
+  font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.12s;
+}
+.modal-close:hover { background: var(--border); }
+.modal-badge {
+  display: inline-block;
+  background: rgba(45, 106, 142, 0.08); color: var(--primary);
+  padding: 3px 10px; border-radius: 12px;
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.03em;
+  margin-bottom: 6px;
+}
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700;
+  color: var(--ink); line-height: 1.2;
+  margin-bottom: 3px;
+}
+.modal-sub { font-size: 13px; color: var(--muted); }
+.modal-body { padding: 4px 24px 20px; }
+.detail-grid {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 10px 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.detail-grid:last-child { border-bottom: none; }
+.detail-label {
+  font-size: 12px; color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.detail-value {
+  font-size: 14px; color: var(--ink);
+  font-weight: 500;
+}
+.detail-value a { color: var(--primary); text-decoration: none; }
+.status-pill {
+  display: inline-block;
+  padding: 2px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.status-confirmed { background: #e3f3ea; color: var(--success); }
+.status-cancelled { background: #fde7e7; color: var(--error); }
+.status-noshow { background: #fff4e0; color: var(--warning); }
+.modal-note {
+  background: #fffbf1; border: 1px dashed #e9b949;
+  padding: 12px 14px; border-radius: 8px;
+  font-size: 13px; color: #6b5618;
+  margin-top: 14px;
+}
+.modal-note-label {
+  font-size: 10px; font-weight: 700; color: #997e1f;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.modal-foot {
+  padding: 14px 24px;
+  background: var(--bg);
+  display: flex; gap: 10px; justify-content: flex-end;
+  border-top: 1px solid var(--border);
+}
+.btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: all 0.12s;
+}
+.btn-ghost { background: transparent; color: var(--ink-soft); border: 1.5px solid var(--border); }
+.btn-ghost:hover { background: white; }
+.btn-danger { background: var(--error); color: white; }
+.btn-danger:hover:not(:disabled) { background: #a53838; }
+.btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+.spinner-inline {
+  width: 12px; height: 12px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.new-badge {
+  background: var(--accent); color: #5c4a11;
+  padding: 1px 6px; border-radius: 8px;
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+
+/* Toast */
+.toast {
+  position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: white;
+  padding: 10px 16px; border-radius: 8px;
+  font-size: 13px; font-weight: 500;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  z-index: 900;
+}
+.toast.error { background: var(--error); }
+.toast.success { background: var(--success); }
+
+/* =============== MOBILE =============== */
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .brand-text { display: none; }
+  .brand-sub { display: none; }
+  .cal-title { font-size: 18px; min-width: 0; }
+  .toolbar { gap: 10px; }
+  .doctor-filter { order: 3; width: 100%; justify-content: center; }
+  .main { padding: 16px 12px 40px; }
+}
+@media (max-width: 640px) {
+  :root {
+    --cal-hour-height: 48px;
+    --cal-time-col-width: 48px;
+  }
+  .day-header-doctor { padding: 8px; }
+  .doctor-head-name { font-size: 11px; }
+  .doctor-head-role { display: none; }
+  .appt-block .ab-type { display: none; }
+  .appt-block .ab-name { font-size: 11px; }
+  .toolbar-right .btn-add span:not(.plus) { display: none; }
+  .week-header-cell .wh-day { font-size: 9px; }
+  .week-header-cell .wh-date { font-size: 14px; }
+  .week-header-cell .wh-count { font-size: 9px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div v-if="initialLoading" class="loading-overlay">
+    <div class="spinner-big"></div>
+  </div>
+
+  <header v-if="!initialLoading" class="header">
+    <div class="header-left">
+      <div class="brand-mark">P</div>
+      <div>
+        <div class="brand-text">Praxmate</div>
+        <div class="brand-sub" v-if="practice">{{ practice.name }}</div>
+      </div>
+      <nav class="nav-links">
+        <a href="/admin/dashboard.html" class="nav-link">Dashboard</a>
+        <a href="/admin/new-appointment.html" class="nav-link">Neuer Termin</a>
+        <a href="/admin/calendar.html" class="nav-link active">Kalender</a>
+      </nav>
+    </div>
+    <div class="user-menu" @click="logout">
+      <div class="user-avatar">{{ userInitials }}</div>
+      <div class="user-info">
+        <div class="user-name">{{ user?.name }}</div>
+        <div class="user-role">Abmelden →</div>
+      </div>
+    </div>
+  </header>
+
+  <main v-if="!initialLoading" class="main">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <button class="tb-btn tb-today" @click="goToday">Heute</button>
+        <button class="tb-btn" @click="navigate(-1)" aria-label="Vorheriger Zeitraum">‹</button>
+        <button class="tb-btn" @click="navigate(1)" aria-label="Nächster Zeitraum">›</button>
+      </div>
+
+      <div class="toolbar-center">
+        <div class="cal-title">{{ viewTitle }}</div>
+      </div>
+
+      <div class="toolbar-right">
+        <div class="view-switcher">
+          <button class="view-btn" :class="{ active: view === 'day' }" @click="setView('day')">Tag</button>
+          <button class="view-btn" :class="{ active: view === 'week' }" @click="setView('week')">Woche</button>
+          <button class="view-btn" :class="{ active: view === 'month' }" @click="setView('month')">Monat</button>
+        </div>
+        <a href="/admin/new-appointment.html" class="btn-add">
+          <span class="plus">+</span><span> Termin</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Doctor filter -->
+    <div class="doctor-filter" style="margin-bottom: 16px;">
+      <button
+        class="doctor-chip"
+        :class="{ active: doctorFilter === 'all' }"
+        @click="doctorFilter = 'all'"
+      >
+        <span class="doctor-chip-avatar" style="background: var(--ink-soft);">∀</span>
+        Alle Behandler
+      </button>
+      <button
+        v-for="d in doctors"
+        :key="d.id"
+        class="doctor-chip"
+        :class="{ active: doctorFilter === d.id }"
+        @click="doctorFilter = d.id"
+      >
+        <span class="doctor-chip-avatar">{{ d.avatar_initials }}</span>
+        {{ d.name.replace('Frau ', '').replace('Herr ', '').split(' ').slice(-2).join(' ') }}
+      </button>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="cal-container">
+      <!-- DAY VIEW -->
+      <div v-if="view === 'day'" class="day-view">
+        <div class="day-header">
+          <div></div>
+          <div class="day-header-doctors" :style="{ gridTemplateColumns: 'repeat(' + visibleDoctors.length + ', 1fr)' }">
+            <div v-for="d in visibleDoctors" :key="d.id" class="day-header-doctor">
+              <div class="doctor-head-avatar">{{ d.avatar_initials }}</div>
+              <div class="doctor-head-info">
+                <div class="doctor-head-name">{{ d.name.replace('Frau ', '').replace('Herr ', '') }}</div>
+                <div class="doctor-head-role">{{ d.role }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="day-body">
+          <div class="day-hours">
+            <div v-for="h in displayHours" :key="h" class="day-hour-label">
+              {{ String(h).padStart(2, '0') }}:00
+            </div>
+          </div>
+
+          <div class="day-tracks" :style="{ gridTemplateColumns: 'repeat(' + visibleDoctors.length + ', 1fr)' }">
+            <div
+              v-for="d in visibleDoctors"
+              :key="d.id"
+              class="day-track"
+              :style="{ height: (displayHours.length * hourHeight) + 'px' }"
+            >
+              <!-- Hour lines -->
+              <div
+                v-for="(h, idx) in displayHours"
+                :key="'h-'+h"
+                class="day-hour-line"
+                :style="{ top: (idx * hourHeight) + 'px' }"
+              ></div>
+              <div
+                v-for="(h, idx) in displayHours"
+                :key="'h2-'+h"
+                class="day-hour-line half"
+                :style="{ top: (idx * hourHeight + hourHeight / 2) + 'px' }"
+              ></div>
+
+              <!-- Working hours background -->
+              <div
+                v-for="(block, bi) in getWorkingBlocks(d.id)"
+                :key="'w-'+bi"
+                class="day-working"
+                :style="block"
+              ></div>
+
+              <!-- Empty slot click area (covers entire track) -->
+              <div
+                class="day-empty-slot"
+                :style="{ top: 0, height: (displayHours.length * hourHeight) + 'px' }"
+                @click="createAppointmentAt(d.id, $event)"
+              ></div>
+
+              <!-- Appointments -->
+              <div
+                v-for="a in appointmentsForDoctor(d.id)"
+                :key="a.id"
+                class="appt-block"
+                :class="{
+                  short: a._heightPx < 40,
+                  cancelled: a.status === 'cancelled',
+                  noshow: a.status === 'noshow',
+                  dragging: draggingId === a.id
+                }"
+                :data-type="a.type_code"
+                :style="{ top: a._topPx + 'px', height: a._heightPx + 'px' }"
+                @mousedown="startDrag($event, a, d.id)"
+                @touchstart.passive="startDrag($event, a, d.id)"
+              >
+                <div class="ab-time">{{ formatTime(a.start_datetime) }}–{{ formatTime(a.end_datetime) }}</div>
+                <div class="ab-name">{{ a.first_name }} {{ a.last_name }}</div>
+                <div class="ab-type">{{ a.type_name }}</div>
+                <div v-if="a.is_new_patient" class="ab-new-dot" title="Neupatient"></div>
+              </div>
+            </div>
+
+            <!-- NOW LINE (only if today) -->
+            <div v-if="isViewingToday" class="now-line" :style="{ top: nowLineTop + 'px' }"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEK VIEW -->
+      <div v-else-if="view === 'week'" class="week-view">
+        <div class="week-header" :style="{ gridTemplateColumns: 'var(--cal-time-col-width) repeat(7, 1fr)' }">
+          <div></div>
+          <div
+            v-for="d in weekDays"
+            :key="d.dateStr"
+            class="week-header-cell"
+            :class="{ today: d.isToday }"
+            @click="jumpToDay(d.dateStr)"
+          >
+            <div class="wh-day">{{ d.dayShort }}</div>
+            <div class="wh-date">{{ d.dayNum }}</div>
+            <div class="wh-count" v-if="d.count > 0">{{ d.count }} Termin{{ d.count > 1 ? 'e' : '' }}</div>
+          </div>
+        </div>
+
+        <div class="week-body" :style="{ gridTemplateColumns: 'repeat(7, 1fr)' }">
+          <!-- Hour labels (absolute overlay) -->
+          <div
+            v-for="(h, idx) in displayHours"
+            :key="'hl-'+h"
+            class="week-hour-label"
+            :style="{ top: (idx * hourHeight - 6) + 'px' }"
+          >
+            {{ String(h).padStart(2, '0') }}:00
+          </div>
+
+          <div
+            v-for="(d, di) in weekDays"
+            :key="d.dateStr"
+            class="week-day-col"
+            :style="{ height: (displayHours.length * hourHeight) + 'px' }"
+          >
+            <div
+              v-for="(h, idx) in displayHours"
+              :key="'whl-'+h"
+              class="week-hour-line-full"
+              :style="{ top: (idx * hourHeight) + 'px' }"
+            ></div>
+            <div
+              v-for="(h, idx) in displayHours"
+              :key="'whl2-'+h"
+              class="week-hour-line-full half"
+              :style="{ top: (idx * hourHeight + hourHeight / 2) + 'px' }"
+            ></div>
+
+            <div
+              v-for="a in appointmentsForDay(d.dateStr)"
+              :key="a.id"
+              class="appt-block"
+              :class="{
+                short: a._heightPx < 30,
+                cancelled: a.status === 'cancelled',
+                noshow: a.status === 'noshow',
+                dragging: draggingId === a.id
+              }"
+              :data-type="a.type_code"
+              :style="{ top: a._topPx + 'px', height: a._heightPx + 'px' }"
+              @mousedown="startDrag($event, a, a.doctor_id)"
+              @touchstart.passive="startDrag($event, a, a.doctor_id)"
+            >
+              <div class="ab-time">{{ formatTime(a.start_datetime) }}</div>
+              <div class="ab-name">{{ a.last_name }}</div>
+              <div v-if="a.is_new_patient" class="ab-new-dot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MONTH VIEW -->
+      <div v-else class="month-view">
+        <div class="month-header">
+          <div v-for="d in ['Mo','Di','Mi','Do','Fr','Sa','So']" :key="'mh-'+d" class="month-dayname">{{ d }}</div>
+        </div>
+        <div class="month-grid">
+          <div
+            v-for="cell in monthCells"
+            :key="cell.dateStr"
+            class="month-cell"
+            :class="{
+              today: cell.isToday,
+              'other-month': cell.otherMonth,
+              weekend: cell.isWeekend,
+              empty: cell.appointments.length === 0 && !cell.otherMonth
+            }"
+            @click="onMonthCellClick(cell)"
+          >
+            <div class="month-cell-head">
+              <span class="month-cell-date" :class="{ 'is-today': cell.isToday }">{{ cell.dayNum }}</span>
+              <span v-if="cell.appointments.length > 0" class="month-cell-count">
+                {{ cell.appointments.length }}
+              </span>
+            </div>
+            <div class="month-cell-body">
+              <div
+                v-for="a in cell.appointments.slice(0, 4)"
+                :key="a.id"
+                class="month-appt"
+                :data-type="a.type_code"
+                @click.stop="openAppointment(a)"
+                :class="{ cancelled: a.status === 'cancelled' }"
+              >
+                <span class="ma-time">{{ formatTime(a.start_datetime) }}</span>
+                <span class="ma-name">{{ a.last_name }}</span>
+                <span v-if="a.is_new_patient" class="ma-new-dot"></span>
+              </div>
+              <div v-if="cell.appointments.length > 4" class="month-more" @click.stop="jumpToDay(cell.dateStr)">
+                +{{ cell.appointments.length - 4 }} weitere
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEGEND -->
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#2d6a8e;"></span>Kontrolle</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#2a9d8f;"></span>PZR</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#5e48a6;"></span>Füllung</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#c84545;"></span>Schmerz</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#8a6a3f;"></span>Prothetik</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#2d8e5f;"></span>Kinder</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#9a4d9e;"></span>Weisheitszahn</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#e08a1f;"></span>Neuaufnahme</div>
+      <div class="legend-item"><span class="legend-dot" style="background: var(--accent);border-radius:50%;width:8px;height:8px;margin-left:2px;"></span>Neupatient</div>
+    </div>
+  </main>
+
+  <!-- APPOINTMENT DETAIL MODAL -->
+  <div v-if="selectedAppt" class="modal-backdrop" @click.self="closeAppointment">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <div class="modal-badge">{{ selectedAppt.booking_code }}</div>
+          <div class="modal-title">{{ selectedAppt.first_name }} {{ selectedAppt.last_name }}</div>
+          <div class="modal-sub">{{ formatFullDate(selectedAppt.start_datetime) }} um {{ formatTime(selectedAppt.start_datetime) }} Uhr</div>
+        </div>
+        <button class="modal-close" @click="closeAppointment" aria-label="Schließen">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-label">Status</div>
+          <div class="detail-value">
+            <span class="status-pill" :class="'status-' + selectedAppt.status">
+              {{ statusLabel(selectedAppt.status) }}
+            </span>
+          </div>
+
+          <div class="detail-label">Behandlung</div>
+          <div class="detail-value">{{ selectedAppt.type_icon }} {{ selectedAppt.type_name }} · {{ selectedAppt.duration_minutes }} Min</div>
+
+          <div class="detail-label">Behandler</div>
+          <div class="detail-value">{{ selectedAppt.doctor_name || '—' }}</div>
+
+          <div class="detail-label">Geburtsdatum</div>
+          <div class="detail-value">{{ formatBirthDate(selectedAppt.birth_date) }}</div>
+
+          <div class="detail-label">Telefon</div>
+          <div class="detail-value"><a :href="'tel:' + selectedAppt.phone">{{ selectedAppt.phone }}</a></div>
+
+          <div class="detail-label">E-Mail</div>
+          <div class="detail-value"><a :href="'mailto:' + selectedAppt.email">{{ selectedAppt.email }}</a></div>
+
+          <div class="detail-label">Versicherung</div>
+          <div class="detail-value">
+            {{ insuranceLabel(selectedAppt.insurance_type) }}
+            <span v-if="selectedAppt.is_new_patient" class="new-badge" style="margin-left:6px;">Neupatient</span>
+          </div>
+
+          <div class="detail-label">Quelle</div>
+          <div class="detail-value">{{ sourceLabel(selectedAppt.source) }}</div>
+        </div>
+
+        <div v-if="selectedAppt.patient_note" class="modal-note">
+          <div class="modal-note-label">Notiz des Patienten</div>
+          {{ selectedAppt.patient_note }}
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn btn-ghost" @click="closeAppointment">Schließen</button>
+        <button
+          v-if="selectedAppt.status === 'confirmed'"
+          class="btn btn-danger"
+          :disabled="cancelling"
+          @click="cancelAppointment"
+        >
+          <span v-if="cancelling" class="spinner-inline"></span>
+          <span>{{ cancelling ? 'Wird abgesagt...' : 'Termin absagen' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div v-if="toastMsg" class="toast" :class="toastType">{{ toastMsg }}</div>
+</div>
+
+<script>
+const API_BASE = 'https://praxmate-api-hild.hguencavdi.workers.dev/api';
+const { createApp, ref, computed, onMounted, watch } = Vue;
+
+createApp({
+  setup() {
+    const token = localStorage.getItem('praxmate_token');
+    if (!token) { window.location.href = '/admin/'; return {}; }
+
+    const initialLoading = ref(true);
+    const user = ref(null);
+    const practice = ref(null);
+    const doctors = ref([]);
+    const workingHoursByDoctor = ref({}); // { doc_id: [{ dow, start, end }, ...] }
+    const allAppointments = ref([]);
+    const selectedAppt = ref(null);
+    const cancelling = ref(false);
+    const toastMsg = ref('');
+    const toastType = ref('');
+    let toastTimer = null;
+
+    // View state
+    const view = ref('week'); // 'day', 'week', or 'month'
+    const viewDate = ref(new Date()); // Date object, represents "center" of view
+    const doctorFilter = ref('all');
+    const now = ref(new Date());
+
+    // Drag & drop state
+    const draggingId = ref(null);
+    const dragGhost = ref(null);
+    const dragTarget = ref(null); // { doctorId, dateStr, time, minutesFromStart, valid }
+    const dragState = { startX: 0, startY: 0, offsetY: 0, started: false, appt: null, sourceDoctorId: null, ghostEl: null, indicatorEl: null };
+
+    // Calendar config
+    const displayStartHour = 7;
+    const displayEndHour = 19;
+    const displayHours = computed(() => {
+      const arr = [];
+      for (let h = displayStartHour; h <= displayEndHour; h++) arr.push(h);
+      return arr;
+    });
+    const hourHeight = 52;
+
+    const userInitials = computed(() => {
+      if (!user.value) return '';
+      return user.value.name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
+    });
+
+    // ========== NAV ==========
+    function goToday() {
+      viewDate.value = new Date();
+      loadAppointments();
+    }
+
+    function navigate(dir) {
+      const d = new Date(viewDate.value);
+      if (view.value === 'day') {
+        d.setDate(d.getDate() + dir);
+        // Skip weekends in day view
+        if (d.getDay() === 0) d.setDate(d.getDate() + (dir > 0 ? 1 : -2));
+        else if (d.getDay() === 6) d.setDate(d.getDate() + (dir > 0 ? 2 : -1));
+      } else if (view.value === 'week') {
+        d.setDate(d.getDate() + 7 * dir);
+      } else {
+        // month
+        d.setMonth(d.getMonth() + dir);
+        d.setDate(1); // avoid "31 Feb" overflow issues
+      }
+      viewDate.value = d;
+      loadAppointments();
+    }
+
+    function setView(v) {
+      view.value = v;
+      loadAppointments();
+    }
+
+    function jumpToDay(dateStr) {
+      viewDate.value = new Date(dateStr + 'T00:00:00');
+      view.value = 'day';
+      loadAppointments();
+    }
+
+    // ========== COMPUTED ==========
+    const isViewingToday = computed(() => {
+      if (view.value !== 'day') return false;
+      const today = new Date();
+      return viewDate.value.toDateString() === today.toDateString();
+    });
+
+    const viewTitle = computed(() => {
+      if (view.value === 'day') {
+        return viewDate.value.toLocaleDateString('de-DE', {
+          weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+        });
+      } else if (view.value === 'week') {
+        const { monday, sunday } = getWeekRange(viewDate.value);
+        const sameMonth = monday.getMonth() === sunday.getMonth();
+        if (sameMonth) {
+          return `${monday.getDate()}. – ${sunday.getDate()}. ${sunday.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}`;
+        } else {
+          return `${monday.toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })} – ${sunday.toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+        }
+      } else {
+        // month
+        return viewDate.value.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+      }
+    });
+
+    function getWeekRange(d) {
+      const day = d.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      const monday = new Date(d);
+      monday.setDate(d.getDate() + diff);
+      monday.setHours(0, 0, 0, 0);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+      return { monday, sunday };
+    }
+
+    const weekDays = computed(() => {
+      if (view.value !== 'week') return [];
+      const { monday } = getWeekRange(viewDate.value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const days = [];
+      const dayShorts = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const dateStr = d.toISOString().slice(0, 10);
+        days.push({
+          dateStr,
+          dayShort: dayShorts[i],
+          dayNum: d.getDate(),
+          isToday: d.getTime() === today.getTime(),
+          count: allAppointments.value.filter(a => a.start_datetime.startsWith(dateStr) && a.status !== 'cancelled').length,
+        });
+      }
+      return days;
+    });
+
+    const monthCells = computed(() => {
+      if (view.value !== 'month') return [];
+      const year = viewDate.value.getFullYear();
+      const month = viewDate.value.getMonth();
+      const firstOfMonth = new Date(year, month, 1);
+      const lastOfMonth = new Date(year, month + 1, 0);
+      const { monday: gridStart } = getWeekRange(firstOfMonth);
+      const { sunday: gridEnd } = getWeekRange(lastOfMonth);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const cells = [];
+      const cur = new Date(gridStart);
+      while (cur <= gridEnd) {
+        const dateStr = cur.toISOString().slice(0, 10);
+        const dow = cur.getDay(); // 0=Sun
+        const dayAppts = allAppointments.value
+          .filter(a => a.start_datetime.startsWith(dateStr))
+          .filter(a => doctorFilter.value === 'all' || a.doctor_id === doctorFilter.value)
+          .sort((a, b) => a.start_datetime.localeCompare(b.start_datetime))
+          .map(a => enrichAppointment(a));
+
+        cells.push({
+          dateStr,
+          dayNum: cur.getDate(),
+          isToday: cur.getTime() === today.getTime(),
+          otherMonth: cur.getMonth() !== month,
+          isWeekend: dow === 0 || dow === 6,
+          appointments: dayAppts,
+        });
+        cur.setDate(cur.getDate() + 1);
+      }
+      return cells;
+    });
+
+    function onMonthCellClick(cell) {
+      if (cell.otherMonth) return;
+      jumpToDay(cell.dateStr);
+    }
+
+    const visibleDoctors = computed(() => {
+      if (doctorFilter.value === 'all') return doctors.value;
+      return doctors.value.filter(d => d.id === doctorFilter.value);
+    });
+
+    const nowLineTop = computed(() => {
+      const h = now.value.getHours();
+      const m = now.value.getMinutes();
+      if (h < displayStartHour) return -1000;
+      if (h > displayEndHour) return 10000;
+      const minutesFromStart = (h - displayStartHour) * 60 + m;
+      return (minutesFromStart / 60) * hourHeight;
+    });
+
+    // ========== APPOINTMENT POSITIONING ==========
+    function enrichAppointment(a) {
+      const start = new Date(a.start_datetime);
+      const end = new Date(a.end_datetime);
+      const sh = start.getHours();
+      const sm = start.getMinutes();
+      const minutesFromStart = (sh - displayStartHour) * 60 + sm;
+      const topPx = (minutesFromStart / 60) * hourHeight;
+      const heightPx = Math.max(22, (a.duration_minutes / 60) * hourHeight - 1);
+      // Type code from id: apt_kontrolle -> kontrolle, apt_weisheit -> weisheitszahn (alias)
+      let typeCode = a.type_name ? a.type_name.toLowerCase().split(/\s|[/()]/)[0] : '';
+      // Map type_icon->code more reliably via known icons
+      const iconToCode = {
+        '🦷':'kontrolle','✨':'pzr','◉':'fuellung','⚡':'schmerz',
+        '⎈':'prothetik','🧸':'kinder','⌕':'weisheitszahn','★':'neuaufnahme',
+      };
+      if (a.type_icon && iconToCode[a.type_icon]) typeCode = iconToCode[a.type_icon];
+      return { ...a, _topPx: topPx, _heightPx: heightPx, type_code: typeCode };
+    }
+
+    function appointmentsForDoctor(doctorId) {
+      const dateStr = viewDate.value.toISOString().slice(0, 10);
+      return allAppointments.value
+        .filter(a => a.doctor_id === doctorId && a.start_datetime.startsWith(dateStr))
+        .map(enrichAppointment);
+    }
+
+    function appointmentsForDay(dateStr) {
+      return allAppointments.value
+        .filter(a => a.start_datetime.startsWith(dateStr))
+        .filter(a => doctorFilter.value === 'all' || a.doctor_id === doctorFilter.value)
+        .map(enrichAppointment);
+    }
+
+    // Working hours blocks (for background highlight)
+    function getWorkingBlocks(doctorId) {
+      const whs = workingHoursByDoctor.value[doctorId];
+      if (!whs) return [];
+      const dow = viewDate.value.getDay();
+      const nDow = dow === 0 ? 7 : dow; // our data uses 1=Mo...7=So
+      return whs
+        .filter(w => w.day_of_week === nDow)
+        .map(w => {
+          const [sh, sm] = w.start_time.split(':').map(Number);
+          const [eh, em] = w.end_time.split(':').map(Number);
+          const startMin = (sh - displayStartHour) * 60 + sm;
+          const endMin = (eh - displayStartHour) * 60 + em;
+          return {
+            top: (startMin / 60 * hourHeight) + 'px',
+            height: ((endMin - startMin) / 60 * hourHeight) + 'px',
+          };
+        });
+    }
+
+    // ========== LOAD DATA ==========
+    async function api(path, opts = {}) {
+      const res = await fetch(API_BASE + path, {
+        ...opts,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token,
+          ...(opts.headers || {})
+        }
+      });
+      if (res.status === 401) {
+        localStorage.removeItem('praxmate_token');
+        window.location.href = '/admin/';
+        return null;
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      return data;
+    }
+
+    async function loadMe() {
+      const data = await api('/admin/auth/me');
+      user.value = data?.user;
+      practice.value = data?.practice;
+    }
+
+    async function loadDoctors() {
+      const data = await api('/doctors');
+      doctors.value = data || [];
+      // Load working hours per doctor (via slots/availability? — we need direct endpoint)
+      // For now, hardcode Hild defaults: all doctors same schedule
+      // Mo-Mi: 08-12 + 15-18, Do: 08-12 + 13-17, Fr: 08-15
+      const defaultHours = [
+        { day_of_week: 1, start_time: '08:00', end_time: '12:00' },
+        { day_of_week: 1, start_time: '15:00', end_time: '18:00' },
+        { day_of_week: 2, start_time: '08:00', end_time: '12:00' },
+        { day_of_week: 2, start_time: '15:00', end_time: '18:00' },
+        { day_of_week: 3, start_time: '08:00', end_time: '12:00' },
+        { day_of_week: 3, start_time: '15:00', end_time: '18:00' },
+        { day_of_week: 4, start_time: '08:00', end_time: '12:00' },
+        { day_of_week: 4, start_time: '13:00', end_time: '17:00' },
+        { day_of_week: 5, start_time: '08:00', end_time: '15:00' },
+      ];
+      const hours = {};
+      for (const d of doctors.value) hours[d.id] = defaultHours;
+      workingHoursByDoctor.value = hours;
+    }
+
+    async function loadAppointments() {
+      let from, to;
+      if (view.value === 'day') {
+        from = viewDate.value.toISOString().slice(0, 10);
+        to = from;
+      } else if (view.value === 'week') {
+        const { monday, sunday } = getWeekRange(viewDate.value);
+        from = monday.toISOString().slice(0, 10);
+        to = sunday.toISOString().slice(0, 10);
+      } else {
+        // month — include padding weeks from adjacent months
+        const firstOfMonth = new Date(viewDate.value.getFullYear(), viewDate.value.getMonth(), 1);
+        const lastOfMonth = new Date(viewDate.value.getFullYear(), viewDate.value.getMonth() + 1, 0);
+        const { monday: gridStart } = getWeekRange(firstOfMonth);
+        const { sunday: gridEnd } = getWeekRange(lastOfMonth);
+        from = gridStart.toISOString().slice(0, 10);
+        to = gridEnd.toISOString().slice(0, 10);
+      }
+      try {
+        const data = await api(`/admin/appointments?from=${from}&to=${to}`);
+        allAppointments.value = data?.appointments || [];
+      } catch (e) {
+        showToast('Fehler beim Laden: ' + e.message, 'error');
+      }
+    }
+
+    // ========== DRAG & DROP ==========
+    const DRAG_THRESHOLD = 4; // px before drag starts (vs click)
+    const SNAP_MINUTES = 5;   // snap grid
+
+    function startDrag(event, appt, sourceDoctorId) {
+      if (appt.status === 'cancelled') return;
+      // Only left button for mouse
+      if (event.type === 'mousedown' && event.button !== 0) return;
+
+      const target = event.currentTarget;
+      const rect = target.getBoundingClientRect();
+      const pointer = event.touches ? event.touches[0] : event;
+
+      dragState.startX = pointer.clientX;
+      dragState.startY = pointer.clientY;
+      dragState.offsetY = pointer.clientY - rect.top;
+      dragState.offsetX = pointer.clientX - rect.left;
+      dragState.width = rect.width;
+      dragState.height = rect.height;
+      dragState.started = false;
+      dragState.appt = appt;
+      dragState.sourceDoctorId = sourceDoctorId;
+      dragState.sourceEl = target;
+
+      function onMove(e) {
+        const p = e.touches ? e.touches[0] : e;
+        const dx = Math.abs(p.clientX - dragState.startX);
+        const dy = Math.abs(p.clientY - dragState.startY);
+
+        if (!dragState.started) {
+          if (dx < DRAG_THRESHOLD && dy < DRAG_THRESHOLD) return;
+          // Threshold reached → begin drag
+          beginDrag();
+        }
+
+        updateDrag(p);
+        if (e.cancelable) e.preventDefault();
+      }
+
+      function onEnd(e) {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onEnd);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onEnd);
+        document.removeEventListener('touchcancel', onEnd);
+
+        if (!dragState.started) {
+          // Was a click — open modal
+          openAppointment(appt);
+          dragState.appt = null;
+          return;
+        }
+
+        endDrag();
+      }
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onEnd);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend', onEnd);
+      document.addEventListener('touchcancel', onEnd);
+    }
+
+    function beginDrag() {
+      dragState.started = true;
+      draggingId.value = dragState.appt.id;
+
+      // Create ghost element
+      const ghost = dragState.sourceEl.cloneNode(true);
+      ghost.classList.add('drag-ghost');
+      ghost.style.width = dragState.width + 'px';
+      ghost.style.height = dragState.height + 'px';
+      document.body.appendChild(ghost);
+      dragState.ghostEl = ghost;
+
+      // Indicator (drop target line)
+      const indicator = document.createElement('div');
+      indicator.className = 'drop-indicator';
+      dragState.indicatorEl = indicator;
+    }
+
+    function updateDrag(pointer) {
+      if (!dragState.ghostEl) return;
+      // Position ghost
+      dragState.ghostEl.style.left = (pointer.clientX - dragState.offsetX) + 'px';
+      dragState.ghostEl.style.top = (pointer.clientY - dragState.offsetY) + 'px';
+
+      // Temporarily hide ghost so elementFromPoint finds the track underneath
+      dragState.ghostEl.style.display = 'none';
+      const underEl = document.elementFromPoint(pointer.clientX, pointer.clientY);
+      dragState.ghostEl.style.display = '';
+
+      // Find the nearest day-track or week-day-col
+      const track = underEl ? underEl.closest('.day-track, .week-day-col') : null;
+      if (!track) {
+        if (dragState.indicatorEl.parentNode) dragState.indicatorEl.remove();
+        dragTarget.value = null;
+        return;
+      }
+
+      // Determine target doctor + date
+      let targetDoctorId, targetDateStr;
+      if (track.classList.contains('day-track')) {
+        // Day view: track.dataset.doctorId is set via index; we need a different approach
+        // Find doctor index by position in tracks container
+        const tracks = track.parentElement;
+        const idx = Array.from(tracks.children).filter(c => c.classList.contains('day-track')).indexOf(track);
+        targetDoctorId = visibleDoctors.value[idx]?.id;
+        targetDateStr = viewDate.value.toISOString().slice(0, 10);
+      } else {
+        // Week view: source doctor stays the same; date changes
+        targetDoctorId = dragState.sourceDoctorId;
+        const weekCols = track.parentElement;
+        const idx = Array.from(weekCols.children).filter(c => c.classList.contains('week-day-col')).indexOf(track);
+        targetDateStr = weekDays.value[idx]?.dateStr;
+      }
+      if (!targetDoctorId || !targetDateStr) return;
+
+      // Calculate time from Y position relative to track
+      const trackRect = track.getBoundingClientRect();
+      const yOffset = pointer.clientY - trackRect.top - dragState.offsetY;
+      const totalMinutes = Math.max(0, (yOffset / hourHeight) * 60);
+      // Snap to SNAP_MINUTES
+      const snapped = Math.round(totalMinutes / SNAP_MINUTES) * SNAP_MINUTES;
+      const hour = displayStartHour + Math.floor(snapped / 60);
+      const min = snapped % 60;
+      const timeStr = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+
+      // Validate: only block on conflicts; warn on non-working hours
+      const dt = new Date(viewDate.value);
+      if (view.value === 'week') dt.setTime(new Date(targetDateStr + 'T00:00:00').getTime());
+      const dow = (dt.getDay() + 6) % 7 + 1; // 1=Mo..7=So
+      const workingOk = isWithinWorkingHours(targetDoctorId, dow, snapped, dragState.appt.duration_minutes);
+      const conflictOk = !hasConflict(targetDoctorId, targetDateStr, snapped, dragState.appt.duration_minutes, dragState.appt.id);
+      // Only conflicts are hard-invalid. Non-working hours → warn but allow.
+      const valid = conflictOk;
+      const warning = conflictOk && !workingOk;
+
+      // Place indicator
+      track.appendChild(dragState.indicatorEl);
+      dragState.indicatorEl.style.top = (snapped / 60 * hourHeight) + 'px';
+      dragState.indicatorEl.dataset.time = timeStr;
+      dragState.indicatorEl.classList.toggle('invalid', !valid);
+      dragState.indicatorEl.classList.toggle('warning', warning);
+
+      dragTarget.value = {
+        doctorId: targetDoctorId,
+        dateStr: targetDateStr,
+        timeStr,
+        minutesFromStart: snapped,
+        valid,
+        warning,
+      };
+    }
+
+    function isWithinWorkingHours(doctorId, dow, startMin, duration) {
+      const whs = workingHoursByDoctor.value[doctorId] || [];
+      // startMin is relative to displayStartHour (07:00)
+      const absStartMin = displayStartHour * 60 + startMin;
+      const absEndMin = absStartMin + duration;
+      return whs.some(w => {
+        if (w.day_of_week !== dow) return false;
+        const [wsH, wsM] = w.start_time.split(':').map(Number);
+        const [weH, weM] = w.end_time.split(':').map(Number);
+        const wStart = wsH * 60 + wsM;
+        const wEnd = weH * 60 + weM;
+        return absStartMin >= wStart && absEndMin <= wEnd;
+      });
+    }
+
+    function hasConflict(doctorId, dateStr, startMin, duration, excludeApptId) {
+      const absStartMin = displayStartHour * 60 + startMin;
+      const absEndMin = absStartMin + duration;
+      const newStart = new Date(`${dateStr}T${String(Math.floor(absStartMin / 60)).padStart(2,'0')}:${String(absStartMin % 60).padStart(2,'0')}:00`).getTime();
+      const newEnd = newStart + duration * 60000;
+      return allAppointments.value.some(a => {
+        if (a.id === excludeApptId) return false;
+        if (a.status === 'cancelled') return false;
+        if (a.doctor_id !== doctorId) return false;
+        if (!a.start_datetime.startsWith(dateStr)) return false;
+        const aStart = new Date(a.start_datetime).getTime();
+        const aEnd = new Date(a.end_datetime).getTime();
+        return newStart < aEnd && newEnd > aStart;
+      });
+    }
+
+    async function endDrag() {
+      const target = dragTarget.value;
+      const appt = dragState.appt;
+
+      // Cleanup UI
+      if (dragState.ghostEl) dragState.ghostEl.remove();
+      if (dragState.indicatorEl && dragState.indicatorEl.parentNode) dragState.indicatorEl.remove();
+      draggingId.value = null;
+      dragTarget.value = null;
+      dragState.started = false;
+      dragState.appt = null;
+
+      if (!target) return; // dropped outside
+
+      if (!target.valid) {
+        showToast('Zeitraum bereits belegt', 'error');
+        return;
+      }
+
+      // Check if changed
+      const currentStart = new Date(appt.start_datetime);
+      const newStartISO = `${target.dateStr}T${target.timeStr}:00`;
+      if (appt.start_datetime.startsWith(newStartISO) && appt.doctor_id === target.doctorId) {
+        return; // nothing changed
+      }
+
+      // If outside working hours, confirm with user first
+      if (target.warning) {
+        if (!confirm(`${target.timeStr} Uhr liegt außerhalb der Öffnungszeiten. Trotzdem verschieben?`)) {
+          return;
+        }
+      }
+
+      // Optimistic update
+      const idx = allAppointments.value.findIndex(x => x.id === appt.id);
+      const oldSnapshot = idx >= 0 ? { ...allAppointments.value[idx] } : null;
+      if (idx >= 0) {
+        const newEnd = new Date(new Date(newStartISO).getTime() + appt.duration_minutes * 60000);
+        allAppointments.value[idx] = {
+          ...allAppointments.value[idx],
+          start_datetime: newStartISO,
+          end_datetime: newEnd.toISOString().slice(0, 19),
+          doctor_id: target.doctorId,
+        };
+      }
+
+      try {
+        const updated = await api('/admin/appointments/' + appt.id, {
+          method: 'PUT',
+          body: JSON.stringify({
+            start_datetime: newStartISO,
+            doctor_id: target.doctorId,
+          }),
+        });
+        showToast(`Verschoben auf ${target.timeStr} Uhr`, 'success');
+      } catch (e) {
+        // Rollback
+        if (idx >= 0 && oldSnapshot) allAppointments.value[idx] = oldSnapshot;
+        if (e.message.includes('belegt')) {
+          showToast('Zeitraum inzwischen belegt', 'error');
+        } else {
+          showToast('Fehler: ' + e.message, 'error');
+        }
+      }
+    }
+
+    // ========== ACTIONS ==========
+    function openAppointment(appt) {
+      selectedAppt.value = { ...appt };
+    }
+    function closeAppointment() {
+      selectedAppt.value = null;
+    }
+    async function cancelAppointment() {
+      if (!selectedAppt.value) return;
+      const name = `${selectedAppt.value.first_name} ${selectedAppt.value.last_name}`;
+      const time = formatTime(selectedAppt.value.start_datetime);
+      if (!confirm(`Termin von ${name} um ${time} Uhr wirklich absagen?`)) return;
+      cancelling.value = true;
+      try {
+        await api('/admin/appointments/' + selectedAppt.value.id, {
+          method: 'DELETE',
+          body: JSON.stringify({ reason: 'Abgesagt durch Team' })
+        });
+        showToast('Termin abgesagt', 'success');
+        closeAppointment();
+        await loadAppointments();
+      } catch (e) {
+        showToast('Fehler: ' + e.message, 'error');
+      } finally {
+        cancelling.value = false;
+      }
+    }
+
+    function createAppointmentAt(doctorId, event) {
+      // Calculate time from click Y position
+      const rect = event.currentTarget.getBoundingClientRect();
+      const y = event.clientY - rect.top;
+      const minutes = Math.floor((y / hourHeight) * 60 / 15) * 15; // round to 15min
+      const hour = displayStartHour + Math.floor(minutes / 60);
+      const min = minutes % 60;
+      const dateStr = viewDate.value.toISOString().slice(0, 10);
+      const timeStr = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+
+      // Navigate to new-appointment with pre-fill (query params)
+      window.location.href = `/admin/new-appointment.html?doctor=${doctorId}&date=${dateStr}&time=${timeStr}`;
+    }
+
+    // ========== HELPERS ==========
+    function formatTime(iso) {
+      return new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    }
+    function formatFullDate(iso) {
+      if (!iso) return '';
+      return new Date(iso).toLocaleDateString('de-DE', {
+        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+      });
+    }
+    function formatBirthDate(iso) {
+      if (!iso) return '—';
+      return new Date(iso + 'T00:00:00').toLocaleDateString('de-DE');
+    }
+    function insuranceLabel(t) {
+      return t === 'gkv' ? 'GKV' : t === 'privat' ? 'Privat' : 'Selbstzahler';
+    }
+    function statusLabel(s) {
+      return { confirmed: 'Bestätigt', cancelled: 'Abgesagt', completed: 'Erledigt', noshow: 'Nicht erschienen' }[s] || s;
+    }
+    function sourceLabel(s) {
+      return { online: '🌐 Online vom Patienten', staff: '👤 Durch Team erfasst', phone: '☎ Telefonisch', walkin: '🚶 Walk-in' }[s] || s;
+    }
+
+    function showToast(msg, type = '') {
+      toastMsg.value = msg;
+      toastType.value = type;
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { toastMsg.value = ''; }, 3000);
+    }
+
+    async function logout() {
+      if (!confirm('Wirklich abmelden?')) return;
+      try { await api('/admin/auth/logout', { method: 'POST' }); } catch {}
+      localStorage.removeItem('praxmate_token');
+      localStorage.removeItem('praxmate_user');
+      window.location.href = '/admin/';
+    }
+
+    // Update "now" every minute
+    setInterval(() => { now.value = new Date(); }, 60000);
+
+    // Re-load when doctor filter changes (week view benefits)
+    // Day view: filter is visual only via visibleDoctors
+
+    onMounted(async () => {
+      try {
+        await Promise.all([loadMe(), loadDoctors()]);
+        await loadAppointments();
+        // Scroll to 08:00 on day view
+        setTimeout(() => {
+          const scrollTarget = document.querySelector('.day-body, .week-body');
+          if (scrollTarget) scrollTarget.scrollTop = 0;
+        }, 100);
+      } finally {
+        initialLoading.value = false;
+      }
+    });
+
+    return {
+      initialLoading, user, practice, doctors, view, viewDate, doctorFilter,
+      userInitials, viewTitle, isViewingToday,
+      displayHours, hourHeight, nowLineTop, weekDays, visibleDoctors,
+      monthCells, onMonthCellClick,
+      allAppointments,
+      selectedAppt, cancelling,
+      // Drag
+      draggingId, startDrag,
+      goToday, navigate, setView, jumpToDay,
+      appointmentsForDoctor, appointmentsForDay, getWorkingBlocks,
+      openAppointment, closeAppointment, cancelAppointment, createAppointmentAt,
+      formatTime, formatFullDate, formatBirthDate,
+      insuranceLabel, statusLabel, sourceLabel,
+      toastMsg, toastType, logout,
+    };
+  }
+}).mount('#app');
+</script>
+
+</body>
+</html>

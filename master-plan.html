@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+  size: A4;
+  margin: 18mm 16mm 18mm 16mm;
+  @bottom-right {
+    content: counter(page) " / " counter(pages);
+    font-size: 9pt;
+    color: #7a8b9c;
+    font-family: 'Helvetica Neue', sans-serif;
+  }
+  @top-left {
+    content: "Praxmate · Master Plan v1.0";
+    font-size: 8pt;
+    color: #7a8b9c;
+    font-family: 'Helvetica Neue', sans-serif;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  color: #1a2a3a;
+  font-size: 9.5pt;
+  line-height: 1.55;
+  margin: 0;
+}
+h1 {
+  font-family: Georgia, serif;
+  font-size: 22pt;
+  font-weight: 700;
+  color: #1a2a3a;
+  margin-top: 16pt;
+  margin-bottom: 8pt;
+  border-bottom: 2pt solid #2d6a8e;
+  padding-bottom: 4pt;
+  letter-spacing: -0.01em;
+  page-break-after: avoid;
+}
+h2 {
+  font-family: Georgia, serif;
+  font-size: 15pt;
+  font-weight: 700;
+  color: #2d6a8e;
+  margin-top: 20pt;
+  margin-bottom: 6pt;
+  page-break-after: avoid;
+}
+h3 {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11pt;
+  font-weight: 700;
+  color: #1a2a3a;
+  margin-top: 14pt;
+  margin-bottom: 4pt;
+  page-break-after: avoid;
+}
+h4 {
+  font-size: 10pt;
+  font-weight: 700;
+  color: #3d5368;
+  margin-top: 10pt;
+  margin-bottom: 3pt;
+}
+p { margin: 5pt 0; }
+ul, ol { margin: 5pt 0; padding-left: 18pt; }
+li { margin: 2pt 0; }
+strong { color: #1a2a3a; font-weight: 700; }
+em { color: #3d5368; }
+code {
+  font-family: 'SF Mono', 'Monaco', monospace;
+  background: #f4f8fa;
+  padding: 1pt 4pt;
+  border-radius: 2pt;
+  font-size: 8.5pt;
+  color: #2d6a8e;
+}
+pre {
+  background: #1a2a3a;
+  color: #e9b949;
+  padding: 10pt;
+  border-radius: 4pt;
+  font-family: 'SF Mono', 'Monaco', monospace;
+  font-size: 7.5pt;
+  line-height: 1.5;
+  overflow-x: auto;
+  page-break-inside: avoid;
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 8pt 0;
+  font-size: 8.5pt;
+  page-break-inside: avoid;
+}
+th {
+  background: #2d6a8e;
+  color: white;
+  font-weight: 700;
+  padding: 5pt 7pt;
+  text-align: left;
+  font-size: 8.5pt;
+  border: 1pt solid #2d6a8e;
+}
+td {
+  padding: 4pt 7pt;
+  border: 0.5pt solid #dde4e9;
+  font-size: 8.5pt;
+  vertical-align: top;
+}
+tr:nth-child(even) td { background: #f4f8fa; }
+hr {
+  border: none;
+  border-top: 1pt solid #dde4e9;
+  margin: 14pt 0;
+}
+blockquote {
+  border-left: 3pt solid #e9b949;
+  padding: 2pt 10pt;
+  margin: 8pt 0;
+  color: #3d5368;
+  font-style: italic;
+  background: #fffbf1;
+}
+.cover {
+  page-break-after: always;
+  text-align: center;
+  padding-top: 60mm;
+}
+.cover h1 {
+  border-bottom: none;
+  font-size: 42pt;
+  margin-bottom: 8pt;
+}
+.cover p {
+  font-size: 14pt;
+  color: #3d5368;
+  margin: 4pt 0;
+}
+.cover .meta {
+  margin-top: 40pt;
+  font-size: 9pt;
+  color: #7a8b9c;
+}
+</style>
+</head>
+<body>
+<div class="cover">
+  <h1>Praxmate</h1>
+  <p style="font-family:Georgia,serif;font-style:italic;color:#2d6a8e;font-size:16pt;">Master Plan v1.0</p>
+  <p>Admin-System für Arztpraxen</p>
+  <div class="meta">
+    <p style="margin-top:20pt;">20. April 2026 · Vaihingen an der Enz</p>
+    <p>Hasi Elektronic · Hamdi Güncavdi</p>
+  </div>
+</div>
+<h1 id="praxmate-admin-system-master-plan-v10">Praxmate Admin System — Master Plan v1.0</h1>
+<p><strong>Statü:</strong> Planning phase · <strong>Tarih:</strong> 20.04.2026 · <strong>Hedef:</strong> Praksis içi kullanım + hasta self-service birleşik platform</p>
+<hr />
+<h2 id="1-vizyon-tekrari">1. VİZYON TEKRARI</h2>
+<p>Praxmate iki kullanıcı grubuna hizmet eder:</p>
+<table>
+<thead>
+<tr>
+<th>Grup</th>
+<th>Kim</th>
+<th>Nerede</th>
+<th>Ana İhtiyaç</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hasta</strong></td>
+<td>Dış dünyadan gelen</td>
+<td>Praksis website'inde embed</td>
+<td>"Hızlıca randevu bulmak"</td>
+</tr>
+<tr>
+<td><strong>Praksis Ekibi</strong></td>
+<td>Behandler + ZFA</td>
+<td><code>admin.praxmate.de</code></td>
+<td>"Günlük operasyon yönetmek"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Aynı database, iki UI, farklı güvenlik seviyeleri.</strong></p>
+<hr />
+<h2 id="2-rol-matrisi">2. ROL MATRİSİ</h2>
+<h3 id="tanmlar">Tanımlar</h3>
+<table>
+<thead>
+<tr>
+<th>Rol</th>
+<th>Tipik kişi (Hild örneği)</th>
+<th>Sayı</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Owner</strong></td>
+<td>Juliane Hild (Praxisinhaberin)</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Doctor</strong></td>
+<td>Wolfgang Hild, Angestellter Zahnarzt</td>
+<td>1-N</td>
+</tr>
+<tr>
+<td><strong>Staff</strong></td>
+<td>Rezeptionistin, ZMA/ZFA</td>
+<td>1-N</td>
+</tr>
+</tbody>
+</table>
+<h3 id="yetki-matrisi">Yetki matrisi</h3>
+<table>
+<thead>
+<tr>
+<th>Aksiyon</th>
+<th>Owner</th>
+<th>Doctor</th>
+<th>Staff</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Takvim görüntüleme</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Kendi takvimini gör</td>
+<td>✅</td>
+<td>✅</td>
+<td>— (doktor değil)</td>
+</tr>
+<tr>
+<td>Başka doktorların takvimini gör</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Tüm praksisin haftalık görünümü</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Randevu yönetimi</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Yeni randevu oluştur (telefon için)</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Randevu değiştir</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Randevu iptal et</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Randevu sil (hard delete)</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Hasta yönetimi</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Hasta listesi görüntüle</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Hasta bilgisi düzenle</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Hasta sil (DSGVO Art. 17)</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Hasta tıbbi notu ekle</td>
+<td>✅</td>
+<td>✅</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Doktor yönetimi</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Doktor ekle</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Doktor çalışma saatini değiştir</td>
+<td>✅</td>
+<td>kendi için</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Doktor tatil/blok ekle</td>
+<td>✅</td>
+<td>kendi için</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Randevu tipi yönetimi</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Randevu tipi ekle/düzenle</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Randevu tipi etkinleştir/kapat</td>
+<td>✅</td>
+<td>—</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Ekip yönetimi</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Kullanıcı ekle</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Kullanıcı rolünü değiştir</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Kullanıcı pasifleştir</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Ayarlar</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Praksis bilgisi (logo, renk, adres)</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>E-mail/SMS template'leri</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Embed kodu</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Raporlar</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Günlük/haftalık randevu raporu</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>No-show istatistikleri</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Fatura ön raporu</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Audit log</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Kendi aktivitesini gör</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Herkesin aktivitesini gör</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Not:</strong> Tıbbi not yazmak staff'a kapalı çünkü DSGVO Art. 9 (besondere Kategorie). ZFA yazılı hasta notunu işleyebilir ama <strong>doktor'un medikal gözlemini</strong> hayır.</p>
+<hr />
+<h2 id="3-authentication-mimarisi">3. AUTHENTICATION MİMARİSİ</h2>
+<h3 id="flow-diyagram">Flow diyagramı</h3>
+<pre><code>┌─────────────────────────────────────────────────┐
+│ 1. İLK KURULUM (her praksis için bir kez)       │
+├─────────────────────────────────────────────────┤
+│ Owner e-mail'i admin panelde yaratılır          │
+│ Owner şifre belirler + e-mail doğrulama         │
+│ Owner diğer kullanıcıları davet eder             │
+└─────────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────────┐
+│ 2. GÜNLÜK GİRİŞ                                  │
+├─────────────────────────────────────────────────┤
+│ E-mail + şifre                                   │
+│ → &quot;Dieses Gerät vertrauen? (30 Tage)&quot;            │
+│ → Cihaz cookie alır (HttpOnly, Secure, 30 gün)  │
+│ → Sonraki girişlerde otomatik                    │
+└─────────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────────┐
+│ 3. 2FA (Opsiyonel, Owner zorunlu)                │
+├─────────────────────────────────────────────────┤
+│ TOTP (Google Authenticator, Authy)               │
+│ Recovery codes (10 tanelik, print edilebilir)    │
+└─────────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────────┐
+│ 4. SESSION YÖNETİMİ                              │
+├─────────────────────────────────────────────────┤
+│ Session token: 8 saat (activity refresh)        │
+│ Trusted device: 30 gün                           │
+│ &quot;Başka yerde oturum aç&quot; → logout all             │
+└─────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="guvenlik-detaylar">Güvenlik detayları</h3>
+<ul>
+<li><strong>Şifre</strong>: bcrypt (Cloudflare Workers'da <code>workers-bcrypt</code> yok → Web Crypto API ile PBKDF2 600k iteration SHA-256)</li>
+<li><strong>Şifre sıfırlama</strong>: magic link, 1 saat geçerli</li>
+<li><strong>Rate limiting</strong>: 5 başarısız giriş → 15 dakika blok (Cloudflare Workers KV)</li>
+<li><strong>Brute force</strong>: aynı IP'den 20 deneme/saat üst sınır</li>
+<li><strong>CSRF</strong>: SameSite=Strict cookie + double-submit token</li>
+</ul>
+<h3 id="sifre-politikas-not-kzvkbv-onerilerine-uygun">Şifre politikası (not: KZV/KBV önerilerine uygun)</h3>
+<ul>
+<li>Min 10 karakter</li>
+<li>En az 1 harf + 1 rakam</li>
+<li>Son 5 şifre tekrar edilemez</li>
+<li>90 günde bir değiştirme <strong>zorunlu değil</strong> (NIST 2024 rehberi — sık değiştirme güvenliği azaltır)</li>
+<li>Pwned password check (HIBP API, first 5 chars hash)</li>
+</ul>
+<hr />
+<h2 id="4-database-schema-genisletmeleri">4. DATABASE SCHEMA GENİŞLETMELERİ</h2>
+<p>Mevcut 9 tabloya eklenecek ve değiştirilecekler:</p>
+<h3 id="yeni-tablolar">Yeni tablolar</h3>
+<pre><code class="language-sql">-- Kullanıcılar (ekip üyeleri)
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,              -- 'usr_juliane'
+  practice_id TEXT NOT NULL,
+  email TEXT NOT NULL,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL,               -- 'owner' | 'doctor' | 'staff'
+  doctor_id TEXT,                   -- NULL staff için, sadece doctor rolünde
+  password_hash TEXT NOT NULL,
+  password_changed_at TEXT NOT NULL,
+  twofa_secret TEXT,                -- TOTP secret (encrypted)
+  twofa_enabled INTEGER DEFAULT 0,
+  email_verified_at TEXT,
+  invited_by_user_id TEXT,
+  invitation_token TEXT,
+  invitation_expires_at TEXT,
+  last_login_at TEXT,
+  last_login_ip TEXT,
+  active INTEGER DEFAULT 1,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (practice_id, email),
+  FOREIGN KEY (practice_id) REFERENCES practices(id),
+  FOREIGN KEY (doctor_id) REFERENCES doctors(id)
+);
+
+-- Session'lar (her aktif oturum bir satır)
+CREATE TABLE sessions (
+  id TEXT PRIMARY KEY,              -- session token (random 32 byte)
+  user_id TEXT NOT NULL,
+  practice_id TEXT NOT NULL,
+  device_id TEXT,                   -- trusted device ID (cookie)
+  ip_address TEXT,
+  user_agent TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  last_active_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  expires_at TEXT NOT NULL,
+  revoked INTEGER DEFAULT 0,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Trusted devices (30-day remember)
+CREATE TABLE trusted_devices (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  device_fingerprint TEXT NOT NULL,  -- ip+ua hash
+  device_name TEXT,                  -- &quot;Elena's Chrome&quot;
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  expires_at TEXT NOT NULL,
+  last_used_at TEXT,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Failed login attempts (rate limiting)
+CREATE TABLE login_attempts (
+  id TEXT PRIMARY KEY,
+  email TEXT,
+  ip_address TEXT,
+  success INTEGER,
+  attempted_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2FA recovery codes
+CREATE TABLE recovery_codes (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  code_hash TEXT NOT NULL,
+  used_at TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Password reset tokens
+CREATE TABLE password_resets (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  token_hash TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  used_at TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Hasta tıbbi notları (ayrı tablo — DSGVO için önemli)
+CREATE TABLE patient_notes (
+  id TEXT PRIMARY KEY,
+  patient_id TEXT NOT NULL,
+  practice_id TEXT NOT NULL,
+  doctor_id TEXT NOT NULL,          -- kim yazdı (sadece doctor rolü)
+  appointment_id TEXT,              -- ilgili randevu (opsiyonel)
+  note_type TEXT NOT NULL,          -- 'clinical' | 'administrative' | 'followup'
+  body TEXT NOT NULL,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (patient_id) REFERENCES patients(id),
+  FOREIGN KEY (doctor_id) REFERENCES doctors(id),
+  FOREIGN KEY (appointment_id) REFERENCES appointments(id)
+);
+</code></pre>
+<h3 id="mevcut-tablo-guncellemeleri">Mevcut tablo güncellemeleri</h3>
+<pre><code class="language-sql">-- Randevu oluşturanı takip et
+ALTER TABLE appointments ADD COLUMN created_by_user_id TEXT;
+ALTER TABLE appointments ADD COLUMN last_modified_by_user_id TEXT;
+ALTER TABLE appointments ADD COLUMN last_modified_at TEXT;
+
+-- Source netleştir
+-- mevcut 'source' alanı: 'online' | 'staff' | 'phone' | 'walkin'
+
+-- Audit log artık user_id de taşır (zaten actor_id var, anlamı genişler)
+</code></pre>
+<hr />
+<h2 id="5-api-endpoints-yeni-admin-routelar">5. API ENDPOINTS (yeni admin route'ları)</h2>
+<p>Mevcut 9 endpoint'e eklenecekler. <code>/api/admin/*</code> prefix ile:</p>
+<h3 id="auth">Auth</h3>
+<pre><code>POST   /api/admin/auth/login            → email+şifre, session token döner
+POST   /api/admin/auth/logout           → session revoke
+POST   /api/admin/auth/logout-all       → tüm cihazlardan çıkış
+GET    /api/admin/auth/me               → aktif kullanıcı bilgisi
+POST   /api/admin/auth/password/change  → şifre değiştir
+POST   /api/admin/auth/password/forgot  → reset e-mail gönder
+POST   /api/admin/auth/password/reset   → token ile şifre sıfırla
+POST   /api/admin/auth/2fa/setup        → TOTP secret + QR
+POST   /api/admin/auth/2fa/verify       → kod doğrula
+POST   /api/admin/auth/2fa/disable      → 2FA kapat
+GET    /api/admin/auth/sessions         → aktif oturumları listele
+DELETE /api/admin/auth/sessions/:id     → belirli oturumu sonlandır
+</code></pre>
+<h3 id="appointments-admin">Appointments (admin)</h3>
+<pre><code>GET    /api/admin/appointments          → filtreli liste (day/week/range)
+POST   /api/admin/appointments          → yeni randevu (telefon için)
+GET    /api/admin/appointments/:id      → detaylı
+PUT    /api/admin/appointments/:id      → değiştir
+DELETE /api/admin/appointments/:id      → iptal et
+POST   /api/admin/appointments/:id/reschedule → yeniden planla
+GET    /api/admin/appointments/calendar → takvim grid view
+</code></pre>
+<h3 id="patients-admin">Patients (admin)</h3>
+<pre><code>GET    /api/admin/patients              → liste + arama
+POST   /api/admin/patients              → manuel hasta oluştur
+GET    /api/admin/patients/:id          → detaylar + randevu geçmişi
+PUT    /api/admin/patients/:id          → güncelle
+DELETE /api/admin/patients/:id          → sil (DSGVO, owner-only)
+GET    /api/admin/patients/:id/notes    → tıbbi notlar (doctor-only)
+POST   /api/admin/patients/:id/notes    → not ekle (doctor-only)
+POST   /api/admin/patients/search       → hızlı arama (telefon sırasında)
+</code></pre>
+<h3 id="doctors-admin">Doctors (admin)</h3>
+<pre><code>GET    /api/admin/doctors               → liste
+POST   /api/admin/doctors               → yeni doktor (owner-only)
+PUT    /api/admin/doctors/:id           → güncelle
+DELETE /api/admin/doctors/:id           → pasifleştir
+GET    /api/admin/doctors/:id/hours     → çalışma saatleri
+PUT    /api/admin/doctors/:id/hours     → çalışma saatleri güncelle
+GET    /api/admin/doctors/:id/blocks    → blok zamanlar
+POST   /api/admin/doctors/:id/blocks    → blok ekle
+DELETE /api/admin/doctors/:id/blocks/:bid → blok sil
+</code></pre>
+<h3 id="appointment-types-admin">Appointment Types (admin)</h3>
+<pre><code>GET    /api/admin/appointment-types     → liste
+POST   /api/admin/appointment-types     → yeni (owner-only)
+PUT    /api/admin/appointment-types/:id → güncelle (owner-only)
+DELETE /api/admin/appointment-types/:id → pasifleştir
+</code></pre>
+<h3 id="users-admin">Users (admin)</h3>
+<pre><code>GET    /api/admin/users                 → liste (owner-only)
+POST   /api/admin/users/invite          → davet gönder (owner-only)
+PUT    /api/admin/users/:id             → rol değiştir (owner-only)
+DELETE /api/admin/users/:id             → pasifleştir
+POST   /api/admin/users/accept-invite   → davet kabul (public endpoint)
+</code></pre>
+<h3 id="practice-settings-admin">Practice Settings (admin)</h3>
+<pre><code>GET    /api/admin/practice              → praksis ayarları
+PUT    /api/admin/practice              → güncelle (owner-only)
+GET    /api/admin/practice/embed        → embed kodu
+GET    /api/admin/practice/stats        → temel istatistikler
+</code></pre>
+<h3 id="audit-log-admin">Audit Log (admin)</h3>
+<pre><code>GET    /api/admin/audit                 → log (owner görür hepsini, diğerleri kendi)
+</code></pre>
+<p><strong>Toplam yeni endpoint: 44</strong></p>
+<hr />
+<h2 id="6-ui-sayfalari-admin-panel">6. UI SAYFALARI — Admin Panel</h2>
+<h3 id="site-haritas">Site haritası</h3>
+<pre><code>/admin
+├── /login                         (public)
+├── /invite/:token                 (public, davet kabul)
+├── /password-reset                (public)
+│
+├── /                              (dashboard — bugün özeti)
+├── /calendar                      (ana takvim görünümü)
+│   ├── /calendar/day              (günlük)
+│   ├── /calendar/week             (haftalık)
+│   └── /calendar/month            (aylık)
+│
+├── /appointments/new              (telefon-için-randevu ekleme)
+├── /appointments/:id              (randevu detay)
+│
+├── /patients                      (hasta arama + liste)
+├── /patients/:id                  (hasta detay + geçmiş)
+├── /patients/:id/notes            (tıbbi notlar, sadece doctor)
+│
+├── /doctors                       (doktor yönetimi)
+├── /doctors/:id/hours             (çalışma saatleri)
+├── /doctors/:id/blocks            (tatil/blok)
+│
+├── /types                         (randevu tipleri)
+│
+├── /team                          (ekip + davet, owner-only)
+├── /settings                      (praksis ayarları, owner-only)
+│   ├── /settings/practice         (bilgi, logo, renk)
+│   ├── /settings/embed            (widget kodu)
+│   ├── /settings/emails           (template'ler)
+│   └── /settings/billing          (fatura, gelecek)
+│
+├── /audit                         (audit log)
+├── /profile                       (kendi profil + şifre + 2FA)
+└── /help                          (yardım + kısayollar)
+</code></pre>
+<h3 id="dashboard-ilk-gorunum">Dashboard (ilk görünüm)</h3>
+<p>ZFA sabah bilgisayarı açtığında ne görür?</p>
+<pre><code>┌──────────────────────────────────────────────────────────┐
+│ 🦷 Praxmate · Hild &amp; Kollegen        👤 Elena Meier (ZFA) │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│ Guten Morgen, Elena.                                      │
+│ Heute, Montag 20.04.2026                                  │
+│                                                           │
+│ ┌─ HEUTE ────────┬─ DIESE WOCHE ─┬─ NO-SHOWS ─┬─ NEU ──┐ │
+│ │      14        │      67        │     2       │   3    │ │
+│ │ Termine        │ Termine        │ diese Woche │ Patient│ │
+│ └────────────────┴────────────────┴─────────────┴────────┘ │
+│                                                           │
+│ ┌─ HEUTIGE TERMINE ──────────────────────────────────────┐ │
+│ │ 08:30 ─ Maria Weber           Kontrolle · J. Hild     │ │
+│ │ 09:00 ─ Hans-Peter Schmitt    PZR · J. Hild           │ │
+│ │ 09:45 ⓃⒺⓊ Julia Bergmann     Neuaufnahme · W. Hild   │ │
+│ │ 10:30 ─ Tolga Özdemir         Schmerz · J. Hild       │ │
+│ │ ...                                                    │ │
+│ └────────────────────────────────────────────────────────┘ │
+│                                                           │
+│ ┌─ SCHNELLAKTIONEN ──────────────────────────────────────┐ │
+│ │ [+ Termin hinzufügen]  [🔍 Patient suchen]             │ │
+│ │ [📧 Bestätigungen senden (3 ausstehend)]               │ │
+│ └────────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="kritik-ui-telefon-icin-randevu-ekleme-appointmentsnew">Kritik UI: Telefon-için-Randevu-Ekleme (<code>/appointments/new</code>)</h3>
+<p>Bu en çok kullanılacak ekran. Hız kritik.</p>
+<p><strong>İş akışı:</strong><br />
+1. ZFA telefonu açar<br />
+2. Hasta ismini söyler → inline arama (300ms debounce)<br />
+   - Varsa → önceki bilgileriyle gelir<br />
+   - Yoksa → "Neuer Patient" butonu<br />
+3. Hasta sorusu: "Worum geht es?" → tip seçilir (8 kart + klavye kısayolu 1-8)<br />
+4. "Wann?" → tarih picker + müsait saatler görüntülenir<br />
+5. Behandler → (tip+zaman'a göre müsait olanlar filtrelenir)<br />
+6. "Soll ich eine Bestätigung per E-Mail senden?" → checkbox<br />
+7. Enter → kaydedilir, geri dashboard'a döner</p>
+<p><strong>Hız hedefleri:</strong><br />
+- Mevcut hastalar için: <strong>60 saniye</strong><br />
+- Yeni hasta için: <strong>90 saniye</strong> (bilgi girişi + randevu)</p>
+<p><strong>Klavye kısayolları:</strong><br />
+- <code>Ctrl+N</code> yeni randevu<br />
+- <code>Ctrl+F</code> hasta arama<br />
+- <code>Esc</code> iptal<br />
+- <code>1-8</code> randevu tipi seç<br />
+- <code>Enter</code> sonraki adım</p>
+<h3 id="takvim-gorunumu-calendar">Takvim görünümü (<code>/calendar</code>)</h3>
+<p><strong>Günlük görünüm:</strong><br />
+- Saat kolonu (7:00 → 19:00, 30dk intervaller)<br />
+- Her behandler için ayrı kolon<br />
+- Randevular renkli blok (tip'in rengi)<br />
+- Drag &amp; drop ile yeniden planla<br />
+- Sağ tık: iptal, değiştir, notlar<br />
+- Boş slot'a tık → yeni randevu yarat (pre-filled zaman)</p>
+<p><strong>Haftalık görünüm:</strong><br />
+- 7 gün kolonu, saatler satır<br />
+- Tüm behandler'lar üst üste (overlay) veya yan yana (filter)</p>
+<h3 id="mobile-pwa">Mobile PWA</h3>
+<p>Behandler telefonda hızlıca ne yapar?<br />
+- Bugünün randevuları (swipe)<br />
+- Randevu detayı → tıbbi not ekle (doctor için)<br />
+- Push notification: "Neue Buchung: Maria Weber um 10:30"</p>
+<hr />
+<h2 id="7-e-mailsms-bildirim-sistemi">7. E-MAIL/SMS BİLDİRİM SİSTEMİ</h2>
+<h3 id="ne-zaman-e-mail-gider">Ne zaman e-mail gider?</h3>
+<table>
+<thead>
+<tr>
+<th>Olay</th>
+<th>Alıcı</th>
+<th>Gönderen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Randevu oluşturuldu (online veya staff)</td>
+<td>Hasta</td>
+<td>noreply@praxmate.de</td>
+</tr>
+<tr>
+<td>Randevu oluşturuldu</td>
+<td>Praksis (Staff)</td>
+<td>Opsiyonel toggle</td>
+</tr>
+<tr>
+<td>24 saat öncesi hatırlatma</td>
+<td>Hasta</td>
+<td>Otomatik (cron)</td>
+</tr>
+<tr>
+<td>Randevu iptal edildi</td>
+<td>Hasta</td>
+<td>Otomatik</td>
+</tr>
+<tr>
+<td>Randevu değiştirildi</td>
+<td>Hasta</td>
+<td>Otomatik</td>
+</tr>
+<tr>
+<td>Kullanıcı davet edildi</td>
+<td>Yeni ekip üyesi</td>
+<td>noreply@praxmate.de</td>
+</tr>
+<tr>
+<td>Şifre sıfırlama</td>
+<td>Kullanıcı</td>
+<td>noreply@praxmate.de</td>
+</tr>
+<tr>
+<td>Yeni oturum açıldı</td>
+<td>Kullanıcı (güvenlik)</td>
+<td>noreply@praxmate.de</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sms-sonraki-asama-twiliovonage">SMS (sonraki aşama — Twilio/Vonage)</h3>
+<table>
+<thead>
+<tr>
+<th>Olay</th>
+<th>Alıcı</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>24 saat öncesi hatırlatma</td>
+<td>Hasta (opt-in)</td>
+</tr>
+<tr>
+<td>Günlük randevu hatırlatma</td>
+<td>Hasta</td>
+</tr>
+</tbody>
+</table>
+<p>SMS pahalı (~0.08€/SMS). Professional paket'te dahil, Starter'da değil.</p>
+<hr />
+<h2 id="8-guvenlik-dsgvo">8. GÜVENLİK &amp; DSGVO</h2>
+<h3 id="risk-tablosu">Risk tablosu</h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Etki</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQL injection</td>
+<td>Yüksek</td>
+<td>Prepared statements her yerde</td>
+</tr>
+<tr>
+<td>XSS</td>
+<td>Yüksek</td>
+<td>escapeHtml() output, CSP header</td>
+</tr>
+<tr>
+<td>CSRF</td>
+<td>Orta</td>
+<td>SameSite=Strict, double-submit token</td>
+</tr>
+<tr>
+<td>Session hijack</td>
+<td>Yüksek</td>
+<td>HttpOnly, Secure, IP check</td>
+</tr>
+<tr>
+<td>Brute force login</td>
+<td>Orta</td>
+<td>Rate limit 5/15min, IP block</td>
+</tr>
+<tr>
+<td>Veri sızıntısı (yanlış practice_id)</td>
+<td>Kritik</td>
+<td>Single-tenant DB → imkansız</td>
+</tr>
+<tr>
+<td>DSGVO non-compliance</td>
+<td>Yüksek</td>
+<td>Audit log, consent tracking, deletion API</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dsgvo-checklist">DSGVO Checklist</h3>
+<ul>
+<li>[ ] <strong>Art. 5</strong> Veri minimizasyonu → sadece gerekli alanlar topla</li>
+<li>[ ] <strong>Art. 6</strong> Yasal temel → randevu = sözleşme ifası, explicit consent</li>
+<li>[ ] <strong>Art. 13</strong> Bilgilendirme → Datenschutzerklärung her praksis için</li>
+<li>[ ] <strong>Art. 15</strong> Görüntüleme hakkı → <code>/api/patients/:id/data-export</code> endpoint</li>
+<li>[ ] <strong>Art. 17</strong> Silme hakkı → <code>DELETE /api/admin/patients/:id</code> (owner-only)</li>
+<li>[ ] <strong>Art. 20</strong> Taşıma hakkı → JSON export</li>
+<li>[ ] <strong>Art. 25</strong> Privacy by design → single-tenant DB</li>
+<li>[ ] <strong>Art. 28</strong> Auftragsverarbeiter → AV-Vertrag her müşteri ile</li>
+<li>[ ] <strong>Art. 30</strong> Verarbeitungsverzeichnis → internal document hazırla</li>
+<li>[ ] <strong>Art. 32</strong> Teknik önlemler → TLS 1.3, encryption at rest (D1 default)</li>
+<li>[ ] <strong>Art. 33</strong> Datenpanne bildirimi → 72 saat prosedürü</li>
+</ul>
+<hr />
+<h2 id="9-subscription-billing-planla-ama-simdi-yapma">9. SUBSCRIPTION &amp; BILLING (planla, ama şimdi yapma)</h2>
+<h3 id="paketler">Paketler</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Starter 39€</th>
+<th>Professional 69€</th>
+<th>Praxis+ 119€</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Behandler sayısı</td>
+<td>1</td>
+<td>3</td>
+<td>Sınırsız</td>
+</tr>
+<tr>
+<td>Randevu/ay</td>
+<td>Sınırsız</td>
+<td>Sınırsız</td>
+<td>Sınırsız</td>
+</tr>
+<tr>
+<td>ZFA hesapları</td>
+<td>1</td>
+<td>3</td>
+<td>Sınırsız</td>
+</tr>
+<tr>
+<td>Online hasta randevu</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>E-mail bildirim</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>SMS bildirim</td>
+<td>—</td>
+<td>100/ay</td>
+<td>Sınırsız</td>
+</tr>
+<tr>
+<td>Custom domain</td>
+<td>—</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>API erişimi</td>
+<td>—</td>
+<td>—</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Analytics</td>
+<td>Basit</td>
+<td>Orta</td>
+<td>Detaylı</td>
+</tr>
+<tr>
+<td>Support</td>
+<td>E-mail</td>
+<td>E-mail + Telefon</td>
+<td>Persönlich</td>
+</tr>
+</tbody>
+</table>
+<h3 id="teknik-ekleme-ileride">Teknik ekleme (ileride)</h3>
+<ul>
+<li>Stripe entegrasyonu</li>
+<li>Trial tracking (3 ay pilot → otomatik bitiş)</li>
+<li>Payment methods: SEPA + Kreditkarte</li>
+<li>Rechnung otomatik generator</li>
+</ul>
+<p><strong>Şimdi değil.</strong> Pilot faz bitince eklenir.</p>
+<hr />
+<h2 id="10-yapi-ve-kod-mimarisi">10. YAPI VE KOD MİMARİSİ</h2>
+<h3 id="monorepo-duzeni">Monorepo düzeni</h3>
+<pre><code>/praxmate/
+├── dist/                          # deployed to Cloudflare Pages
+│   ├── index.html                 # landing
+│   ├── demo-patient.html          # generic patient demo
+│   ├── demo-doctor.html           # static demo (pitch için)
+│   ├── demo-hild.html             # mock Hild demo (pitch için)
+│   ├── demo-hild-live.html        # live hasta booking ✨
+│   └── admin/                     # admin PWA
+│       ├── index.html             # login
+│       ├── app.html               # SPA entry
+│       ├── manifest.json          # PWA manifest
+│       ├── service-worker.js      # offline + push
+│       └── assets/
+│           ├── admin.css
+│           ├── admin.js           # SPA logic
+│           └── icons/
+│
+├── worker/                        # Cloudflare Worker API
+│   ├── src/
+│   │   ├── index.js              # router
+│   │   ├── routes/
+│   │   │   ├── public.js         # hasta booking (mevcut)
+│   │   │   └── admin/
+│   │   │       ├── auth.js
+│   │   │       ├── appointments.js
+│   │   │       ├── patients.js
+│   │   │       ├── doctors.js
+│   │   │       ├── users.js
+│   │   │       └── practice.js
+│   │   ├── middleware/
+│   │   │   ├── auth.js           # session check
+│   │   │   ├── role.js           # permission check
+│   │   │   ├── cors.js
+│   │   │   └── rate-limit.js
+│   │   ├── lib/
+│   │   │   ├── crypto.js         # bcrypt/PBKDF2
+│   │   │   ├── email.js          # Resend client
+│   │   │   ├── ics.js            # calendar invite
+│   │   │   └── totp.js           # 2FA
+│   │   └── db.js                 # query helpers
+│   └── wrangler.toml
+│
+├── db/
+│   ├── schema.sql                 # v1 (mevcut)
+│   ├── migrations/
+│   │   ├── 001_initial.sql
+│   │   ├── 002_add_users.sql
+│   │   ├── 003_add_sessions.sql
+│   │   └── ...
+│   └── seeds/
+│       └── hild.sql
+│
+├── docs/
+│   ├── master-plan.md             # bu dosya
+│   ├── api-reference.md
+│   ├── dsgvo-compliance.md
+│   └── av-vertrag-template.md
+│
+└── README.md
+</code></pre>
+<h3 id="worker-yazlm-katmanlar">Worker yazılım katmanları</h3>
+<pre><code>HTTP Request
+    ↓
+Router (src/index.js)
+    ↓
+Middleware chain:
+  1. CORS
+  2. Rate Limit (her route için tek tek)
+  3. Auth (admin route'larda)
+  4. Role check (yetki matrisi)
+  5. Audit log (otomatik)
+    ↓
+Route handler
+    ↓
+Service layer (business logic)
+    ↓
+DB layer (prepared statements)
+    ↓
+Response (JSON)
+</code></pre>
+<hr />
+<h2 id="11-uygulama-yol-haritasi-sprint-plan">11. UYGULAMA YOL HARİTASI — Sprint Planı</h2>
+<h3 id="sprint-1-bu-hafta-20-25-nisan-hild-icin-minimum-viable-admin">Sprint 1 (bu hafta: 20-25 Nisan) — <strong>Hild için Minimum Viable Admin</strong></h3>
+<ul>
+<li>[ ] Schema migration: users, sessions, trusted_devices</li>
+<li>[ ] Auth: login, logout, me endpoints</li>
+<li>[ ] Password hashing (PBKDF2)</li>
+<li>[ ] Admin UI: login sayfası</li>
+<li>[ ] Admin UI: basic dashboard (bugünün randevuları)</li>
+<li>[ ] Admin UI: yeni randevu ekleme (staff için, telefon)</li>
+<li>[ ] Hild için seed user: juliane@zahnarzthild.de (test şifre)</li>
+</ul>
+<p><strong>Bitince:</strong> Hild'e gösterebileceğin çalışan admin panel var. ZFA telefonla randevu alabilir.</p>
+<h3 id="sprint-2-26-nisan-2-mays-takvim-hasta-yonetimi">Sprint 2 (26 Nisan - 2 Mayıs) — <strong>Takvim + Hasta Yönetimi</strong></h3>
+<ul>
+<li>[ ] Calendar view (günlük, haftalık)</li>
+<li>[ ] Drag &amp; drop reschedule</li>
+<li>[ ] Hasta arama + detay</li>
+<li>[ ] Hasta geçmişi</li>
+<li>[ ] Tıbbi not (doctor-only)</li>
+</ul>
+<h3 id="sprint-3-3-9-mays-e-mail-bildirimler">Sprint 3 (3-9 Mayıs) — <strong>E-mail + Bildirimler</strong></h3>
+<ul>
+<li>[ ] Resend entegrasyonu (praxmate.de domain verify)</li>
+<li>[ ] Onay e-mail template (hasta)</li>
+<li>[ ] Hatırlatma e-mail (cron job)</li>
+<li>[ ] İptal e-mail</li>
+<li>[ ] ICS attachment</li>
+</ul>
+<h3 id="sprint-4-10-16-mays-rol-sistemi-ekip">Sprint 4 (10-16 Mayıs) — <strong>Rol Sistemi + Ekip</strong></h3>
+<ul>
+<li>[ ] Role check middleware</li>
+<li>[ ] User invitation flow</li>
+<li>[ ] 2FA (TOTP + QR)</li>
+<li>[ ] Password reset</li>
+<li>[ ] Trusted devices</li>
+</ul>
+<h3 id="sprint-5-17-23-mays-polish-pwa">Sprint 5 (17-23 Mayıs) — <strong>Polish + PWA</strong></h3>
+<ul>
+<li>[ ] PWA manifest + service worker</li>
+<li>[ ] Push notifications</li>
+<li>[ ] Mobile responsive admin</li>
+<li>[ ] Keyboard shortcuts</li>
+<li>[ ] Settings sayfaları</li>
+</ul>
+<h3 id="sprint-6-24-30-mays-gercek-launch">Sprint 6 (24-30 Mayıs) — <strong>Gerçek launch</strong></h3>
+<ul>
+<li>[ ] Custom domain (praxmate.de)</li>
+<li>[ ] DSGVO belgeleri (AV-Vertrag template, Datenschutz)</li>
+<li>[ ] Admin audit log UI</li>
+<li>[ ] Error tracking (Sentry or Cloudflare Worker Logs)</li>
+<li>[ ] Backup strategy</li>
+</ul>
+<hr />
+<h2 id="12-karar-noktalari-yapi-baslamadan">12. KARAR NOKTALARI (YAPI BAŞLAMADAN)</h2>
+<p>Bu planda 3 şey var ki bunlar hala tartışmalı, senin kararın:</p>
+<ol>
+<li><strong>Frontend framework</strong>: Vanilla HTML/CSS/JS (şu anki gibi) mi, yoksa Vue/React mı?</li>
+<li>Admin panel complexity yüksek olacak. Vanilla JS ile mümkün ama 1000+ satırlık tek SPA oluşur.</li>
+<li><strong>Benim önerim:</strong> Admin için <strong>Vue 3 + Vite</strong> (SPA). Basit, Machbar24'tekine benzer.</li>
+<li>
+<p>Worker API değişmez, sadece frontend framework değişir.</p>
+</li>
+<li>
+<p><strong>Auth implementation</strong>: Cloudflare Access (enterprise) mi, kendimiz mi yazarız?</p>
+</li>
+<li>Cloudflare Access: 3€/kullanıcı/ay, SSO hazır ama lock-in</li>
+<li>Kendi yazarsak: kontrolümüzde, ama 3-4 günlük iş</li>
+<li>
+<p><strong>Benim önerim:</strong> Kendi yazarız. DSGVO argümanı güçlenir ("Authentication bei uns, nicht bei Drittanbieter").</p>
+</li>
+<li>
+<p><strong>Hangi işlere ne kadar zaman ayırsak?</strong></p>
+</li>
+<li>Sprint 1'i hızlı bitirip Hild'i kapatmak mı?</li>
+<li>Yoksa 6 sprint tamamlayıp "ready product" mı?</li>
+<li><strong>Benim önerim:</strong> Sprint 1 bittiği an (Cuma veya Cumartesi), Hild'e git. Gerisi o evet derse paralel devam.</li>
+</ol>
+<hr />
+<h2 id="13-rakip-analizi">13. RAKİP ANALİZİ</h2>
+<p>Her rakibin ne yaptığına bakalım ki Praxmate'i pozisyonlayalım:</p>
+<table>
+<thead>
+<tr>
+<th>Rakip</th>
+<th>Fiyat</th>
+<th>Güçlü yanı</th>
+<th>Zayıf yanı</th>
+<th>Praxmate farkı</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Doctolib Pro</strong></td>
+<td>129€+</td>
+<td>Büyük hasta ağı</td>
+<td>FR firma, pahalı</td>
+<td>Regional, ucuz, kendi marka</td>
+</tr>
+<tr>
+<td><strong>Samedi</strong></td>
+<td>89€+</td>
+<td>Uzun yıllardır pazarda</td>
+<td>Karmaşık, yaşlı UI</td>
+<td>Modern, basit</td>
+</tr>
+<tr>
+<td><strong>timify</strong></td>
+<td>49€+</td>
+<td>Multi-industry</td>
+<td>Tıp için özelleşmedi</td>
+<td>Tıp odaklı</td>
+</tr>
+<tr>
+<td><strong>TomMed</strong></td>
+<td>79€+</td>
+<td>Almanya odaklı</td>
+<td>Limited features</td>
+<td>Hem randevu hem ekip mgmt</td>
+</tr>
+<tr>
+<td><strong>Jameda</strong></td>
+<td>100€+</td>
+<td>Sadece doktor dizini</td>
+<td>Randevu ek özellik</td>
+<td>Gerçek Praxmate System</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Praxmate'in pozisyonu:</strong><br />
+<em>"Deutsches, modernes Praxis-System. Online-Termine + Team-Kalender + ein System. Keine Plattform-Gebühr wie Doctolib, keine veraltete UI wie Samedi."</em></p>
+<hr />
+<h2 id="14-ne-degiliz-tanimi">14. "NE DEĞİLİZ" TANIMI</h2>
+<p>Praxmate <strong>SHU ŞEY DEĞİLDİR</strong> (focus için önemli):</p>
+<ul>
+<li>❌ Elektronik hasta dosyası (PVS gibi CGM, TurboMed değil)</li>
+<li>❌ Abrechnungssoftware (KZBV/KV fatura sistemi değil)</li>
+<li>❌ Röntgen yönetimi</li>
+<li>❌ Labor sonucları</li>
+<li>❌ e-Rezept sistemi (TI entegrasyonu gerekir, çok büyük)</li>
+<li>❌ Videosprechstunde (opsiyonel, sonraki aşama)</li>
+<li>❌ HL7/FHIR messaging</li>
+</ul>
+<p>Praxmate = <strong>sadece randevu + ekip kalender + hasta iletişimi</strong>. Daha fazlası değil.</p>
+<hr />
+<h2 id="15-son-karar-matrisi">15. SON KARAR MATRİSİ</h2>
+<p>Aşağıdaki soruları soracağım bir sonraki turunda. Bu plan içinden hangi kısımları şimdi yaparız, hangilerini bekleteriz:</p>
+<ol>
+<li>Frontend framework: Vanilla mı, Vue mı?</li>
+<li>Sprint 1'i bugün mü bitirelim yoksa daha detaylı mı planlayalım?</li>
+<li>Hangi pilot müşteri(ler)e admin panel vadediyoruz — Hild + Vayhinger mi yoksa sadece Hild mi?</li>
+<li>Praxmate <strong>kendi markası</strong> (hasi-elektronic altında değil, ayrı SaaS şirketi) mi oluyor?</li>
+</ol>
+<hr />
+<p><em>Doküman bitti. Gözden geçir, sorularını sor, değişiklik istersen söyle. Sonra kod yazmaya başlarız.</em></p>
+</body>
+</html>

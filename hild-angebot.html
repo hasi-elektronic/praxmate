@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+  size: A4;
+  margin: 0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  color: #1a2a3a;
+  background: white;
+  font-size: 9pt;
+  line-height: 1.4;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.page {
+  width: 210mm;
+  height: 297mm;
+  padding: 9mm 11mm;
+  position: relative;
+  background: white;
+}
+
+.page::before {
+  content: '';
+  position: absolute;
+  top: -80mm;
+  right: -60mm;
+  width: 200mm;
+  height: 200mm;
+  background: radial-gradient(circle, #dceaf3 0%, transparent 55%);
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3mm;
+  background: linear-gradient(90deg, #2d6a8e 0%, #4a8eb0 50%, #e9b949 100%);
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  z-index: 2;
+}
+
+.logo {
+  font-family: Georgia, serif;
+  font-size: 19pt;
+  font-weight: 700;
+  color: #1a2a3a;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.logo .dot { color: #2d6a8e; }
+.logo-sub {
+  font-size: 6.5pt;
+  color: #7a8b9c;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 1.5mm;
+  font-weight: 600;
+}
+
+.recipient {
+  text-align: right;
+  font-size: 7.5pt;
+  color: #3d5368;
+  line-height: 1.35;
+}
+.recipient strong { color: #1a2a3a; font-size: 8.5pt; display: block; margin-bottom: 0.3mm; }
+.recipient .date {
+  color: #7a8b9c;
+  font-size: 7pt;
+  margin-top: 1.5mm;
+  font-style: italic;
+}
+
+/* HERO */
+.hero { margin-top: 5mm; position: relative; z-index: 2; }
+
+.eyebrow {
+  display: inline-block;
+  padding: 1.2mm 3mm;
+  background: #dceaf3;
+  color: #2d6a8e;
+  font-size: 6.5pt;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  border-radius: 20pt;
+  margin-bottom: 2.5mm;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-family: Georgia, serif;
+  font-size: 20pt;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #1a2a3a;
+  margin-bottom: 3mm;
+  letter-spacing: -0.015em;
+  max-width: 170mm;
+}
+h1 em { font-style: italic; color: #2d6a8e; font-weight: 500; }
+
+.lead {
+  font-size: 8.5pt;
+  color: #3d5368;
+  line-height: 1.5;
+  max-width: 185mm;
+}
+.lead strong { color: #2d6a8e; }
+
+/* DEMO STRIP */
+.demo-strip {
+  display: flex;
+  gap: 2.5mm;
+  margin-top: 5mm;
+  position: relative;
+  z-index: 2;
+}
+.demo-shot {
+  flex: 1;
+  background: white;
+  border: 1pt solid #dde4e9;
+  border-radius: 2.5mm;
+  overflow: hidden;
+  box-shadow: 0 2pt 4pt rgba(26, 42, 58, 0.06);
+}
+.demo-shot img {
+  width: 100%;
+  height: 38mm;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  background: #f4f8fa;
+}
+.demo-shot-label {
+  padding: 1.5mm 2.5mm;
+  font-size: 6.5pt;
+  color: #2d6a8e;
+  font-weight: 700;
+  background: #f4f8fa;
+  border-top: 1pt solid #dde4e9;
+  text-align: center;
+}
+.demo-shot-num {
+  display: inline-block;
+  background: #2d6a8e;
+  color: white;
+  width: 3.2mm;
+  height: 3.2mm;
+  border-radius: 50%;
+  font-size: 6pt;
+  line-height: 3.2mm;
+  text-align: center;
+  margin-right: 1.2mm;
+  font-weight: 700;
+  font-family: Georgia, serif;
+  vertical-align: middle;
+}
+
+/* BENEFITS */
+.benefits {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2mm;
+  margin-top: 3mm;
+  position: relative;
+  z-index: 2;
+}
+.benefit {
+  padding: 2mm 3mm;
+  background: #f4f8fa;
+  border-left: 2pt solid #2d6a8e;
+  border-radius: 0 2mm 2mm 0;
+}
+.benefit strong {
+  display: block;
+  font-size: 8pt;
+  color: #1a2a3a;
+  margin-bottom: 0.5mm;
+  font-weight: 700;
+}
+.benefit p {
+  font-size: 7pt;
+  color: #3d5368;
+  line-height: 1.35;
+}
+
+/* CTA */
+.cta-box {
+  background: linear-gradient(135deg, #1a2a3a 0%, #2d6a8e 100%);
+  color: white;
+  padding: 4mm 5mm;
+  border-radius: 3mm;
+  display: flex;
+  gap: 5mm;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  margin-top: 3mm;
+}
+.cta-box::before {
+  content: '';
+  position: absolute;
+  top: -15mm; right: -15mm;
+  width: 50mm; height: 50mm;
+  background: radial-gradient(circle, rgba(233, 185, 73, 0.18) 0%, transparent 70%);
+}
+
+.cta-main { flex: 1; position: relative; z-index: 1; }
+.cta-main h2 {
+  font-family: Georgia, serif;
+  font-size: 13pt;
+  font-weight: 700;
+  margin-bottom: 1.5mm;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.cta-main h2 em { font-style: italic; color: #e9b949; font-weight: 500; }
+.cta-main p {
+  font-size: 7.5pt;
+  opacity: 0.9;
+  line-height: 1.4;
+  margin-bottom: 2mm;
+}
+.cta-bullets {
+  list-style: none;
+  font-size: 7.5pt;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1mm 4mm;
+}
+.cta-bullets li {
+  padding-left: 3.5mm;
+  position: relative;
+  opacity: 0.95;
+  line-height: 1.3;
+}
+.cta-bullets li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: #e9b949;
+  font-weight: 700;
+}
+
+.qr-box {
+  background: white;
+  border-radius: 2mm;
+  padding: 2.5mm;
+  text-align: center;
+  color: #1a2a3a;
+  width: 34mm;
+  flex-shrink: 0;
+}
+.qr-box .qr {
+  width: 27mm;
+  height: 27mm;
+  display: block;
+  margin: 0 auto 1.5mm;
+}
+.qr-box .qr-label {
+  font-size: 5.8pt;
+  color: #7a8b9c;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.qr-box .qr-url {
+  font-size: 6.5pt;
+  color: #2d6a8e;
+  font-weight: 700;
+  margin-top: 0.3mm;
+  line-height: 1.1;
+}
+
+/* BOTTOM */
+.bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3mm;
+  margin-top: 3mm;
+  position: relative;
+  z-index: 2;
+}
+.compare-box, .pricing-box {
+  padding: 3mm 3.5mm;
+  border: 1pt solid #dde4e9;
+  border-radius: 2.5mm;
+  background: white;
+}
+.box-title {
+  font-size: 6.5pt;
+  color: #7a8b9c;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 1.5mm;
+  padding-bottom: 1.5mm;
+  border-bottom: 1pt solid #dde4e9;
+}
+
+.compare-row {
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr 0.9fr;
+  gap: 2mm;
+  padding: 1mm 0;
+  font-size: 7.3pt;
+  border-bottom: 1pt dashed #eef3f6;
+}
+.compare-row:last-child { border-bottom: none; }
+.compare-row .feat { color: #3d5368; font-weight: 500; }
+.compare-row .doc { color: #7a8b9c; text-align: right; font-size: 7pt; }
+.compare-row .prx { color: #2d6a8e; font-weight: 700; text-align: right; font-size: 7pt; }
+
+.pricing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1mm 0;
+  font-size: 7.3pt;
+  border-bottom: 1pt dashed #eef3f6;
+}
+.pricing-row:last-child { border-bottom: none; }
+.pricing-row .pkg { font-weight: 600; color: #1a2a3a; font-size: 7.8pt; }
+.pricing-row .pkg small { display: block; font-weight: 400; color: #7a8b9c; font-size: 6.5pt; line-height: 1.25; margin-top: 0.2mm; }
+.pricing-row .price {
+  font-family: Georgia, serif;
+  font-size: 11pt;
+  font-weight: 700;
+  color: #2d6a8e;
+  white-space: nowrap;
+}
+.pricing-row.featured { background: #fffbf1; margin: 0.5mm -2mm; padding: 1.2mm 2mm; border-radius: 1.5mm; border-bottom-color: transparent; }
+.pricing-row.featured .price { color: #c28f0f; }
+.pricing-row.featured .pkg::after { content: ' ★'; color: #e9b949; font-size: 8pt; }
+.pricing-note {
+  font-size: 6.2pt;
+  color: #7a8b9c;
+  text-align: center;
+  font-style: italic;
+  margin-top: 1mm;
+}
+
+/* FOOTER */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 4mm;
+  padding-top: 2.5mm;
+  border-top: 1pt solid #dde4e9;
+  position: relative;
+  z-index: 2;
+  font-size: 7pt;
+  color: #3d5368;
+}
+.footer-contact { line-height: 1.4; }
+.footer-contact strong {
+  font-size: 9pt;
+  color: #1a2a3a;
+  display: block;
+  margin-bottom: 0.8mm;
+  font-family: Georgia, serif;
+  font-weight: 700;
+}
+.footer-contact .line { color: #3d5368; font-size: 7pt; }
+.footer-contact a { color: #2d6a8e; text-decoration: none; font-weight: 600; }
+
+.footer-quote {
+  font-style: italic;
+  color: #7a8b9c;
+  font-size: 7pt;
+  text-align: right;
+  max-width: 65mm;
+  line-height: 1.4;
+}
+.footer-quote strong {
+  color: #2d6a8e;
+  font-style: normal;
+  font-weight: 700;
+  display: block;
+  font-size: 8pt;
+  margin-bottom: 0.5mm;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div>
+      <div class="logo">Praxmate<span class="dot">.</span></div>
+      <div class="logo-sub">Terminsystem für Arztpraxen</div>
+    </div>
+    <div class="recipient">
+      <strong>Für: Zahnarztpraxis Hild &amp; Kollegen</strong>
+      Frau Juliane Hild<br>
+      Lupinenweg 1, 71665 Vaihingen a.d. Enz
+      <div class="date">Exklusives Angebot · April 2026</div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">Speziell vorbereitet für Ihre Praxis</div>
+    <h1>Online-Termine. <em>Direkt auf Ihrer Website.</em><br>Ohne Doctolib. Ohne Umwege.</h1>
+    <p class="lead">
+      Sehr geehrte Frau Hild, auf Ihrer Website haben Sie offen geschrieben: derzeit längere Wartezeiten bei der Terminvergabe. Genau dafür haben wir <strong>Praxmate</strong> entwickelt — ein Buchungssystem, das direkt in Ihre bestehende Website eingebaut wird. Patienten buchen selbst, rund um die Uhr, ohne Anruf. Ihre Marke, Ihre Daten, Ihre Kontrolle.
+    </p>
+  </div>
+
+  <div class="demo-strip">
+    <div class="demo-shot">
+      <img src="screenshot-step1.png" alt="Schritt 1">
+      <div class="demo-shot-label"><span class="demo-shot-num">1</span>Behandlung wählen</div>
+    </div>
+    <div class="demo-shot">
+      <img src="screenshot-step2.png" alt="Schritt 2">
+      <div class="demo-shot-label"><span class="demo-shot-num">2</span>Behandler wählen</div>
+    </div>
+    <div class="demo-shot">
+      <img src="screenshot-step3.png" alt="Schritt 3">
+      <div class="demo-shot-label"><span class="demo-shot-num">3</span>Termin buchen</div>
+    </div>
+  </div>
+
+  <div class="benefits">
+    <div class="benefit">
+      <strong>Drei Behandler abgebildet</strong>
+      <p>Frau Juliane, Herr Wolfgang &amp; angestellter Zahnarzt — jeder mit eigenem Kalender.</p>
+    </div>
+    <div class="benefit">
+      <strong>DSGVO-konform, Server in Frankfurt</strong>
+      <p>Patientendaten bleiben in Deutschland. AV-Vertrag inklusive. Keine US/FR-Plattformen.</p>
+    </div>
+    <div class="benefit">
+      <strong>Zahnarzt-spezifische Termintypen</strong>
+      <p>PZR, Kontrolle, Füllung, Prothetik, Kinder, Schmerzbehandlung — vorkonfiguriert.</p>
+    </div>
+    <div class="benefit">
+      <strong>Automatische Erinnerungen</strong>
+      <p>E-Mail-Bestätigung, Kalendereintrag, 24h-Reminder — deutlich weniger No-Shows.</p>
+    </div>
+  </div>
+
+  <div class="cta-box">
+    <div class="cta-main">
+      <h2>Pilot-Praxis werden. <em>3 Monate kostenfrei.</em></h2>
+      <p>Wir suchen drei Praxen aus der Region, die Praxmate als erste einsetzen. Als Dank:</p>
+      <ul class="cta-bullets">
+        <li>Komplette Einrichtung vor Ort</li>
+        <li>Drei Monate volle Funktionen</li>
+        <li>Direkter Draht zur Entwicklung</li>
+        <li>Danach: 69 €/Mo, monatlich kündbar</li>
+      </ul>
+    </div>
+    <div class="qr-box">
+      <img src="qr-hild.svg" alt="QR" class="qr">
+      <div class="qr-label">Scannen &amp; testen</div>
+      <div class="qr-url">praxmate.pages.dev/<br>demo-hild</div>
+    </div>
+  </div>
+
+  <div class="bottom-row">
+    <div class="compare-box">
+      <div class="box-title">Praxmate vs. Doctolib</div>
+      <div class="compare-row">
+        <span class="feat">Monatsgebühr</span>
+        <span class="doc">129 €+</span>
+        <span class="prx">69 €</span>
+      </div>
+      <div class="compare-row">
+        <span class="feat">Server-Standort</span>
+        <span class="doc">FR / USA</span>
+        <span class="prx">Frankfurt</span>
+      </div>
+      <div class="compare-row">
+        <span class="feat">Eigene Marke sichtbar</span>
+        <span class="doc">Nein</span>
+        <span class="prx">Ja</span>
+      </div>
+      <div class="compare-row">
+        <span class="feat">Vertragsbindung</span>
+        <span class="doc">12 Monate</span>
+        <span class="prx">Monatlich</span>
+      </div>
+      <div class="compare-row">
+        <span class="feat">Support aus der Region</span>
+        <span class="doc">Hotline</span>
+        <span class="prx">Persönlich</span>
+      </div>
+    </div>
+    <div class="pricing-box">
+      <div class="box-title">Preise (nach der Pilot-Phase)</div>
+      <div class="pricing-row">
+        <div class="pkg">Starter<small>1 Behandler · unbegrenzt Termine</small></div>
+        <div class="price">39 €</div>
+      </div>
+      <div class="pricing-row featured">
+        <div class="pkg">Professional<small>3 Behandler · SMS · eigene Domain</small></div>
+        <div class="price">69 €</div>
+      </div>
+      <div class="pricing-row">
+        <div class="pkg">Praxis+<small>unbegrenzt · API · White-Label</small></div>
+        <div class="price">119 €</div>
+      </div>
+      <div class="pricing-note">Preise netto / Monat · zzgl. MwSt. · monatlich kündbar</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-contact">
+      <strong>Hamdi Güncavdi · Hasi Elektronic</strong>
+      <div class="line">Grabenstraße 18, 71665 Vaihingen an der Enz</div>
+      <div class="line">E-Mail: <a href="mailto:h.guencavdi@hasi-elektronic.de">h.guencavdi@hasi-elektronic.de</a></div>
+      <div class="line">Web: <a href="https://hasi-elektronic.de">hasi-elektronic.de</a></div>
+    </div>
+    <div class="footer-quote">
+      <strong>IT aus der Region.</strong>
+      Persönlich, verlässlich, mit direktem<br>Ansprechpartner vor Ort.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

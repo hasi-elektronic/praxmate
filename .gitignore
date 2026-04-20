@@ -1,0 +1,22 @@
+# Node
+node_modules/
+npm-debug.log*
+.wrangler/
+
+# Secrets
+.env
+.env.local
+*.key
+*.pem
+.dev.vars
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build artifacts
+dist/.wrangler/

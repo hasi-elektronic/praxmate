@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2d6a8e">
+<meta name="robots" content="noindex, nofollow">
+<title>Praxmate Admin — Neuer Termin</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232d6a8e'/%3E%3Ctext x='50' y='68' font-family='Georgia' font-size='50' font-weight='700' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+<style>
+:root {
+  --primary: #2d6a8e; --primary-dark: #1e4d6b; --primary-soft: #4a8eb0;
+  --accent: #e9b949;
+  --ink: #1a2a3a; --ink-soft: #3d5368; --muted: #7a8b9c;
+  --border: #dde4e9; --bg: #f4f8fa; --bg-card: #ffffff;
+  --error: #c84545; --success: #2d8e5f;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg); color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+.header {
+  background: white; border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.back-btn {
+  padding: 6px 12px; border-radius: 8px;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--ink); text-decoration: none; font-size: 13px;
+  font-weight: 500; display: inline-flex; align-items: center; gap: 4px;
+}
+.back-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+.brand-mark {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700;
+}
+
+/* Layout */
+.main {
+  max-width: 800px;
+  margin: 24px auto 60px;
+  padding: 0 20px;
+}
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 700;
+  margin-bottom: 4px;
+}
+.page-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+
+.step-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.step-card.active { border-color: var(--primary); box-shadow: 0 4px 14px rgba(45,106,142,0.1); }
+.step-card.done { border-color: var(--success); }
+.step-head {
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.step-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--bg); color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+  flex-shrink: 0;
+}
+.step-card.active .step-num { background: var(--primary); color: white; }
+.step-card.done .step-num { background: var(--success); color: white; }
+.step-card.done .step-num::before { content: '✓'; }
+.step-card.done .step-num > span { display: none; }
+.step-title { font-size: 15px; font-weight: 600; flex-grow: 1; }
+.step-summary {
+  font-size: 13px; color: var(--muted);
+  font-weight: 400;
+}
+.step-body { padding: 0 20px 20px 58px; }
+.step-card:not(.active) .step-body { display: none; }
+
+/* Form fields */
+.field { margin-bottom: 14px; }
+.field label {
+  display: block;
+  font-size: 12px; color: var(--ink-soft); font-weight: 600;
+  margin-bottom: 5px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.field input, .field select, .field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px; font-family: inherit;
+  background: white; color: var(--ink);
+  transition: all 0.12s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(45,106,142,0.1);
+}
+.field textarea { min-height: 60px; resize: vertical; }
+.field-row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+.field-row.three { grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 560px) {
+  .field-row { grid-template-columns: 1fr; }
+  .field-row.three { grid-template-columns: 1fr; }
+}
+
+/* =============== BIRTH DATE DROPDOWNS =============== */
+.birth-dropdowns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.birth-dd-wrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+.birth-dd-wrap { width: 90px; }
+.birth-dd-month { width: 140px; }
+.birth-dd-year { width: 110px; }
+
+.birth-dd-trigger {
+  width: 100%;
+  padding: 11px 12px;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  transition: all 0.12s ease;
+  text-align: left;
+}
+.birth-dd-trigger:hover { border-color: var(--primary-soft); }
+.birth-dd-wrap.open .birth-dd-trigger {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(45, 106, 142, 0.12);
+  background: white;
+}
+.birth-dd-val {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.birth-dd-val.placeholder {
+  color: #a8b5c0;
+  font-weight: 400;
+}
+.birth-dd-caret {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+.birth-dd-wrap.open .birth-dd-caret {
+  transform: rotate(180deg);
+  color: var(--primary);
+}
+
+.birth-dd-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow:
+    0 10px 28px rgba(26, 42, 58, 0.15),
+    0 2px 6px rgba(26, 42, 58, 0.06);
+  max-height: 240px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  z-index: 100;
+  padding: 4px;
+  animation: panelIn 0.14s ease;
+}
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom scrollbar */
+.birth-dd-panel::-webkit-scrollbar { width: 8px; }
+.birth-dd-panel::-webkit-scrollbar-track { background: transparent; }
+.birth-dd-panel::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+.birth-dd-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-soft);
+}
+
+.birth-dd-item {
+  width: 100%;
+  padding: 9px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.08s ease;
+  font-variant-numeric: tabular-nums;
+  display: block;
+}
+.birth-dd-item:hover {
+  background: var(--bg);
+  color: var(--primary);
+}
+.birth-dd-item.selected {
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+}
+.birth-dd-item.selected:hover {
+  background: var(--primary-dark);
+  color: white;
+}
+
+/* Year panel: taller + wheel support */
+.birth-dd-year-panel {
+  max-height: 300px;
+}
+
+.birth-preview {
+  width: 100%;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--success);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.birth-preview::before {
+  content: '✓';
+  font-size: 14px;
+}
+.birth-error {
+  width: 100%;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--error);
+  font-weight: 500;
+}
+
+@media (max-width: 560px) {
+  .birth-dd-wrap { width: calc(33% - 7px); }
+  .birth-dd-month { width: calc(40% - 7px); }
+  .birth-dd-year { width: calc(27% - 7px); }
+}
+
+/* Patient search */
+.patient-search { position: relative; }
+.search-results {
+  position: absolute; top: 100%; left: 0; right: 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-top: 4px;
+  max-height: 300px; overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  z-index: 10;
+}
+.search-result {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.search-result:last-child { border-bottom: none; }
+.search-result:hover { background: var(--bg); }
+.search-result strong { color: var(--ink); }
+.search-result .meta { color: var(--muted); font-size: 12px; }
+
+/* Type grid */
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+.type-btn {
+  padding: 14px 12px;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.type-btn:hover { border-color: var(--primary-soft); transform: translateY(-1px); }
+.type-btn.selected {
+  border-color: var(--primary);
+  background: rgba(45, 106, 142, 0.04);
+}
+.type-btn-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.type-btn-icon { font-size: 20px; }
+.type-btn-dur {
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.type-btn-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+
+/* Doctor select */
+.doctor-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+.doctor-btn {
+  padding: 12px;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex; align-items: center; gap: 10px;
+  transition: all 0.12s;
+}
+.doctor-btn:hover { border-color: var(--primary-soft); }
+.doctor-btn.selected { border-color: var(--primary); background: rgba(45, 106, 142, 0.04); }
+.doctor-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--primary-soft); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px;
+  flex-shrink: 0;
+}
+.doctor-info { text-align: left; min-width: 0; }
+.doctor-info .name { font-size: 13px; font-weight: 600; color: var(--ink); }
+.doctor-info .role { font-size: 11px; color: var(--muted); }
+
+/* Time slots */
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  gap: 6px;
+}
+.slot-btn {
+  padding: 9px 4px;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px; font-weight: 600;
+  color: var(--ink);
+  transition: all 0.12s;
+}
+.slot-btn:hover { border-color: var(--primary); }
+.slot-btn.selected {
+  background: var(--primary); color: white; border-color: var(--primary);
+}
+
+/* Radio cards */
+.radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.radio-option {
+  flex: 1; min-width: 100px;
+  padding: 10px 12px;
+  background: white; border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px; font-weight: 500;
+  text-align: center;
+  transition: all 0.12s;
+}
+.radio-option:hover { border-color: var(--primary-soft); }
+.radio-option.selected {
+  border-color: var(--primary); background: rgba(45, 106, 142, 0.06);
+  color: var(--primary); font-weight: 600;
+}
+.radio-option input { display: none; }
+
+/* Summary + CTA */
+.summary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 18px 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+  margin-bottom: 14px;
+}
+.summary-title { font-size: 12px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-bottom: 8px; }
+.summary-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; }
+.summary-row span:first-child { opacity: 0.85; }
+.summary-row span:last-child { font-weight: 600; }
+
+.cta-group { display: flex; gap: 10px; }
+.btn {
+  padding: 13px 20px;
+  border-radius: 10px;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-ghost { background: transparent; color: var(--ink-soft); border: 1.5px solid var(--border); }
+.btn-ghost:hover { background: var(--bg); }
+
+.spinner-inline {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast {
+  position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: white;
+  padding: 10px 16px; border-radius: 8px;
+  font-size: 13px; font-weight: 500;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  z-index: 200;
+}
+.toast.error { background: var(--error); }
+.toast.success { background: var(--success); }
+
+.success-screen {
+  background: white;
+  border-radius: 16px;
+  padding: 40px 30px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.success-icon {
+  width: 70px; height: 70px;
+  background: var(--success); color: white;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 38px; font-weight: 700;
+  margin: 0 auto 18px;
+}
+.success-code {
+  background: var(--bg); border: 1px dashed var(--border);
+  padding: 10px 20px; border-radius: 10px;
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 20px; font-weight: 700; color: var(--primary);
+  display: inline-block;
+  margin: 14px 0 20px;
+  letter-spacing: 0.05em;
+}
+
+.no-slots {
+  text-align: center; padding: 20px; color: var(--muted);
+  font-size: 13px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+.loading-inline {
+  text-align: center; padding: 20px; color: var(--muted);
+  font-size: 13px;
+}
+
+/* =============== MODERN CALENDAR =============== */
+.cal-wrap {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  user-select: none;
+}
+.cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+.cal-nav {
+  width: 34px; height: 34px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 20px; font-weight: 700;
+  color: var(--ink-soft);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s;
+  font-family: inherit;
+}
+.cal-nav:hover:not(:disabled) {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+.cal-nav:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.cal-month-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.cal-dayname {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 0;
+}
+.cal-cell {
+  aspect-ratio: 1;
+  border: 1.5px solid transparent;
+  background: transparent;
+  border-radius: 10px;
+  cursor: default;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  padding: 0;
+}
+.cal-cell.cal-pad {
+  visibility: hidden;
+  pointer-events: none;
+}
+.cal-day-num {
+  line-height: 1;
+}
+.cal-cell.today .cal-day-num {
+  font-weight: 700;
+  color: var(--primary);
+}
+.cal-cell.past {
+  color: #c5ced6;
+  cursor: not-allowed;
+}
+.cal-cell.weekend:not(.available) {
+  color: #b4c1cc;
+}
+.cal-cell.available {
+  background: white;
+  color: var(--ink);
+  cursor: pointer;
+  border-color: var(--border);
+  font-weight: 600;
+}
+.cal-cell.available:hover:not(.selected) {
+  border-color: var(--primary-soft);
+  background: rgba(74, 142, 176, 0.08);
+  transform: translateY(-1px);
+}
+.cal-cell.selected {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(45, 106, 142, 0.35);
+}
+.cal-cell.selected .cal-day-num {
+  color: white;
+}
+.cal-cell.selected .cal-dot { background: var(--accent); }
+.cal-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+  margin-top: 3px;
+}
+.cal-legend {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.cal-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cal-legend-item .cal-dot {
+  margin-top: 0;
+}
+.cal-loading {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.spinner-small {
+  width: 24px; height: 24px;
+  border: 2.5px solid rgba(45, 106, 142, 0.2);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.slots-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.slots-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.slots-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+@media (max-width: 560px) {
+  .cal-cell { font-size: 13px; }
+  .cal-month-label { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="header">
+    <div class="header-left">
+      <div class="brand-mark">P</div>
+      <a href="/admin/dashboard.html" class="back-btn">← Dashboard</a>
+    </div>
+    <div style="font-size: 13px; color: var(--muted);" v-if="user">
+      {{ user.name }} · {{ roleLabel }}
+    </div>
+  </header>
+
+  <main class="main">
+    <div v-if="!successData">
+      <h1 class="page-title">Neuer Termin</h1>
+      <p class="page-sub">Termin für einen Anrufer erfassen.</p>
+
+      <!-- STEP 1: Patient -->
+      <div class="step-card" :class="{ active: step === 1, done: step > 1 }">
+        <div class="step-head" @click="goToStep(1)">
+          <div class="step-num"><span>1</span></div>
+          <div class="step-title">Patient</div>
+          <div class="step-summary" v-if="step > 1">
+            {{ patientData.first_name }} {{ patientData.last_name }}
+          </div>
+        </div>
+        <div class="step-body">
+          <div class="patient-search">
+            <div class="field">
+              <label>Patient suchen (Name, E-Mail, Telefon)</label>
+              <input
+                ref="searchInput"
+                v-model="searchQuery"
+                @input="onSearchInput"
+                placeholder="z.B. Weber oder 0176..."
+                autocomplete="off"
+              >
+            </div>
+            <div v-if="searchResults.length" class="search-results">
+              <div
+                v-for="p in searchResults"
+                :key="p.id"
+                class="search-result"
+                @click="selectExistingPatient(p)"
+              >
+                <strong>{{ p.first_name }} {{ p.last_name }}</strong>
+                <div class="meta">
+                  {{ formatBirthDate(p.birth_date) }} · {{ p.email }} · {{ p.phone }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin: 16px 0; font-size: 12px; color: var(--muted); text-align: center;">
+            — oder neuen Patienten anlegen —
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Vorname *</label>
+              <input v-model="patientData.first_name">
+            </div>
+            <div class="field">
+              <label>Nachname *</label>
+              <input v-model="patientData.last_name">
+            </div>
+          </div>
+          <div class="field">
+            <label>Geburtsdatum *</label>
+            <div class="birth-dropdowns">
+              <!-- Day dropdown -->
+              <div class="birth-dd-wrap" :class="{ open: dayOpen }">
+                <button type="button" class="birth-dd-trigger" @click="toggleDay">
+                  <span class="birth-dd-val" :class="{ placeholder: !birthDay }">{{ birthDay || 'Tag' }}</span>
+                  <span class="birth-dd-caret">▾</span>
+                </button>
+                <div v-if="dayOpen" class="birth-dd-panel" @click.stop>
+                  <button
+                    v-for="d in days"
+                    :key="'d-'+d"
+                    type="button"
+                    class="birth-dd-item"
+                    :class="{ selected: birthDay === d }"
+                    :ref="el => { if (birthDay === d) selectedDayRef = el }"
+                    @click="selectDay(d)"
+                  >{{ d }}</button>
+                </div>
+              </div>
+
+              <!-- Month dropdown -->
+              <div class="birth-dd-wrap birth-dd-month" :class="{ open: monthOpen }">
+                <button type="button" class="birth-dd-trigger" @click="toggleMonth">
+                  <span class="birth-dd-val" :class="{ placeholder: !birthMonth }">{{ monthLabel2 }}</span>
+                  <span class="birth-dd-caret">▾</span>
+                </button>
+                <div v-if="monthOpen" class="birth-dd-panel" @click.stop>
+                  <button
+                    v-for="(m, idx) in monthNames"
+                    :key="'m-'+idx"
+                    type="button"
+                    class="birth-dd-item"
+                    :class="{ selected: birthMonth === String(idx + 1).padStart(2, '0') }"
+                    @click="selectMonth(idx)"
+                  >{{ m }}</button>
+                </div>
+              </div>
+
+              <!-- Year dropdown with wheel scroll -->
+              <div class="birth-dd-wrap birth-dd-year" :class="{ open: yearOpen }">
+                <button type="button" class="birth-dd-trigger" @click="toggleYear">
+                  <span class="birth-dd-val" :class="{ placeholder: !birthYear }">{{ birthYear || 'Jahr' }}</span>
+                  <span class="birth-dd-caret">▾</span>
+                </button>
+                <div
+                  v-if="yearOpen"
+                  ref="yearPanel"
+                  class="birth-dd-panel birth-dd-year-panel"
+                  @click.stop
+                >
+                  <button
+                    v-for="y in years"
+                    :key="'y-'+y"
+                    type="button"
+                    class="birth-dd-item"
+                    :class="{ selected: birthYear === String(y) }"
+                    :ref="el => { if (birthYear === String(y)) selectedYearRef = el }"
+                    @click="selectYear(y)"
+                  >{{ y }}</button>
+                </div>
+              </div>
+
+              <div class="birth-preview" v-if="birthPreview">{{ birthPreview }}</div>
+              <div class="birth-error" v-if="birthError">{{ birthError }}</div>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>E-Mail *</label>
+              <input v-model="patientData.email" type="email">
+            </div>
+            <div class="field">
+              <label>Telefon *</label>
+              <input v-model="patientData.phone" type="tel">
+            </div>
+          </div>
+          <div class="field">
+            <label>Versicherung</label>
+            <div class="radio-group">
+              <label class="radio-option" :class="{ selected: patientData.insurance_type === 'gkv' }">
+                <input type="radio" v-model="patientData.insurance_type" value="gkv">
+                Gesetzlich (GKV)
+              </label>
+              <label class="radio-option" :class="{ selected: patientData.insurance_type === 'privat' }">
+                <input type="radio" v-model="patientData.insurance_type" value="privat">
+                Privat
+              </label>
+              <label class="radio-option" :class="{ selected: patientData.insurance_type === 'selbst' }">
+                <input type="radio" v-model="patientData.insurance_type" value="selbst">
+                Selbstzahler
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <label>Status</label>
+            <div class="radio-group">
+              <label class="radio-option" :class="{ selected: !patientData.is_new_patient }">
+                <input type="radio" v-model="patientData.is_new_patient" :value="false">
+                Bestandspatient
+              </label>
+              <label class="radio-option" :class="{ selected: patientData.is_new_patient }">
+                <input type="radio" v-model="patientData.is_new_patient" :value="true">
+                Neupatient
+              </label>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" @click="nextStep()" :disabled="!canGoFromStep1">
+            Weiter →
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Type -->
+      <div class="step-card" :class="{ active: step === 2, done: step > 2 }">
+        <div class="step-head" @click="step > 1 && goToStep(2)">
+          <div class="step-num"><span>2</span></div>
+          <div class="step-title">Behandlung</div>
+          <div class="step-summary" v-if="step > 2">
+            {{ selectedType?.icon }} {{ selectedType?.name }} · {{ selectedType?.duration_minutes }} Min
+          </div>
+        </div>
+        <div class="step-body">
+          <div v-if="loadingTypes" class="loading-inline">Lade Behandlungstypen...</div>
+          <div v-else class="type-grid">
+            <button
+              v-for="t in types"
+              :key="t.id"
+              class="type-btn"
+              :class="{ selected: selectedTypeId === t.id }"
+              @click="selectedTypeId = t.id"
+            >
+              <div class="type-btn-top">
+                <div class="type-btn-icon">{{ t.icon }}</div>
+                <div class="type-btn-dur">{{ t.duration_minutes }} Min</div>
+              </div>
+              <div class="type-btn-name">{{ t.name }}</div>
+            </button>
+          </div>
+          <div style="margin-top: 16px;">
+            <button class="btn btn-primary" @click="nextStep()" :disabled="!selectedTypeId">
+              Weiter →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Doctor -->
+      <div class="step-card" :class="{ active: step === 3, done: step > 3 }">
+        <div class="step-head" @click="step > 2 && goToStep(3)">
+          <div class="step-num"><span>3</span></div>
+          <div class="step-title">Behandler</div>
+          <div class="step-summary" v-if="step > 3">
+            {{ selectedDoctorName }}
+          </div>
+        </div>
+        <div class="step-body">
+          <div class="doctor-list">
+            <button
+              class="doctor-btn"
+              :class="{ selected: selectedDoctorId === 'any' }"
+              @click="selectedDoctorId = 'any'"
+            >
+              <div class="doctor-avatar" style="background:var(--accent); color:#5c4a11;">✓</div>
+              <div class="doctor-info">
+                <div class="name">Nächster Frei</div>
+                <div class="role">Egal welcher Behandler</div>
+              </div>
+            </button>
+            <button
+              v-for="d in doctors"
+              :key="d.id"
+              class="doctor-btn"
+              :class="{ selected: selectedDoctorId === d.id }"
+              @click="selectedDoctorId = d.id"
+            >
+              <div class="doctor-avatar">{{ d.avatar_initials }}</div>
+              <div class="doctor-info">
+                <div class="name">{{ d.name }}</div>
+                <div class="role">{{ d.role }}</div>
+              </div>
+            </button>
+          </div>
+          <div style="margin-top: 16px;">
+            <button class="btn btn-primary" @click="nextStep()" :disabled="!selectedDoctorId">
+              Weiter →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Date & Time -->
+      <div class="step-card" :class="{ active: step === 4, done: step > 4 }">
+        <div class="step-head" @click="step > 3 && goToStep(4)">
+          <div class="step-num"><span>4</span></div>
+          <div class="step-title">Datum &amp; Zeit</div>
+          <div class="step-summary" v-if="step > 4">
+            {{ formatFullDate(selectedDate) }} um {{ selectedTime }} Uhr
+          </div>
+        </div>
+        <div class="step-body">
+          <!-- Custom Calendar -->
+          <div class="cal-wrap">
+            <div class="cal-head">
+              <button class="cal-nav" @click="prevMonth" :disabled="!canGoPrev" aria-label="Vorheriger Monat">‹</button>
+              <div class="cal-month-label">{{ monthLabel }}</div>
+              <button class="cal-nav" @click="nextMonth" :disabled="!canGoNext" aria-label="Nächster Monat">›</button>
+            </div>
+
+            <div v-if="loadingAvailability" class="cal-loading">
+              <div class="spinner-small"></div>
+              <span>Lade Verfügbarkeit...</span>
+            </div>
+
+            <div v-else class="cal-grid">
+              <div v-for="d in ['Mo','Di','Mi','Do','Fr','Sa','So']" :key="d" class="cal-dayname">{{ d }}</div>
+              <div v-for="n in calendarStartPad" :key="'pad-'+n" class="cal-cell cal-pad"></div>
+              <button
+                v-for="day in calendarDays"
+                :key="day.date"
+                class="cal-cell"
+                :class="{
+                  available: day.available,
+                  selected: selectedDate === day.date,
+                  today: day.isToday,
+                  past: day.isPast,
+                  weekend: day.isWeekend
+                }"
+                :disabled="!day.available || day.isPast"
+                @click="selectDate(day.date)"
+              >
+                <span class="cal-day-num">{{ day.day }}</span>
+                <span v-if="day.available && !day.isPast" class="cal-dot"></span>
+              </button>
+            </div>
+
+            <div class="cal-legend">
+              <span class="cal-legend-item"><span class="cal-dot"></span> Termine verfügbar</span>
+            </div>
+          </div>
+
+          <!-- Available slots -->
+          <div v-if="selectedDate" style="margin-top: 20px;">
+            <div class="slots-head">
+              <div>
+                <div class="slots-label">Verfügbare Zeiten</div>
+                <div class="slots-sub">{{ formatFullDate(selectedDate) }}</div>
+              </div>
+            </div>
+            <div v-if="loadingSlots" class="loading-inline">Lade Zeiten...</div>
+            <div v-else-if="!availableSlots.length" class="no-slots">
+              Keine Termine verfügbar an diesem Tag.
+            </div>
+            <div v-else class="slots-grid">
+              <button
+                v-for="slot in availableSlots"
+                :key="slot.time"
+                class="slot-btn"
+                :class="{ selected: selectedTime === slot.time }"
+                @click="selectedTime = slot.time; slotDoctors = slot.available_doctors"
+              >
+                {{ slot.time }}
+              </button>
+            </div>
+          </div>
+
+          <div style="margin-top: 20px;">
+            <button class="btn btn-primary" @click="nextStep()" :disabled="!selectedDate || !selectedTime">
+              Weiter →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5: Note & Confirm -->
+      <div class="step-card" :class="{ active: step === 5 }">
+        <div class="step-head" @click="step > 4 && goToStep(5)">
+          <div class="step-num"><span>5</span></div>
+          <div class="step-title">Notiz &amp; Bestätigung</div>
+        </div>
+        <div class="step-body">
+          <div class="field">
+            <label>Notiz für den Behandler (optional)</label>
+            <textarea v-model="patientNote" placeholder="z.B. Schmerz oben rechts seit 2 Tagen"></textarea>
+          </div>
+
+          <div class="summary">
+            <div class="summary-title">Zusammenfassung</div>
+            <div class="summary-row">
+              <span>Patient</span>
+              <span>{{ patientData.first_name }} {{ patientData.last_name }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Behandlung</span>
+              <span>{{ selectedType?.name }} ({{ selectedType?.duration_minutes }} Min)</span>
+            </div>
+            <div class="summary-row">
+              <span>Behandler</span>
+              <span>{{ selectedDoctorName }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Datum</span>
+              <span>{{ formatFullDate(selectedDate) }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Uhrzeit</span>
+              <span>{{ selectedTime }} Uhr</span>
+            </div>
+          </div>
+
+          <div class="cta-group">
+            <button class="btn btn-ghost" @click="goToStep(1)">Abbrechen</button>
+            <button class="btn btn-primary" @click="confirmBooking" :disabled="submitting" style="flex:1;">
+              <span v-if="submitting" class="spinner-inline"></span>
+              <span>{{ submitting ? 'Speichere...' : 'Termin bestätigen ✓' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div v-else class="success-screen">
+      <div class="success-icon">✓</div>
+      <h2 style="font-family:'Playfair Display',serif; font-size:24px; margin-bottom:8px;">
+        Termin gebucht
+      </h2>
+      <p style="color: var(--muted); font-size: 14px;">
+        {{ successData.first_name }} {{ successData.last_name }} · {{ formatFullDate(successData.start_datetime) }} um {{ formatTime(successData.start_datetime) }} Uhr
+      </p>
+      <div class="success-code">{{ successData.booking_code }}</div>
+      <p style="font-size: 13px; color: var(--muted); margin-bottom: 20px;">
+        Behandlung: {{ successData.type_name }} · {{ successData.doctor_name }}
+      </p>
+      <div class="cta-group" style="justify-content: center;">
+        <a href="/admin/dashboard.html" class="btn btn-ghost">→ Dashboard</a>
+        <button class="btn btn-primary" @click="resetForm">+ Nächster Termin</button>
+      </div>
+    </div>
+  </main>
+
+  <div v-if="toastMsg" class="toast" :class="toastType">{{ toastMsg }}</div>
+</div>
+
+<script>
+const API_BASE = 'https://praxmate-api-hild.hguencavdi.workers.dev/api';
+const { createApp, ref, computed, onMounted, watch } = Vue;
+
+createApp({
+  setup() {
+    const token = localStorage.getItem('praxmate_token');
+    if (!token) { window.location.href = '/admin/'; return {}; }
+
+    const user = ref(null);
+    const types = ref([]);
+    const doctors = ref([]);
+    const loadingTypes = ref(true);
+    const loadingSlots = ref(false);
+
+    const step = ref(1);
+    const searchQuery = ref('');
+    const searchResults = ref([]);
+    let searchDebounce;
+
+    const patientData = ref({
+      id: null,
+      first_name: '',
+      last_name: '',
+      birth_date: '',
+      email: '',
+      phone: '',
+      insurance_type: 'gkv',
+      is_new_patient: false,
+    });
+
+    // Birth date dropdown pickers
+    const birthDay = ref('');     // '01'..'31'
+    const birthMonth = ref('');   // '01'..'12'
+    const birthYear = ref('');    // '1900'..current
+    const dayOpen = ref(false);
+    const monthOpen = ref(false);
+    const yearOpen = ref(false);
+    const yearPanel = ref(null);
+    const selectedDayRef = ref(null);
+    const selectedYearRef = ref(null);
+
+    const currentYear = new Date().getFullYear();
+    const days = computed(() => Array.from({length: 31}, (_, i) => String(i + 1).padStart(2, '0')));
+    const monthNames = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+    // Years from current down to 1920 (oldest patients ~105 years)
+    const years = computed(() => {
+      const arr = [];
+      for (let y = currentYear; y >= 1920; y--) arr.push(y);
+      return arr;
+    });
+
+    const monthLabel2 = computed(() => {
+      if (!birthMonth.value) return 'Monat';
+      const idx = parseInt(birthMonth.value) - 1;
+      return monthNames[idx] || 'Monat';
+    });
+
+    function toggleDay() {
+      dayOpen.value = !dayOpen.value;
+      monthOpen.value = false;
+      yearOpen.value = false;
+      if (dayOpen.value) {
+        setTimeout(() => {
+          if (selectedDayRef.value) {
+            selectedDayRef.value.scrollIntoView({ block: 'center' });
+          }
+        }, 20);
+      }
+    }
+    function toggleMonth() {
+      monthOpen.value = !monthOpen.value;
+      dayOpen.value = false;
+      yearOpen.value = false;
+    }
+    function toggleYear() {
+      yearOpen.value = !yearOpen.value;
+      dayOpen.value = false;
+      monthOpen.value = false;
+      if (yearOpen.value) {
+        setTimeout(() => {
+          if (selectedYearRef.value) {
+            selectedYearRef.value.scrollIntoView({ block: 'center' });
+          } else if (yearPanel.value) {
+            // Default: scroll to ~1970 (mid-aged patients)
+            const defaultYear = 1970;
+            const items = yearPanel.value.querySelectorAll('.birth-dd-item');
+            const target = Array.from(items).find(el => el.textContent.trim() === String(defaultYear));
+            if (target) target.scrollIntoView({ block: 'center' });
+          }
+        }, 20);
+      }
+    }
+
+    function selectDay(d) {
+      birthDay.value = d;
+      dayOpen.value = false;
+      // Auto-advance to month if not yet selected
+      if (!birthMonth.value) setTimeout(toggleMonth, 80);
+    }
+    function selectMonth(idx) {
+      birthMonth.value = String(idx + 1).padStart(2, '0');
+      monthOpen.value = false;
+      if (!birthYear.value) setTimeout(toggleYear, 80);
+    }
+    function selectYear(y) {
+      birthYear.value = String(y);
+      yearOpen.value = false;
+    }
+
+    // Close all dropdowns on outside click
+    function closeDropdowns() {
+      dayOpen.value = false;
+      monthOpen.value = false;
+      yearOpen.value = false;
+    }
+    if (typeof document !== 'undefined') {
+      document.addEventListener('click', (e) => {
+        // Only close if click is outside any .birth-dd-wrap
+        if (!e.target.closest('.birth-dd-wrap')) {
+          closeDropdowns();
+        }
+      });
+    }
+
+    const birthPreview = computed(() => {
+      const d = parseInt(birthDay.value);
+      const m = parseInt(birthMonth.value);
+      const y = parseInt(birthYear.value);
+      if (!d || !m || !y) return '';
+
+      const date = new Date(y, m - 1, d);
+      if (date.getDate() !== d || date.getMonth() !== m - 1 || date.getFullYear() !== y) return '';
+
+      const now = new Date();
+      let age = now.getFullYear() - y;
+      const monthDiff = now.getMonth() - (m - 1);
+      if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < d)) age--;
+
+      const monthsShort = ['Jan.','Feb.','März','Apr.','Mai','Juni','Juli','Aug.','Sep.','Okt.','Nov.','Dez.'];
+      return `${d}. ${monthsShort[m-1]} ${y} · ${age} Jahre`;
+    });
+
+    const birthError = computed(() => {
+      if (!birthDay.value || !birthMonth.value || !birthYear.value) return '';
+      const d = parseInt(birthDay.value);
+      const m = parseInt(birthMonth.value);
+      const y = parseInt(birthYear.value);
+      const date = new Date(y, m - 1, d);
+      if (date.getDate() !== d || date.getMonth() !== m - 1) {
+        return 'Diesen Tag gibt es im ' + monthNames[m-1] + ' nicht';
+      }
+      if (date > new Date()) return 'Geburtsdatum kann nicht in der Zukunft liegen';
+      return '';
+    });
+
+    // Sync to patientData.birth_date when all 3 are valid
+    watch([birthDay, birthMonth, birthYear], () => {
+      const d = birthDay.value;
+      const m = birthMonth.value;
+      const y = birthYear.value;
+      if (d && m && y && !birthError.value && birthPreview.value) {
+        patientData.value.birth_date = `${y}-${m}-${d}`;
+      } else {
+        patientData.value.birth_date = '';
+      }
+    });
+
+    const selectedTypeId = ref(null);
+    const selectedDoctorId = ref(null);
+    const selectedDate = ref('');
+    const selectedTime = ref('');
+    const slotDoctors = ref([]);
+    const availableSlots = ref([]);
+    const patientNote = ref('');
+    const submitting = ref(false);
+    const successData = ref(null);
+
+    // Calendar state
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const viewYear = ref(today.getFullYear());
+    const viewMonth = ref(today.getMonth());
+    const monthAvailableDays = ref([]);
+    const loadingAvailability = ref(false);
+
+    const toastMsg = ref('');
+    const toastType = ref('');
+
+    const roleLabel = computed(() => {
+      const r = user.value?.role;
+      return r === 'owner' ? 'Inhaberin' : r === 'doctor' ? 'Behandler' : 'Rezeption';
+    });
+
+    const todayStr = computed(() => new Date().toISOString().slice(0, 10));
+    const selectedType = computed(() => types.value.find(t => t.id === selectedTypeId.value));
+    const selectedDoctorName = computed(() => {
+      if (selectedDoctorId.value === 'any') return 'Nächster Freier';
+      const d = doctors.value.find(d => d.id === selectedDoctorId.value);
+      return d?.name || '';
+    });
+
+    const canGoFromStep1 = computed(() => {
+      const p = patientData.value;
+      return p.first_name && p.last_name && p.birth_date && p.email && p.phone;
+    });
+
+    // ========== Calendar computed ==========
+    const MONTHS_DE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+    const monthLabel = computed(() => `${MONTHS_DE[viewMonth.value]} ${viewYear.value}`);
+
+    const canGoPrev = computed(() => {
+      return viewYear.value > today.getFullYear() ||
+        (viewYear.value === today.getFullYear() && viewMonth.value > today.getMonth());
+    });
+
+    const canGoNext = computed(() => {
+      // Limit to 3 months ahead
+      const maxDate = new Date(today.getFullYear(), today.getMonth() + 3, 1);
+      return new Date(viewYear.value, viewMonth.value, 1) < maxDate;
+    });
+
+    const calendarStartPad = computed(() => {
+      const firstDay = new Date(viewYear.value, viewMonth.value, 1);
+      // Monday-first: Mon=0, Sun=6
+      return (firstDay.getDay() + 6) % 7;
+    });
+
+    const calendarDays = computed(() => {
+      const lastDay = new Date(viewYear.value, viewMonth.value + 1, 0).getDate();
+      const days = [];
+      for (let d = 1; d <= lastDay; d++) {
+        const dateObj = new Date(viewYear.value, viewMonth.value, d);
+        const dateStr = `${viewYear.value}-${String(viewMonth.value + 1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const dayOfWeek = dateObj.getDay();
+        days.push({
+          day: d,
+          date: dateStr,
+          isPast: dateObj < today,
+          isToday: dateObj.getTime() === today.getTime(),
+          isWeekend: dayOfWeek === 0 || dayOfWeek === 6,
+          available: monthAvailableDays.value.includes(dateStr),
+        });
+      }
+      return days;
+    });
+
+    function showToast(msg, type = '') {
+      toastMsg.value = msg;
+      toastType.value = type;
+      setTimeout(() => { toastMsg.value = ''; }, 3000);
+    }
+
+    async function api(path, opts = {}) {
+      const res = await fetch(API_BASE + path, {
+        ...opts,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token,
+          ...(opts.headers || {})
+        }
+      });
+      if (res.status === 401) {
+        localStorage.removeItem('praxmate_token');
+        window.location.href = '/admin/';
+        return null;
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      return data;
+    }
+
+    function onSearchInput() {
+      clearTimeout(searchDebounce);
+      const q = searchQuery.value.trim();
+      if (q.length < 2) { searchResults.value = []; return; }
+      searchDebounce = setTimeout(async () => {
+        try {
+          const data = await api('/admin/patients/search?q=' + encodeURIComponent(q));
+          searchResults.value = data?.patients || [];
+        } catch (e) {
+          showToast('Suche fehlgeschlagen', 'error');
+        }
+      }, 250);
+    }
+
+    function selectExistingPatient(p) {
+      patientData.value = {
+        id: p.id,
+        first_name: p.first_name,
+        last_name: p.last_name,
+        birth_date: p.birth_date,
+        email: p.email,
+        phone: p.phone,
+        insurance_type: p.insurance_type,
+        is_new_patient: !!p.is_new_patient,
+      };
+      // Populate 3-field birth date from YYYY-MM-DD
+      if (p.birth_date && /^\d{4}-\d{2}-\d{2}$/.test(p.birth_date)) {
+        const [y, m, d] = p.birth_date.split('-');
+        birthYear.value = y;
+        birthMonth.value = m;
+        birthDay.value = d;
+      }
+      searchResults.value = [];
+      searchQuery.value = '';
+    }
+
+    async function loadMe() {
+      const data = await api('/admin/auth/me');
+      user.value = data?.user;
+    }
+
+    async function loadTypesAndDoctors() {
+      try {
+        loadingTypes.value = true;
+        const [t, d] = await Promise.all([
+          api('/appointment-types'),
+          api('/doctors'),
+        ]);
+        types.value = t;
+        doctors.value = d;
+      } catch (e) {
+        showToast('Fehler: ' + e.message, 'error');
+      } finally {
+        loadingTypes.value = false;
+      }
+    }
+
+    async function loadMonthAvailability() {
+      if (!selectedTypeId.value) return;
+      loadingAvailability.value = true;
+      try {
+        const params = new URLSearchParams({
+          type_id: selectedTypeId.value,
+          month: `${viewYear.value}-${String(viewMonth.value + 1).padStart(2, '0')}`,
+        });
+        if (selectedDoctorId.value && selectedDoctorId.value !== 'any') {
+          params.set('doctor_id', selectedDoctorId.value);
+        }
+        const data = await api('/availability?' + params.toString());
+        monthAvailableDays.value = data?.available_days || [];
+      } catch (e) {
+        monthAvailableDays.value = [];
+      } finally {
+        loadingAvailability.value = false;
+      }
+    }
+
+    function prevMonth() {
+      if (!canGoPrev.value) return;
+      viewMonth.value--;
+      if (viewMonth.value < 0) { viewMonth.value = 11; viewYear.value--; }
+      loadMonthAvailability();
+    }
+
+    function nextMonth() {
+      if (!canGoNext.value) return;
+      viewMonth.value++;
+      if (viewMonth.value > 11) { viewMonth.value = 0; viewYear.value++; }
+      loadMonthAvailability();
+    }
+
+    function selectDate(dateStr) {
+      selectedDate.value = dateStr;
+      selectedTime.value = '';
+      loadSlots();
+    }
+
+    async function loadSlots() {
+      if (!selectedDate.value || !selectedTypeId.value) return;
+      loadingSlots.value = true;
+      selectedTime.value = '';
+      try {
+        const params = new URLSearchParams({
+          type_id: selectedTypeId.value,
+          date: selectedDate.value,
+        });
+        if (selectedDoctorId.value && selectedDoctorId.value !== 'any') {
+          params.set('doctor_id', selectedDoctorId.value);
+        }
+        const data = await api('/slots?' + params.toString());
+        availableSlots.value = data.slots || [];
+      } catch (e) {
+        availableSlots.value = [];
+        showToast('Zeiten konnten nicht geladen werden', 'error');
+      } finally {
+        loadingSlots.value = false;
+      }
+    }
+
+    function nextStep() {
+      if (step.value < 5) step.value++;
+    }
+    function goToStep(n) { step.value = n; }
+
+    async function confirmBooking() {
+      submitting.value = true;
+      try {
+        let finalDoctorId = selectedDoctorId.value;
+        if (finalDoctorId === 'any' && slotDoctors.value.length > 0) {
+          finalDoctorId = slotDoctors.value[0];
+        }
+
+        const payload = {
+          appointment_type_id: selectedTypeId.value,
+          doctor_id: finalDoctorId,
+          start_datetime: `${selectedDate.value}T${selectedTime.value}:00`,
+          patient_note: patientNote.value || null,
+          send_confirmation: false, // Will be Sprint 3
+        };
+
+        if (patientData.value.id) {
+          payload.patient_id = patientData.value.id;
+        } else {
+          payload.patient = {
+            first_name: patientData.value.first_name.trim(),
+            last_name: patientData.value.last_name.trim(),
+            birth_date: patientData.value.birth_date,
+            email: patientData.value.email.trim(),
+            phone: patientData.value.phone.trim(),
+            insurance_type: patientData.value.insurance_type,
+            is_new_patient: patientData.value.is_new_patient,
+          };
+        }
+
+        const result = await api('/admin/appointments', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+        successData.value = result;
+        showToast('Termin gebucht: ' + result.booking_code, 'success');
+      } catch (e) {
+        showToast('Fehler: ' + e.message, 'error');
+      } finally {
+        submitting.value = false;
+      }
+    }
+
+    function resetForm() {
+      step.value = 1;
+      patientData.value = {
+        id: null, first_name: '', last_name: '', birth_date: '',
+        email: '', phone: '', insurance_type: 'gkv', is_new_patient: false,
+      };
+      birthDay.value = '';
+      birthMonth.value = '';
+      birthYear.value = '';
+      dayOpen.value = false;
+      monthOpen.value = false;
+      yearOpen.value = false;
+      selectedTypeId.value = null;
+      selectedDoctorId.value = null;
+      selectedDate.value = '';
+      selectedTime.value = '';
+      availableSlots.value = [];
+      monthAvailableDays.value = [];
+      viewYear.value = today.getFullYear();
+      viewMonth.value = today.getMonth();
+      patientNote.value = '';
+      searchQuery.value = '';
+      searchResults.value = [];
+      successData.value = null;
+    }
+
+    function formatFullDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso.length === 10 ? iso + 'T00:00:00' : iso);
+      return d.toLocaleDateString('de-DE', {
+        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+      });
+    }
+    function formatTime(iso) {
+      return new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    }
+    function formatBirthDate(iso) {
+      return new Date(iso + 'T00:00:00').toLocaleDateString('de-DE');
+    }
+
+    // Re-load slots when date or doctor changes
+    watch([selectedDate, selectedDoctorId], () => {
+      if (step.value === 4) loadSlots();
+    });
+
+    // Load month availability when reaching step 4 or when doctor/type changes at step 4
+    watch([step, selectedTypeId, selectedDoctorId], () => {
+      if (step.value === 4 && selectedTypeId.value) {
+        loadMonthAvailability();
+      }
+    });
+
+    onMounted(() => {
+      loadMe();
+      loadTypesAndDoctors();
+
+      // Handle pre-fill from calendar (?doctor=X&date=YYYY-MM-DD&time=HH:MM)
+      const params = new URLSearchParams(window.location.search);
+      const preDoctor = params.get('doctor');
+      const preDate = params.get('date');
+      const preTime = params.get('time');
+      if (preDoctor || preDate || preTime) {
+        // Wait for types/doctors to load
+        setTimeout(async () => {
+          if (preDoctor) selectedDoctorId.value = preDoctor;
+          if (preDate) selectedDate.value = preDate;
+          if (preTime) selectedTime.value = preTime;
+          // If we have enough info, skip to step 4 for user to see it
+          // But patient still needs to be filled (step 1) — show hint
+          if (preDate && preTime) {
+            showToast(`Vorausgewählt: ${preDate} um ${preTime}`, 'success');
+          }
+        }, 500);
+      }
+    });
+
+    return {
+      user, roleLabel, step, types, doctors, loadingTypes, loadingSlots,
+      searchQuery, searchResults, onSearchInput, selectExistingPatient,
+      patientData, selectedTypeId, selectedDoctorId, selectedDate, selectedTime,
+      slotDoctors, availableSlots, patientNote,
+      selectedType, selectedDoctorName, todayStr, canGoFromStep1,
+      submitting, successData, loadSlots,
+      // Birth date dropdowns
+      birthDay, birthMonth, birthYear,
+      dayOpen, monthOpen, yearOpen,
+      yearPanel, selectedDayRef, selectedYearRef,
+      days, monthNames, years, monthLabel2,
+      toggleDay, toggleMonth, toggleYear,
+      selectDay, selectMonth, selectYear,
+      birthPreview, birthError,
+      // Calendar
+      monthLabel, canGoPrev, canGoNext, calendarStartPad, calendarDays,
+      loadingAvailability, prevMonth, nextMonth, selectDate,
+      nextStep, goToStep, confirmBooking, resetForm,
+      formatFullDate, formatTime, formatBirthDate,
+      toastMsg, toastType, showToast,
+    };
+  }
+}).mount('#app');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Praxmate · Arzt-Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #0a1e2c;
+  --ink-soft: #2c4456;
+  --muted: #6b7f8f;
+  --paper: #fafbf9;
+  --cream: #f4f1ea;
+  --accent: #0f6b5c;
+  --accent-soft: #d4ebe3;
+  --coral: #e8836b;
+  --yellow: #f5c842;
+  --border: #e3e2dc;
+  --shadow: 0 1px 2px rgba(10,30,44,.04), 0 4px 16px rgba(10,30,44,.04);
+  --shadow-lg: 0 2px 8px rgba(10,30,44,.06), 0 20px 48px rgba(10,30,44,.08);
+}
+
+body {
+  font-family: 'Manrope', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.demo-banner {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 20px;
+  font-size: 13px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.demo-banner strong { color: var(--coral); }
+.demo-banner a { color: var(--paper); text-decoration: underline; opacity: 0.8; font-size: 13px; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - 40px);
+}
+
+/* === SIDEBAR === */
+aside {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+}
+.brand {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.brand .dot { color: var(--coral); }
+.brand-sub { font-size: 12px; opacity: 0.5; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 40px; }
+
+.nav-list { list-style: none; flex: 1; }
+.nav-list li a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.nav-list li a:hover {
+  background: rgba(255,255,255,0.06);
+  color: white;
+}
+.nav-list li a.active {
+  background: var(--accent);
+  color: white;
+}
+.nav-list li a .icon {
+  width: 20px;
+  text-align: center;
+}
+
+.user-card {
+  padding: 14px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 20px;
+}
+.user-avatar {
+  width: 40px; height: 40px;
+  background: var(--coral);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+}
+.user-info { flex: 1; min-width: 0; }
+.user-info strong { font-size: 13px; display: block; }
+.user-info span { font-size: 11px; opacity: 0.6; display: block; }
+
+/* === MAIN === */
+main {
+  padding: 32px 40px;
+  overflow-y: auto;
+}
+.main-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.main-head h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 34px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.main-head p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+.head-actions {
+  display: flex;
+  gap: 10px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  color: var(--ink);
+}
+.btn-primary { background: var(--ink); color: white; }
+.btn-primary:hover { background: var(--accent); }
+.btn-outline { background: white; border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--ink); }
+
+/* === STATS === */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.stat-value {
+  font-family: 'Fraunces', serif;
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.stat-delta {
+  font-size: 12px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.stat-delta.up { color: var(--accent); }
+.stat-delta.down { color: var(--coral); }
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 20px; right: 20px;
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0.7;
+}
+.stat-card.sc-1::after { background: var(--accent-soft); content: '📅'; font-size: 18px; line-height: 40px; text-align: center; }
+.stat-card.sc-2::after { background: #fdf0d8; content: '⏱'; font-size: 18px; line-height: 40px; text-align: center; }
+.stat-card.sc-3::after { background: #ffe4dd; content: '👤'; font-size: 18px; line-height: 40px; text-align: center; }
+.stat-card.sc-4::after { background: #ddeef7; content: '✦'; font-size: 18px; line-height: 40px; text-align: center; }
+
+/* === PANELS === */
+.panels-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+}
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.panel-title {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 500;
+}
+.panel-tab {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--cream);
+  border-radius: 999px;
+}
+.panel-tab button {
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  transition: all 0.15s;
+}
+.panel-tab button.active {
+  background: white;
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* === APPOINTMENT LIST === */
+.appt-list { display: flex; flex-direction: column; gap: 6px; }
+.appt {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.appt:hover {
+  border-color: var(--accent);
+  background: var(--paper);
+}
+.appt-time {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+  min-width: 62px;
+  text-align: center;
+  line-height: 1.1;
+}
+.appt-time small {
+  display: block;
+  font-size: 10px;
+  font-family: 'Manrope', sans-serif;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.appt-info h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.appt-info p { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.appt-tag {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.appt-tag.gkv { background: var(--accent-soft); color: var(--accent); }
+.appt-tag.privat { background: #fdf0d8; color: #a67519; }
+.appt-tag.selbst { background: #ddeef7; color: #2b6a8d; }
+.appt-type {
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--cream);
+  color: var(--ink-soft);
+}
+
+.appt.highlighted {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.appt.cancelled { opacity: 0.5; text-decoration: line-through; }
+.appt.new {
+  border-color: var(--coral);
+  background: #fff6f3;
+  position: relative;
+}
+.appt.new::before {
+  content: 'NEU';
+  position: absolute;
+  top: -8px; right: 10px;
+  background: var(--coral);
+  color: white;
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* === UPCOMING SUMMARY === */
+.summary-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.summary-item:last-child { border-bottom: none; }
+.summary-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+.summary-dot.coral { background: var(--coral); }
+.summary-dot.yellow { background: var(--yellow); }
+.summary-content h5 {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.summary-content p { font-size: 12px; color: var(--muted); }
+.summary-time {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* === HOURS QUICK === */
+.hours-row {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.hours-row:last-child { border-bottom: none; }
+.hours-day { font-weight: 600; }
+.hours-time { color: var(--ink-soft); }
+.hours-row.closed .hours-time { color: var(--coral); font-weight: 600; }
+
+.toggle {
+  position: relative;
+  width: 36px; height: 20px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: left 0.2s;
+}
+.toggle.on { background: var(--accent); }
+.toggle.on::after { left: 18px; }
+
+/* === EMBED BOX === */
+.embed-box {
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 20px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.embed-box::before {
+  content: '';
+  position: absolute;
+  top: -50%; right: -20%;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(232,131,107,0.15) 0%, transparent 60%);
+}
+.embed-box h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  position: relative;
+}
+.embed-box p {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-bottom: 16px;
+  position: relative;
+}
+.code-block {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 14px;
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 12px;
+  color: #a8d8cc;
+  position: relative;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+.code-copy {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: 'Manrope', sans-serif;
+}
+.code-copy:hover { background: var(--coral); }
+
+/* === CHART === */
+.chart-wrap { padding-top: 10px; }
+.chart {
+  height: 180px;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding-top: 10px;
+}
+.bar {
+  flex: 1;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-soft) 100%);
+  border-radius: 8px 8px 2px 2px;
+  position: relative;
+  min-height: 4px;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+.bar:hover { transform: translateY(-2px); }
+.bar::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: -20px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.bar-tooltip {
+  position: absolute;
+  top: -24px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: white;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.bar:hover .bar-tooltip { opacity: 1; }
+
+/* === MOBILE === */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  aside {
+    flex-direction: row;
+    padding: 16px 20px;
+    align-items: center;
+    gap: 20px;
+  }
+  .brand-sub, .nav-list, .user-card { display: none; }
+  main { padding: 20px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .panels-grid { grid-template-columns: 1fr; }
+  .main-head h1 { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  <strong>ARZT-DEMO</strong>
+  <span>So verwaltet Dr. Vayhinger ihre Termine</span>
+  <a href="index.html">← zurück zur Praxmate-Übersicht</a>
+</div>
+
+<div class="layout">
+  <aside>
+    <div>
+      <div class="brand">Praxmate<span class="dot">.</span></div>
+      <div class="brand-sub">Arzt-Dashboard</div>
+    </div>
+    <ul class="nav-list">
+      <li><a class="active"><span class="icon">◈</span>Dashboard</a></li>
+      <li><a><span class="icon">📅</span>Kalender</a></li>
+      <li><a><span class="icon">👥</span>Patienten</a></li>
+      <li><a><span class="icon">⏱</span>Sprechzeiten</a></li>
+      <li><a><span class="icon">⚙</span>Termintypen</a></li>
+      <li><a><span class="icon">📊</span>Statistik</a></li>
+      <li><a><span class="icon">&lt;/&gt;</span>Embed-Code</a></li>
+      <li><a><span class="icon">⚙</span>Einstellungen</a></li>
+    </ul>
+    <div class="user-card">
+      <div class="user-avatar">V</div>
+      <div class="user-info">
+        <strong>Dr. Vayhinger</strong>
+        <span>Hausarzt · Mühlacker</span>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="main-head">
+      <div>
+        <h1>Guten Morgen, Dr. Vayhinger.</h1>
+        <p>Heute ist Montag, 20. April 2026 · 14 Termine geplant</p>
+      </div>
+      <div class="head-actions">
+        <button class="btn btn-outline">📥 Export</button>
+        <button class="btn btn-primary">+ Termin blockieren</button>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat-card sc-1">
+        <div class="stat-label">Heute</div>
+        <div class="stat-value">14</div>
+        <div class="stat-delta up">↗ 3 mehr als gestern</div>
+      </div>
+      <div class="stat-card sc-2">
+        <div class="stat-label">Diese Woche</div>
+        <div class="stat-value">67</div>
+        <div class="stat-delta up">↗ +12% vs. Vorwoche</div>
+      </div>
+      <div class="stat-card sc-3">
+        <div class="stat-label">Neue Patienten</div>
+        <div class="stat-value">8</div>
+        <div class="stat-delta up">↗ diesen Monat</div>
+      </div>
+      <div class="stat-card sc-4">
+        <div class="stat-label">No-Shows</div>
+        <div class="stat-value">2%</div>
+        <div class="stat-delta down">↘ stark reduziert</div>
+      </div>
+    </div>
+
+    <!-- MAIN PANELS -->
+    <div class="panels-grid">
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Heutige Termine</div>
+          <div class="panel-tab">
+            <button class="active">Alle (14)</button>
+            <button>Offen (9)</button>
+            <button>Neu (3)</button>
+          </div>
+        </div>
+        <div class="appt-list">
+
+          <div class="appt highlighted">
+            <div class="appt-time">08:30<small>15 Min</small></div>
+            <div class="appt-info">
+              <h4>Maria Weber</h4>
+              <p><span class="appt-tag gkv">GKV</span> · * 1962 · Folgerezept Blutdruck</p>
+            </div>
+            <div class="appt-type">Sprechstunde</div>
+          </div>
+
+          <div class="appt">
+            <div class="appt-time">09:00<small>30 Min</small></div>
+            <div class="appt-info">
+              <h4>Hans-Peter Schmitt</h4>
+              <p><span class="appt-tag gkv">GKV</span> · * 1958 · Check-up 35</p>
+            </div>
+            <div class="appt-type">Vorsorge</div>
+          </div>
+
+          <div class="appt new">
+            <div class="appt-time">09:45<small>30 Min</small></div>
+            <div class="appt-info">
+              <h4>Julia Bergmann</h4>
+              <p><span class="appt-tag privat">PKV</span> · * 1989 · Neuaufnahme</p>
+            </div>
+            <div class="appt-type">Neuaufnahme</div>
+          </div>
+
+          <div class="appt">
+            <div class="appt-time">10:30<small>15 Min</small></div>
+            <div class="appt-info">
+              <h4>Tolga Özdemir</h4>
+              <p><span class="appt-tag gkv">GKV</span> · * 1975 · Halsschmerzen seit 3 Tagen</p>
+            </div>
+            <div class="appt-type">Sprechstunde</div>
+          </div>
+
+          <div class="appt new">
+            <div class="appt-time">11:00<small>10 Min</small></div>
+            <div class="appt-info">
+              <h4>Bernd Fischer</h4>
+              <p><span class="appt-tag gkv">GKV</span> · * 1971 · Grippe-Impfung</p>
+            </div>
+            <div class="appt-type">Impfung</div>
+          </div>
+
+          <div class="appt">
+            <div class="appt-time">11:30<small>15 Min</small></div>
+            <div class="appt-info">
+              <h4>Anja Reimann</h4>
+              <p><span class="appt-tag selbst">Selbst</span> · * 1993 · Attest für Sport</p>
+            </div>
+            <div class="appt-type">Sprechstunde</div>
+          </div>
+
+          <div class="appt cancelled">
+            <div class="appt-time">14:00<small>15 Min</small></div>
+            <div class="appt-info">
+              <h4>Stefan Klein (abgesagt)</h4>
+              <p><span class="appt-tag gkv">GKV</span> · Absage heute 07:12</p>
+            </div>
+            <div class="appt-type">Sprechstunde</div>
+          </div>
+
+          <div class="appt new">
+            <div class="appt-time">14:30<small>15 Min</small></div>
+            <div class="appt-info">
+              <h4>Sabine Hoffmann</h4>
+              <p><span class="appt-tag gkv">GKV</span> · * 1981 · Labor-Besprechung</p>
+            </div>
+            <div class="appt-type">Labor</div>
+          </div>
+
+          <div class="appt">
+            <div class="appt-time">15:00<small>15 Min</small></div>
+            <div class="appt-info">
+              <h4>Günther Albrecht</h4>
+              <p><span class="appt-tag gkv">GKV</span> · * 1949 · Rezept-Erneuerung</p>
+            </div>
+            <div class="appt-type">Sprechstunde</div>
+          </div>
+
+          <div class="appt">
+            <div class="appt-time">16:15<small>30 Min</small></div>
+            <div class="appt-info">
+              <h4>Familie Koçak (2 Kinder)</h4>
+              <p><span class="appt-tag gkv">GKV</span> · Vorsorge U-Untersuchung</p>
+            </div>
+            <div class="appt-type">Vorsorge</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Diese Woche</div>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart">
+              <div class="bar" style="height: 60%" data-label="Mo"><span class="bar-tooltip">14 Termine</span></div>
+              <div class="bar" style="height: 75%" data-label="Di"><span class="bar-tooltip">17 Termine</span></div>
+              <div class="bar" style="height: 85%" data-label="Mi"><span class="bar-tooltip">19 Termine</span></div>
+              <div class="bar" style="height: 70%" data-label="Do"><span class="bar-tooltip">16 Termine</span></div>
+              <div class="bar" style="height: 45%" data-label="Fr"><span class="bar-tooltip">10 Termine</span></div>
+              <div class="bar" style="height: 15%; opacity: 0.4" data-label="Sa"><span class="bar-tooltip">Geschlossen</span></div>
+              <div class="bar" style="height: 10%; opacity: 0.4" data-label="So"><span class="bar-tooltip">Geschlossen</span></div>
+            </div>
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin-top:26px;">Insgesamt 76 Termine · Ø 3.6 Min Bearbeitung</p>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Aktivität</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-dot coral"></div>
+            <div class="summary-content">
+              <h5>Neue Buchung</h5>
+              <p>Julia Bergmann · Neuaufnahme morgen 09:45</p>
+            </div>
+            <div class="summary-time">gerade eben</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-dot coral"></div>
+            <div class="summary-content">
+              <h5>Neue Buchung</h5>
+              <p>Sabine Hoffmann · Labor heute 14:30</p>
+            </div>
+            <div class="summary-time">vor 34 Min</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-dot yellow"></div>
+            <div class="summary-content">
+              <h5>Absage</h5>
+              <p>Stefan Klein · hat heute 14:00 storniert</p>
+            </div>
+            <div class="summary-time">vor 2 h</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-dot"></div>
+            <div class="summary-content">
+              <h5>Erinnerungen gesendet</h5>
+              <p>12 E-Mails für Termine morgen</p>
+            </div>
+            <div class="summary-time">heute 06:00</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-dot"></div>
+            <div class="summary-content">
+              <h5>Sprechzeiten geändert</h5>
+              <p>Freitag verkürzt auf 13:00</p>
+            </div>
+            <div class="summary-time">gestern</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- SECOND ROW: Hours + Embed -->
+    <div class="panels-grid" style="grid-template-columns: 1fr 1.3fr;">
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Sprechzeiten</div>
+          <button class="btn btn-outline" style="padding:7px 14px;font-size:12px;">Bearbeiten</button>
+        </div>
+        <div class="hours-row">
+          <span class="hours-day">Mo</span>
+          <span class="hours-time">08:00–12:00 · 14:00–17:00</span>
+          <div class="toggle on"></div>
+        </div>
+        <div class="hours-row">
+          <span class="hours-day">Di</span>
+          <span class="hours-time">08:00–12:00 · 14:00–18:00</span>
+          <div class="toggle on"></div>
+        </div>
+        <div class="hours-row">
+          <span class="hours-day">Mi</span>
+          <span class="hours-time">08:00–13:00</span>
+          <div class="toggle on"></div>
+        </div>
+        <div class="hours-row">
+          <span class="hours-day">Do</span>
+          <span class="hours-time">08:00–12:00 · 14:00–18:00</span>
+          <div class="toggle on"></div>
+        </div>
+        <div class="hours-row">
+          <span class="hours-day">Fr</span>
+          <span class="hours-time">08:00–13:00</span>
+          <div class="toggle on"></div>
+        </div>
+        <div class="hours-row closed">
+          <span class="hours-day">Sa</span>
+          <span class="hours-time">Geschlossen</span>
+          <div class="toggle"></div>
+        </div>
+        <div class="hours-row closed">
+          <span class="hours-day">So</span>
+          <span class="hours-time">Geschlossen</span>
+          <div class="toggle"></div>
+        </div>
+      </div>
+
+      <div class="embed-box">
+        <h3>Ihr Embed-Code</h3>
+        <p>Fügen Sie diesen Code einmalig in Ihre Website ein. Das war's — Patienten können buchen.</p>
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">Kopieren</button>
+&lt;script src="https://praxmate.de/embed.js"<br>&nbsp;&nbsp;&nbsp;&nbsp;data-practice="praxis-vayhinger"&gt;<br>&lt;/script&gt;<br>&lt;div id="praxmate-widget"&gt;&lt;/div&gt;
+        </div>
+        <p style="margin-top:14px; font-size:12px;">Live auf: <a href="#" style="color:var(--coral);text-decoration:none;">praxis-vayhinger.de/termin</a></p>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script>
+// Toggle interactivity
+document.querySelectorAll('.toggle').forEach(t => {
+  t.addEventListener('click', () => t.classList.toggle('on'));
+});
+
+// Nav highlight
+document.querySelectorAll('.nav-list a').forEach(a => {
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelectorAll('.nav-list a').forEach(x => x.classList.remove('active'));
+    a.classList.add('active');
+  });
+});
+
+// Panel tab
+document.querySelectorAll('.panel-tab button').forEach(b => {
+  b.addEventListener('click', () => {
+    b.parentElement.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+
+function copyCode(btn) {
+  const code = `<script src="https://praxmate.de/embed.js" data-practice="praxis-vayhinger"><\/script>\n<div id="praxmate-widget"></div>`;
+  navigator.clipboard.writeText(code).then(() => {
+    const old = btn.textContent;
+    btn.textContent = '✓ Kopiert';
+    setTimeout(() => btn.textContent = old, 1500);
+  });
+}
+
+// Appointment click feedback
+document.querySelectorAll('.appt:not(.cancelled)').forEach(a => {
+  a.addEventListener('click', () => {
+    a.style.transform = 'scale(0.98)';
+    setTimeout(() => a.style.transform = '', 150);
+  });
+});
+</script>
+</body>
+</html>
