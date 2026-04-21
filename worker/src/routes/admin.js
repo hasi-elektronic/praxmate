@@ -162,6 +162,34 @@ export async function handleAppointmentCreateStaff(env, request) {
   `).bind(doctor_id, end_datetime, start_datetime).first();
   if (conflict) return jsonError('Zeitraum bereits belegt', request, 409);
 
+  // Closure check — soft warning, can be bypassed with ?force=1
+  const url = new URL(request.url);
+  const force = url.searchParams.get('force') === '1';
+  if (!force) {
+    const dateStr = start_datetime.slice(0, 10);
+    const startTimeStr = start_datetime.slice(11, 16);
+    const endTimeStr = end_datetime.slice(11, 16);
+    const closureCheck = await env.DB.prepare(`
+      SELECT start_time, end_time, reason
+      FROM closures
+      WHERE practice_id = ? AND date = ?
+        AND (doctor_id IS NULL OR doctor_id = ?)
+    `).bind(user.practice_id, dateStr, doctor_id).all();
+    for (const c of (closureCheck.results || [])) {
+      const isFull = !c.start_time && !c.end_time;
+      const isOverlap = c.start_time && c.end_time && c.start_time < endTimeStr && c.end_time > startTimeStr;
+      if (isFull || isOverlap) {
+        const what = isFull ? 'Tag ist als Abwesenheit eingetragen' : 'Uhrzeit ist als Abwesenheit eingetragen';
+        const reason = c.reason ? ` (${c.reason})` : '';
+        return jsonError(
+          `${what}${reason}. Trotzdem buchen? Wiederholen mit force=1.`,
+          request, 409,
+          { code: 'closure_conflict', force_url: '?force=1' }
+        );
+      }
+    }
+  }
+
   // Patient: use existing or create
   let pid = patient_id;
   if (!pid) {

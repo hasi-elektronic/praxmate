@@ -1258,6 +1258,86 @@ textarea.edit-input { resize: vertical; min-height: 70px; }
   .week-header-cell .wh-date { font-size: 14px; }
   .week-header-cell .wh-count { font-size: 9px; }
 }
+/* ========== CLOSURES (Abwesenheiten) ========== */
+.closure-overlay {
+  position: absolute;
+  left: 0; right: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(245, 158, 11, 0.08),
+    rgba(245, 158, 11, 0.08) 8px,
+    rgba(245, 158, 11, 0.16) 8px,
+    rgba(245, 158, 11, 0.16) 16px
+  );
+  border-left: 3px solid rgba(245, 158, 11, 0.6);
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(146, 80, 4, 0.85);
+  text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0 8px;
+  text-align: center;
+  line-height: 1.25;
+  overflow: hidden;
+}
+.closure-overlay.full-day {
+  top: 0;
+  bottom: 0;
+}
+.closure-overlay-icon {
+  font-size: 18px;
+  margin-right: 4px;
+  text-shadow: none;
+  filter: drop-shadow(0 1px 2px rgba(255,255,255,0.8));
+}
+
+/* Month view — closed day */
+.month-cell.has-closure-full {
+  background: repeating-linear-gradient(
+    -45deg,
+    #fef3c7 0,
+    #fef3c7 6px,
+    #fde68a 6px,
+    #fde68a 12px
+  ) !important;
+}
+.month-cell .closure-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 100px;
+  background: #f59e0b;
+  color: white;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-top: 4px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.3);
+}
+.month-cell .closure-pill-mini {
+  font-size: 11px;
+  margin-left: 4px;
+}
+.month-cell .closure-reason {
+  font-size: 10.5px;
+  color: rgba(146, 80, 4, 0.9);
+  font-weight: 500;
+  margin-top: 4px;
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 </style>
 </head>
 <body data-page="calendar">
@@ -1396,6 +1476,19 @@ textarea.edit-input { resize: vertical; min-height: 70px; }
                 :style="block"
               ></div>
 
+              <!-- Closures (vacation overlay) -->
+              <div
+                v-for="(c, ci) in closuresForDayDoctor(viewDate.toISOString().slice(0,10), d.id)"
+                :key="'cls-'+ci"
+                class="closure-overlay"
+                :class="{ 'full-day': c.isFull }"
+                :style="c.isFull ? {} : { top: c._topPx + 'px', height: c._heightPx + 'px' }"
+                :title="(c.reason || 'Geschlossen') + (c.isFull ? '' : ' · ' + c.start_time + '-' + c.end_time)"
+              >
+                <span class="closure-overlay-icon">🌴</span>
+                <span>{{ c.reason || 'Abwesend' }}</span>
+              </div>
+
               <!-- Empty slot click area (covers entire track) -->
               <div
                 class="day-empty-slot"
@@ -1479,6 +1572,18 @@ textarea.edit-input { resize: vertical; min-height: 70px; }
               :style="{ top: (idx * hourHeight + hourHeight / 2) + 'px' }"
             ></div>
 
+            <!-- Closures (vacation overlay, week view) -->
+            <div
+              v-for="(c, ci) in closuresForDay(d.dateStr)"
+              :key="'cls-'+ci"
+              class="closure-overlay"
+              :class="{ 'full-day': c.isFull }"
+              :style="c.isFull ? {} : { top: ((parseInt(c.start_time.split(':')[0]) * 60 + parseInt(c.start_time.split(':')[1]) - displayHours[0] * 60) / 60 * hourHeight) + 'px', height: ((parseInt(c.end_time.split(':')[0]) * 60 + parseInt(c.end_time.split(':')[1]) - parseInt(c.start_time.split(':')[0]) * 60 - parseInt(c.start_time.split(':')[1])) / 60 * hourHeight) + 'px' }"
+              :title="(c.reason || 'Geschlossen') + (c.doctor_name ? ' · ' + c.doctor_name : ' · Ganze Praxis')"
+            >
+              <span class="closure-overlay-icon">🌴</span>
+            </div>
+
             <div
               v-for="a in appointmentsForDay(d.dateStr)"
               :key="a.id"
@@ -1516,7 +1621,8 @@ textarea.edit-input { resize: vertical; min-height: 70px; }
               today: cell.isToday,
               'other-month': cell.otherMonth,
               weekend: cell.isWeekend,
-              empty: cell.appointments.length === 0 && !cell.otherMonth
+              empty: cell.appointments.length === 0 && !cell.otherMonth,
+              'has-closure-full': isDayFullyClosed(cell.dateStr)
             }"
             @click="onMonthCellClick(cell)"
           >
@@ -1524,6 +1630,11 @@ textarea.edit-input { resize: vertical; min-height: 70px; }
               <span class="month-cell-date" :class="{ 'is-today': cell.isToday }">{{ cell.dayNum }}</span>
               <span v-if="cell.appointments.length > 0" class="month-cell-count">
                 {{ cell.appointments.length }}
+              </span>
+              <span v-else-if="closuresForDay(cell.dateStr).length > 0" class="closure-pill" :title="closuresForDay(cell.dateStr).map(c => c.reason || (c.isFull ? 'Geschlossen' : c.start_time + '-' + c.end_time)).join(' · ')">
+                <span class="closure-pill-mini">🌴</span>
+                <span v-if="isDayFullyClosed(cell.dateStr)">Zu</span>
+                <span v-else>{{ closuresForDay(cell.dateStr).length }}</span>
               </span>
             </div>
             <div class="month-cell-body">
@@ -1541,6 +1652,13 @@ textarea.edit-input { resize: vertical; min-height: 70px; }
               </div>
               <div v-if="cell.appointments.length > 4" class="month-more" @click.stop="jumpToDay(cell.dateStr)">
                 +{{ cell.appointments.length - 4 }} weitere
+              </div>
+              <div
+                v-if="cell.appointments.length === 0 && closuresForDay(cell.dateStr).length > 0 && closuresForDay(cell.dateStr)[0].reason"
+                class="closure-reason"
+                :title="closuresForDay(cell.dateStr).map(c => c.reason).filter(Boolean).join(' · ')"
+              >
+                {{ closuresForDay(cell.dateStr)[0].reason }}
               </div>
             </div>
           </div>
@@ -1854,6 +1972,7 @@ createApp({
     const doctors = ref([]);
     const workingHoursByDoctor = ref({}); // { doc_id: [{ dow, start, end }, ...] }
     const allAppointments = ref([]);
+    const allClosures = ref([]);
     const selectedAppt = ref(null);
     const cancelling = ref(false);
     const editing = ref(false);
@@ -2141,6 +2260,49 @@ createApp({
         .map(enrichAppointment);
     }
 
+    // Closures helpers
+    function closuresForDay(dateStr) {
+      // All closures for given date, optionally filtered by selected doctor.
+      // Returns array of { reason, start_time, end_time, doctor_id, doctor_name, isFull }.
+      const all = (allClosures.value || []).filter(c => c.date === dateStr);
+      const filtered = doctorFilter.value === 'all'
+        ? all
+        : all.filter(c => !c.doctor_id || c.doctor_id === doctorFilter.value);
+      return filtered.map(c => ({
+        ...c,
+        isFull: !c.start_time && !c.end_time,
+      }));
+    }
+
+    function closuresForDayDoctor(dateStr, doctorId) {
+      // For week/day grid: return closures that affect THIS doctor on this date.
+      return (allClosures.value || [])
+        .filter(c => c.date === dateStr)
+        .filter(c => !c.doctor_id || c.doctor_id === doctorId)
+        .map(c => {
+          const isFull = !c.start_time && !c.end_time;
+          let topPx = 0, heightPx = 0;
+          if (!isFull) {
+            const [sh, sm] = c.start_time.split(':').map(Number);
+            const [eh, em] = c.end_time.split(':').map(Number);
+            const startMin = sh * 60 + sm;
+            const endMin = eh * 60 + em;
+            // Reuse displayHours bounds (same as appointment positioning)
+            const dayStart = displayHours.value[0] * 60;
+            topPx = ((startMin - dayStart) / 60) * hourHeight.value;
+            heightPx = ((endMin - startMin) / 60) * hourHeight.value;
+          }
+          return { ...c, isFull, _topPx: topPx, _heightPx: heightPx };
+        });
+    }
+
+    // Quick lookup: is the entire day closed for ALL doctors? (for month view dimming)
+    function isDayFullyClosed(dateStr) {
+      return (allClosures.value || []).some(c =>
+        c.date === dateStr && !c.doctor_id && !c.start_time && !c.end_time
+      );
+    }
+
     // Working hours blocks (for background highlight)
     function getWorkingBlocks(doctorId) {
       const whs = workingHoursByDoctor.value[doctorId];
@@ -2229,8 +2391,12 @@ createApp({
         to = gridEnd.toISOString().slice(0, 10);
       }
       try {
-        const data = await api(`/admin/appointments?from=${from}&to=${to}`);
+        const [data, closuresData] = await Promise.all([
+          api(`/admin/appointments?from=${from}&to=${to}`),
+          api(`/admin/closures?from=${from}&to=${to}`).catch(() => ({ closures: [] })),
+        ]);
         allAppointments.value = data?.appointments || [];
+        allClosures.value = closuresData?.closures || [];
       } catch (e) {
         showToast('Fehler beim Laden: ' + e.message, 'error');
       }
@@ -2757,6 +2923,7 @@ createApp({
       displayHours, hourHeight, nowLineTop, weekDays, visibleDoctors,
       monthCells, onMonthCellClick,
       allAppointments,
+      allClosures, closuresForDay, closuresForDayDoctor, isDayFullyClosed,
       selectedAppt, cancelling,
       // Edit mode
       editing, saving, editForm, allDoctors, allTypes, availableDoctorsForType,
@@ -2791,3 +2958,4 @@ createApp({
 <!-- v2 -->
 <!-- v3 -->
 <!-- v4 custom picker -->
+<!-- v0.7.1 calendar closures overlay -->

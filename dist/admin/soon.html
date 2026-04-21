@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bald verfügbar · Praxmate</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/_shell.css">
+<style>
+:root {
+  --ink: #0a0e1a;
+  --ink-soft: #4a5060;
+  --muted: #6b7280;
+  --border: #e4e7eb;
+  --bg: #f4f8fa;
+  --primary: #2d6a8e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+.soon-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 80px 32px;
+  text-align: center;
+}
+.soon-icon {
+  width: 96px; height: 96px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  margin: 0 auto 32px;
+  box-shadow: 0 20px 40px -10px rgba(14,165,233,0.4);
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.soon-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0ea5e9;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  padding: 5px 12px;
+  background: rgba(14,165,233,0.1);
+  border-radius: 100px;
+  margin-bottom: 18px;
+}
+.soon-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin-bottom: 18px;
+}
+.soon-title .grad {
+  background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.soon-sub {
+  font-size: 17px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  max-width: 540px;
+  margin: 0 auto 40px;
+}
+.soon-features {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px 32px;
+  text-align: left;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 12px rgba(10,14,26,0.04);
+}
+.soon-features-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 14px;
+}
+.soon-feature-list {
+  list-style: none;
+  padding: 0;
+}
+.soon-feature-list li {
+  font-size: 14.5px;
+  padding: 8px 0;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border);
+}
+.soon-feature-list li:last-child { border-bottom: none; }
+.soon-feature-list li::before {
+  content: '✓';
+  color: #14b8a6;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.soon-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  background: var(--ink);
+  color: white;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.soon-back:hover {
+  background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(14,165,233,0.3);
+}
+</style>
+</head>
+<body data-page="">
+
+<button class="sb-toggle" id="sbToggle" aria-label="Menü">☰</button>
+
+<div class="app-shell">
+  <aside class="app-sidebar">
+    <div class="sb-brand">
+      <div class="sb-brand-mark">P</div>
+      <div class="sb-brand-text">
+        <div class="sb-brand-name">Praxmate</div>
+        <div class="sb-brand-sub">Super-Admin</div>
+      </div>
+    </div>
+
+    <div class="sb-section-label">Verwaltung</div>
+    <nav class="sb-nav">
+      <a href="/admin/dashboard.html" class="sb-nav-item" data-page="practices">
+        <span class="sb-nav-icon">▦</span><span>Praxen</span>
+      </a>
+      <a href="/admin/soon.html?feature=Statistik" class="sb-nav-item" data-page="stats">
+        <span class="sb-nav-icon">📊</span><span>Statistik</span>
+      </a>
+      <a href="/admin/soon.html?feature=Abrechnung" class="sb-nav-item" data-page="billing">
+        <span class="sb-nav-icon">💳</span><span>Abrechnung</span>
+      </a>
+      <a href="/admin/soon.html?feature=Logs" class="sb-nav-item" data-page="logs">
+        <span class="sb-nav-icon">📋</span><span>Logs</span>
+      </a>
+      <a href="/admin/soon.html?feature=System" class="sb-nav-item" data-page="system">
+        <span class="sb-nav-icon">⚙</span><span>System</span>
+      </a>
+    </nav>
+
+    <div class="sb-user" id="sbUser" title="Abmelden">
+      <div class="sb-user-avatar" id="sbUserAvatar">?</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
+      </div>
+      <span class="sb-logout">↪</span>
+    </div>
+  </aside>
+
+  <main class="app-main">
+
+    <div class="soon-wrap">
+      <div class="soon-icon" id="soonIcon">🚀</div>
+      <div class="soon-eyebrow" id="soonEyebrow">Coming Soon</div>
+      <h1 class="soon-title">
+        <span id="soonFeature">Feature</span><br>
+        <span class="grad">ist auf dem Weg.</span>
+      </h1>
+      <p class="soon-sub" id="soonDesc">
+        Wir arbeiten gerade an diesem Bereich. Sobald er verfügbar ist, finden Sie ihn hier in der Seitenleiste.
+      </p>
+
+      <div class="soon-features">
+        <div class="soon-features-label">Was geplant ist</div>
+        <ul class="soon-feature-list" id="soonList"></ul>
+      </div>
+
+      <a href="/admin/dashboard.html" class="soon-back">
+        <span>←</span> Zurück zu Praxen
+      </a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// Map feature param to icon, page-specific copy + roadmap
+const FEATURES = {
+  Statistik: {
+    icon: '📊',
+    desc: 'Detaillierte Auswertungen über alle Ihre Kunden-Praxen — Termine, Auslastung, Wachstum, Umsatz pro Praxis.',
+    list: [
+      'Termine pro Praxis und Monat',
+      'Top-Praxen nach Buchungen',
+      'Behandler-Auslastung im Vergleich',
+      'No-Show-Quoten und Trends',
+      'Export als CSV / PDF',
+    ],
+  },
+  Abrechnung: {
+    icon: '💳',
+    desc: 'Zentrale Übersicht über Abos, Rechnungen und Zahlungen aller Kunden-Praxen.',
+    list: [
+      'Aktive Abos pro Praxis (Solo / Team / Praxis)',
+      'Monatliche Rechnungsstellung',
+      'Zahlungsstatus und Mahnwesen',
+      'SEPA-Lastschrift Verwaltung',
+      'Umsatz-Dashboard',
+    ],
+  },
+  Logs: {
+    icon: '📋',
+    desc: 'Audit-Trail für alle Änderungen: Wer hat was wann geändert?',
+    list: [
+      'Login-Historie pro Nutzer',
+      'Änderungen an Patientendaten',
+      'Termin-Aktionen (anlegen, ändern, stornieren)',
+      'Admin-Aktionen (Praxis erstellen, Logo ändern)',
+      'Export für Compliance-Audits',
+    ],
+  },
+  System: {
+    icon: '⚙',
+    desc: 'Globale Systemeinstellungen, Wartung und Backups.',
+    list: [
+      'API-Keys und Webhook-Konfiguration',
+      'E-Mail-Templates (Bestätigung, Erinnerung)',
+      'Backup-Status und Wiederherstellung',
+      'Wartungsmodus-Toggle',
+      'System-Health & Performance',
+    ],
+  },
+};
+
+const params = new URLSearchParams(window.location.search);
+const feature = params.get('feature') || 'Feature';
+const cfg = FEATURES[feature] || { icon: '🚀', desc: 'Demnächst verfügbar.', list: [] };
+
+document.title = feature + ' · Bald verfügbar · Praxmate';
+document.getElementById('soonIcon').textContent = cfg.icon;
+document.getElementById('soonFeature').textContent = feature;
+document.getElementById('soonDesc').textContent = cfg.desc;
+
+const ul = document.getElementById('soonList');
+if (cfg.list.length === 0) {
+  ul.innerHTML = '<li>In Planung — Vorschläge willkommen.</li>';
+} else {
+  cfg.list.forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    ul.appendChild(li);
+  });
+}
+
+// Highlight active sidebar item based on feature
+const featureToPage = { Statistik: 'stats', Abrechnung: 'billing', Logs: 'logs', System: 'system' };
+const activePage = featureToPage[feature];
+if (activePage) {
+  document.body.dataset.page = activePage;
+}
+</script>
+
+<script src="/admin/_shell.js"></script>
+
+</body>
+</html>

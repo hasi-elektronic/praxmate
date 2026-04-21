@@ -377,6 +377,7 @@ a { color: var(--primary); text-decoration: none; }
     <button class="tab" data-tab="doctors">👨‍⚕️ Behandler</button>
     <button class="tab" data-tab="types">💼 Leistungen</button>
     <button class="tab" data-tab="hours">🕘 Sprechzeiten</button>
+    <button class="tab" data-tab="closures">🌴 Abwesenheit</button>
     <button class="tab" data-tab="team">👥 Team</button>
   </div>
 
@@ -542,6 +543,27 @@ a { color: var(--primary); text-decoration: none; }
       <div style="display:flex; justify-content:flex-end; margin-top:20px;">
         <button class="btn btn-primary" id="hoursSaveBtn">💾 Sprechzeiten speichern</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB: CLOSURES (Abwesenheit) ============ -->
+  <div class="panel" data-panel="closures">
+    <div class="card">
+      <div class="section-head">
+        <h3>Abwesenheiten &amp; geschlossene Tage</h3>
+        <button class="btn btn-primary" id="addClosureBtn">+ Eintragen</button>
+      </div>
+      <div class="card-sub" style="margin-bottom:16px;">
+        Tragen Sie hier Urlaube, Fortbildungen oder Praxis-Schließungen ein. Patienten können in diesen Zeiten keine Termine buchen.
+      </div>
+      <div class="closures-filter" style="display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap;">
+        <label style="font-size:12px; font-weight:600; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.05em;">Filter:</label>
+        <select id="closuresDoctorFilter" style="padding:8px 12px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit; font-size:13px; background:white;">
+          <option value="">Alle (Praxis + Behandler)</option>
+          <option value="all">Nur Praxis-weit</option>
+        </select>
+      </div>
+      <div id="closuresList"><div class="empty-card">Lade...</div></div>
     </div>
   </div>
 
@@ -716,6 +738,55 @@ a { color: var(--primary); text-decoration: none; }
   </div>
 </div>
 
+<!-- ============ MODAL: CLOSURE ============ -->
+<div class="modal-overlay" id="closureModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Abwesenheit eintragen</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Von *</label>
+          <input id="clsDateFrom" type="date">
+        </div>
+        <div class="form-group">
+          <label>Bis</label>
+          <input id="clsDateTo" type="date">
+          <div class="help" style="font-size:11px; color:var(--muted); margin-top:4px;">Leer lassen für einzelnen Tag.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Behandler</label>
+        <select id="clsDoctor">
+          <option value="">— Ganze Praxis (alle Behandler) —</option>
+        </select>
+        <div class="help" style="font-size:11px; color:var(--muted); margin-top:4px;">"Ganze Praxis" = alle Behandler sind in diesem Zeitraum nicht buchbar.</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Von Uhrzeit</label>
+          <input id="clsTimeFrom" type="time">
+          <div class="help" style="font-size:11px; color:var(--muted); margin-top:4px;">Leer = ganztägig.</div>
+        </div>
+        <div class="form-group">
+          <label>Bis Uhrzeit</label>
+          <input id="clsTimeTo" type="time">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Grund (optional)</label>
+        <input id="clsReason" type="text" placeholder="z.B. Urlaub, Fortbildung, Pfingsten">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close>Abbrechen</button>
+      <button class="btn btn-primary" id="clsSaveBtn">Eintragen</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -809,7 +880,7 @@ async function init() {
     applyBrand();
 
     // Load all data in parallel for speedy tab switching
-    await Promise.all([loadDoctors(), loadTypes(), loadUsers(), loadHours()]);
+    await Promise.all([loadDoctors(), loadTypes(), loadUsers(), loadHours(), loadClosures()]);
   } catch (e) {
     toast('Fehler: ' + e.message, 'error');
   }
@@ -1364,6 +1435,194 @@ document.addEventListener('click', async (e) => {
   }
 });
 
+// ============ CLOSURES (Abwesenheiten) ============
+let closures = [];
+
+async function loadClosures() {
+  try {
+    const filter = document.getElementById('closuresDoctorFilter')?.value || '';
+    const params = new URLSearchParams();
+    if (filter) params.set('doctor_id', filter);
+    const data = await api('/admin/closures' + (params.toString() ? '?' + params : ''));
+    closures = data.closures || [];
+    renderClosures();
+    updateClosuresDoctorFilter();
+  } catch (e) {
+    document.getElementById('closuresList').innerHTML = `<div class="empty-card">Fehler: ${e.message}</div>`;
+  }
+}
+
+function updateClosuresDoctorFilter() {
+  // Add doctor options to filter dropdown if not already there
+  const sel = document.getElementById('closuresDoctorFilter');
+  if (!sel || sel.dataset.populated === '1') return;
+  doctors.forEach(doc => {
+    const opt = document.createElement('option');
+    opt.value = doc.id;
+    opt.textContent = '👨‍⚕️ ' + doc.name;
+    sel.appendChild(opt);
+  });
+  sel.dataset.populated = '1';
+}
+
+function renderClosures() {
+  const list = document.getElementById('closuresList');
+  if (closures.length === 0) {
+    list.innerHTML = `
+      <div class="empty-card">
+        <div class="empty-card-icon">🌴</div>
+        <div style="font-weight:600; color:var(--ink); margin-bottom:4px;">Noch keine Abwesenheiten</div>
+        <div style="font-size:13px;">Klicken Sie auf "+ Eintragen", um Urlaube oder Schließtage zu hinterlegen.</div>
+      </div>`;
+    return;
+  }
+
+  // Group consecutive same-reason same-doctor closures into ranges
+  const groups = groupClosures(closures);
+  const fmtDate = iso => {
+    const [y, m, d] = iso.split('-');
+    return `${d}.${m}.${y}`;
+  };
+  const fmtRange = g => g.dates.length === 1
+    ? fmtDate(g.dates[0])
+    : `${fmtDate(g.dates[0])} – ${fmtDate(g.dates[g.dates.length - 1])}`;
+
+  list.innerHTML = groups.map(g => {
+    const days = g.dates.length;
+    const target = g.doctor_name ? `👨‍⚕️ ${escapeHtml(g.doctor_name)}` : '🏥 Ganze Praxis';
+    const time = g.start_time && g.end_time
+      ? ` · ${g.start_time}–${g.end_time}`
+      : ' · Ganztägig';
+    const reason = g.reason ? `<div class="list-meta">${escapeHtml(g.reason)}</div>` : '';
+    const idsAttr = g.ids.join(',');
+    return `
+      <div class="list-row">
+        <div class="list-avatar soft" style="background:#f59e0b;">🌴</div>
+        <div class="list-body">
+          <div class="list-title">${fmtRange(g)} ${days > 1 ? `<span class="badge">${days} Tage</span>` : ''}</div>
+          <div class="list-meta">${target}${time}</div>
+          ${reason}
+        </div>
+        <div class="list-actions">
+          <button class="btn btn-danger delete-cls-btn" data-ids="${idsAttr}" title="Löschen">🗑</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Bind delete handlers
+  list.querySelectorAll('.delete-cls-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const ids = btn.dataset.ids.split(',');
+      if (!confirm(`${ids.length === 1 ? 'Diesen Eintrag' : 'Alle ' + ids.length + ' Tage'} löschen?`)) return;
+      try {
+        await Promise.all(ids.map(id =>
+          api(`/admin/closures/${id}`, { method: 'DELETE' })
+        ));
+        toast('Abwesenheit gelöscht', 'success');
+        await loadClosures();
+      } catch (e) {
+        toast('Fehler: ' + e.message, 'error');
+      }
+    });
+  });
+}
+
+// Group consecutive dates with same doctor + reason + time into single entries
+function groupClosures(items) {
+  if (!items.length) return [];
+  const groups = [];
+  let cur = null;
+  // items already sorted by date
+  for (const c of items) {
+    const sig = [c.doctor_id || '', c.reason || '', c.start_time || '', c.end_time || ''].join('|');
+    if (cur && cur.sig === sig && isNextDay(cur.dates[cur.dates.length - 1], c.date)) {
+      cur.dates.push(c.date);
+      cur.ids.push(c.id);
+    } else {
+      cur = {
+        sig, ids: [c.id], dates: [c.date],
+        doctor_id: c.doctor_id, doctor_name: c.doctor_name,
+        start_time: c.start_time, end_time: c.end_time,
+        reason: c.reason,
+      };
+      groups.push(cur);
+    }
+  }
+  return groups;
+}
+
+function isNextDay(prevISO, currISO) {
+  const prev = new Date(prevISO + 'T00:00:00Z');
+  const curr = new Date(currISO + 'T00:00:00Z');
+  return (curr - prev) === 86400000;
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+// Doctor filter change
+document.getElementById('closuresDoctorFilter')?.addEventListener('change', loadClosures);
+
+// Open closure modal
+document.getElementById('addClosureBtn')?.addEventListener('click', () => {
+  if (!isOwner()) return toast('Nur der Inhaber kann Abwesenheiten anlegen.', 'error');
+  // Reset form
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById('clsDateFrom').value = today;
+  document.getElementById('clsDateTo').value = '';
+  document.getElementById('clsTimeFrom').value = '';
+  document.getElementById('clsTimeTo').value = '';
+  document.getElementById('clsReason').value = '';
+  document.getElementById('clsDoctor').value = '';
+  // Populate doctor dropdown
+  const docSel = document.getElementById('clsDoctor');
+  // Clear all but first
+  while (docSel.options.length > 1) docSel.remove(1);
+  doctors.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d.id;
+    opt.textContent = d.name;
+    docSel.appendChild(opt);
+  });
+  document.getElementById('closureModal').classList.add('visible');
+});
+
+// Save closure
+document.getElementById('clsSaveBtn')?.addEventListener('click', async () => {
+  const dateFrom = document.getElementById('clsDateFrom').value;
+  if (!dateFrom) return toast('Von-Datum ist erforderlich', 'error');
+  const dateTo = document.getElementById('clsDateTo').value || dateFrom;
+  if (dateTo < dateFrom) return toast('Bis-Datum darf nicht vor Von-Datum liegen', 'error');
+
+  const startTime = document.getElementById('clsTimeFrom').value;
+  const endTime = document.getElementById('clsTimeTo').value;
+  if ((startTime && !endTime) || (!startTime && endTime)) {
+    return toast('Bitte beide Zeiten angeben (oder beide leer für ganztägig)', 'error');
+  }
+
+  const payload = {
+    date_from: dateFrom,
+    date_to: dateTo,
+    doctor_id: document.getElementById('clsDoctor').value || null,
+    start_time: startTime || null,
+    end_time: endTime || null,
+    reason: document.getElementById('clsReason').value.trim() || null,
+  };
+
+  try {
+    const result = await api('/admin/closures', { method: 'POST', body: JSON.stringify(payload) });
+    toast(`✓ ${result.count} Tag(e) eingetragen`, 'success');
+    document.getElementById('closureModal').classList.remove('visible');
+    await loadClosures();
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'error');
+  }
+});
+
 // ============ TABS ============
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -1398,3 +1657,4 @@ init();
 </html>
 <!-- v6.3 null-safe old DOM refs -->
 <!-- v6.4 fix orphan topbar fragments -->
+<!-- v0.7 closures UI -->

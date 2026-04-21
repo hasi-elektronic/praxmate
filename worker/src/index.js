@@ -85,6 +85,13 @@ import {
   handlePatientNotes,
 } from './routes/patients.js';
 
+// Closures (absences)
+import {
+  handleClosuresList,
+  handleClosuresCreate,
+  handleClosuresDelete,
+} from './routes/closures.js';
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -272,6 +279,20 @@ export default {
       }
       if (adminUserMatch && method === 'DELETE') {
         return await handleUserDelete(env, request, adminUserMatch[1]);
+      }
+
+      // ============================================================
+      // ADMIN — closures (absences / Urlaub)
+      // ============================================================
+      if (path === '/api/admin/closures' && method === 'GET') {
+        return await handleClosuresList(env, request);
+      }
+      if (path === '/api/admin/closures' && method === 'POST') {
+        return await handleClosuresCreate(env, request);
+      }
+      const adminClosureMatch = path.match(/^\/api\/admin\/closures\/(cls_[a-f0-9]+)$/);
+      if (adminClosureMatch && method === 'DELETE') {
+        return await handleClosuresDelete(env, request, adminClosureMatch[1]);
       }
 
       // ============================================================

@@ -244,6 +244,27 @@ export async function handleAppointmentCreate(env, request) {
   `).bind(doctor_id, end_datetime, start_datetime).first();
   if (conflict) return jsonError('Zeitraum inzwischen belegt', request, 409);
 
+  // Closure check (vacation / Praxis geschlossen)
+  const dateStr = start_datetime.slice(0, 10);
+  const startTimeStr = start_datetime.slice(11, 16);
+  const endTimeStr = end_datetime.slice(11, 16);
+  const closureCheck = await env.DB.prepare(`
+    SELECT id, start_time, end_time, reason
+    FROM closures
+    WHERE practice_id = ? AND date = ?
+      AND (doctor_id IS NULL OR doctor_id = ?)
+  `).bind(practice.id, dateStr, doctor_id).all();
+  for (const c of (closureCheck.results || [])) {
+    // Full-day closure
+    if (!c.start_time && !c.end_time) {
+      return jsonError(c.reason ? `Praxis geschlossen: ${c.reason}` : 'An diesem Tag ist die Praxis geschlossen', request, 409);
+    }
+    // Time range overlap
+    if (c.start_time && c.end_time && c.start_time < endTimeStr && c.end_time > startTimeStr) {
+      return jsonError(c.reason ? `Behandler nicht verfügbar: ${c.reason}` : 'Zu dieser Uhrzeit nicht verfügbar', request, 409);
+    }
+  }
+
   // Find or create patient
   let patient = await env.DB.prepare(`
     SELECT id FROM patients WHERE practice_id=? AND email=? LIMIT 1
