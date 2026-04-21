@@ -6,6 +6,7 @@
 <title>Praxmate — Einstellungen</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232d6a8e'/%3E%3Ctext x='50' y='68' font-family='Georgia' font-size='50' font-weight='700' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/praxis/_shell.css">
 <style>
 :root {
   --primary: #2d6a8e;
@@ -335,33 +336,37 @@ a { color: var(--primary); text-decoration: none; }
 }
 </style>
 </head>
-<body>
+<body data-page="settings">
 
-<div class="topbar">
-  <div class="topbar-inner">
-    <div class="brand" id="brand">
-      <div class="brand-mark" id="brandMark">P</div>
-      <div class="brand-text">
-        <div class="brand-name">Praxmate</div>
-        <div class="brand-sub" id="brandSub">Einstellungen</div>
+<button class="sb-toggle" id="sbToggle" aria-label="Menü">☰</button>
+
+<div class="app-shell">
+  <aside class="app-sidebar">
+    <div class="sb-brand">
+      <div class="sb-brand-mark" id="sbBrandMark">P</div>
+      <div class="sb-brand-text">
+        <div class="sb-brand-name">Praxmate</div>
+        <div class="sb-brand-sub" id="sbBrandSub">Lade...</div>
       </div>
     </div>
-    <nav class="nav-links">
-      <a href="/praxis/dashboard.html" class="nav-link">Dashboard</a>
-      <a href="/praxis/new-appointment.html" class="nav-link">Neuer Termin</a>
-      <a href="/praxis/calendar.html" class="nav-link">Kalender</a>
-      <a href="/praxis/patients.html" class="nav-link">Patienten</a>
-      <a href="/praxis/settings.html" class="nav-link active">Einstellungen</a>
+    <nav class="sb-nav">
+      <a href="/praxis/dashboard.html" class="sb-nav-item" data-page="dashboard"><span class="sb-nav-icon">▦</span><span>Dashboard</span></a>
+      <a href="/praxis/new-appointment.html" class="sb-nav-item" data-page="new-appointment"><span class="sb-nav-icon">+</span><span>Neuer Termin</span></a>
+      <a href="/praxis/calendar.html" class="sb-nav-item" data-page="calendar"><span class="sb-nav-icon">▤</span><span>Kalender</span></a>
+      <a href="/praxis/patients.html" class="sb-nav-item" data-page="patients"><span class="sb-nav-icon">◉</span><span>Patienten</span></a>
+      <a href="/praxis/settings.html" class="sb-nav-item" data-page="settings"><span class="sb-nav-icon">⚙</span><span>Einstellungen</span></a>
     </nav>
-    <div class="user-menu" id="userMenu">
-      <div class="user-avatar" id="userAvatar">?</div>
-      <div class="user-info">
-        <div class="user-name" id="userName">—</div>
-        <div class="user-role" id="userRole">—</div>
+    <div class="sb-user" id="sbUser" title="Abmelden">
+      <div class="sb-user-avatar" id="sbUserAvatar">?</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
       </div>
+      <span class="sb-logout">↪</span>
     </div>
-  </div>
-</div>
+  </aside>
+
+  <main class="app-main">
 
 <div class="wrap">
   <div class="page-title">Einstellungen</div>
@@ -784,9 +789,12 @@ async function init() {
     const me = await api('/admin/auth/me');
     if (!me) return;
     currentUser = me.user;
-    document.getElementById('userName').textContent = me.user.name;
-    document.getElementById('userRole').textContent = ({owner:'Inhaber', doctor:'Behandler', staff:'Team'}[me.user.role] || me.user.role);
-    document.getElementById('userAvatar').textContent = (me.user.name||'?').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    // Note: user info is now rendered by the sidebar shell (_shell.js)
+    // Keep these for backwards-compat if the elements still exist
+    document.getElementById('userName')?.replaceChildren(document.createTextNode(me.user.name));
+    document.getElementById('userRole')?.replaceChildren(document.createTextNode({owner:'Inhaber', doctor:'Behandler', staff:'Team'}[me.user.role] || me.user.role));
+    const avaEl = document.getElementById('userAvatar');
+    if (avaEl) avaEl.textContent = (me.user.name||'?').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 
     if (!isOwner()) {
       document.getElementById('roleNotice').style.display = 'block';
@@ -812,7 +820,8 @@ async function loadPractice() {
   practice = await api('/admin/practice/settings');
   if (!practice) return;
 
-  document.getElementById('brandSub').textContent = practice.name || 'Einstellungen';
+  // brandSub was in old topbar; sidebar shell now handles this
+  document.getElementById('brandSub')?.replaceChildren(document.createTextNode(practice.name || 'Einstellungen'));
   document.getElementById('fldName').value = practice.name || '';
   document.getElementById('fldPhone').value = practice.phone || '';
   document.getElementById('fldEmail').value = practice.email || '';
@@ -833,7 +842,9 @@ function applyBrand() {
   if (!practice) return;
   if (practice.brand_primary) document.documentElement.style.setProperty('--primary', practice.brand_primary);
   if (practice.logo_url) {
-    document.getElementById('brandMark').innerHTML = `<img src="${practice.logo_url}" alt="">`;
+    const oldMark = document.getElementById('brandMark');
+    if (oldMark) oldMark.innerHTML = `<img src="${practice.logo_url}" alt="">`;
+    // Sidebar shell handles its own logo via sbBrandMark
   }
 }
 
@@ -884,7 +895,7 @@ document.getElementById('practiceSaveBtn').addEventListener('click', async () =>
     practice = await api('/admin/practice/settings', { method: 'PUT', body: JSON.stringify(payload) });
     toast('✓ Praxis-Daten gespeichert', 'success');
     applyBrand();
-    document.getElementById('brandSub').textContent = practice.name;
+    document.getElementById('brandSub')?.replaceChildren(document.createTextNode(practice.name));
   } catch (e) {
     toast('Fehler: ' + e.message, 'error');
   }
@@ -1367,8 +1378,8 @@ document.querySelectorAll('[data-close]').forEach(el => {
   el.addEventListener('click', () => document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('visible')));
 });
 
-// Logout via user menu
-document.getElementById('userMenu').addEventListener('click', async () => {
+// Logout via user menu (kept for backwards-compat; sidebar shell handles logout separately)
+document.getElementById('userMenu')?.addEventListener('click', async () => {
   if (!confirm('Abmelden?')) return;
   try { await api('/admin/auth/logout', { method: 'POST' }); } catch {}
   localStorage.removeItem('praxmate_token');
@@ -1378,5 +1389,12 @@ document.getElementById('userMenu').addEventListener('click', async () => {
 init();
 </script>
 
+<script src="/praxis/_shell.js"></script>
+
+  </main>
+</div>
+
 </body>
 </html>
+<!-- v6.3 null-safe old DOM refs -->
+<!-- v6.4 fix orphan topbar fragments -->
