@@ -47,6 +47,8 @@ import {
   handleSuperPracticeDetail,
   handleSuperPracticeUpdate,
   handleSuperPracticeCreate,
+  handleSuperPracticeDelete,
+  handleSuperImpersonate,
   handleSuperStats,
 } from './routes/settings.js';
 
@@ -313,6 +315,13 @@ export default {
       }
       if (superPrcMatch && method === 'PUT') {
         return await handleSuperPracticeUpdate(env, request, superPrcMatch[1]);
+      }
+      if (superPrcMatch && method === 'DELETE') {
+        return await handleSuperPracticeDelete(env, request, superPrcMatch[1]);
+      }
+      const superImpMatch = path.match(/^\/api\/super\/practices\/(prc_[a-f0-9]+)\/impersonate$/);
+      if (superImpMatch && method === 'POST') {
+        return await handleSuperImpersonate(env, request, superImpMatch[1]);
       }
 
       // ============================================================

@@ -1,5 +1,5 @@
 import { jsonResponse, jsonError } from '../lib/http.js';
-import { requireAuth, requireRole } from '../lib/auth.js';
+import { requireAuth, requireRole, createSession } from '../lib/auth.js';
 import { getPracticeById } from '../lib/tenant.js';
 import { logAudit } from '../lib/audit.js';
 import { generateId, hashPassword } from '../lib/crypto.js';
@@ -244,6 +244,45 @@ export async function handleSuperPracticeCreate(env, request) {
     ) VALUES (?, ?, ?, ?, 'owner', ?, ?, ?, datetime('now'), 'active')
   `).bind(userId, practiceId, owner_email, owner_name, initials, hash, salt).run();
 
+  // Optional: create default doctor (chef = owner) + default appointment type + default working hours
+  if (body.create_defaults !== false) {
+    const docId = generateId('doc');
+    await env.DB.prepare(`
+      INSERT INTO doctors (id, practice_id, name, title, is_active, created_at)
+      VALUES (?, ?, ?, ?, 1, datetime('now'))
+    `).bind(docId, practiceId, owner_name, body.owner_title || null).run();
+
+    // Default appointment type
+    const typeId = generateId('apt');
+    await env.DB.prepare(`
+      INSERT INTO appointment_types (
+        id, practice_id, name, duration_minutes, color, sort_order, is_active, created_at
+      ) VALUES (?, ?, 'Beratung', 30, '#2d6a8e', 1, 1, datetime('now'))
+    `).bind(typeId, practiceId).run();
+
+    // Link doctor to type
+    await env.DB.prepare(`
+      INSERT INTO doctor_appointment_types (doctor_id, appointment_type_id)
+      VALUES (?, ?)
+    `).bind(docId, typeId).run();
+
+    // Default working hours: Mo-Fr 08:00-12:00 + 14:00-18:00
+    const hoursTemplate = body.hours_template || 'standard';
+    const hourBlocks = (hoursTemplate === 'extended')
+      ? [['08:00','13:00'], ['14:00','19:00']]   // 5h morning + 5h afternoon
+      : (hoursTemplate === 'mornings')
+      ? [['08:00','13:00']]                       // mornings only
+      : [['08:00','12:00'], ['14:00','18:00']];   // standard
+    for (let dow = 1; dow <= 5; dow++) {
+      for (const [start, end] of hourBlocks) {
+        await env.DB.prepare(`
+          INSERT INTO working_hours (id, practice_id, doctor_id, day_of_week, start_time, end_time)
+          VALUES (?, ?, ?, ?, ?, ?)
+        `).bind(generateId('whr'), practiceId, docId, dow, start, end).run();
+      }
+    }
+  }
+
   await logAudit(env, {
     practice_id: practiceId,
     actor_type: 'user',
@@ -291,4 +330,151 @@ export async function handleSuperStats(env, request) {
   `).all();
 
   return jsonResponse({ stats, activity: activity.results }, request);
+}
+
+// ============================================================
+// DELETE /api/super/practices/:id — delete practice + all data
+// ============================================================
+// Cascade delete: appointments, patients, doctors, types, hours,
+// users, sessions, closures, domains, audit_log entries.
+// Requires confirm=PRAXISNAME query param to prevent accidents.
+export async function handleSuperPracticeDelete(env, request, practiceId) {
+  const superUser = await requireSuperAdmin(env, request);
+
+  const practice = await env.DB.prepare(
+    `SELECT id, slug, name FROM practices WHERE id = ?`
+  ).bind(practiceId).first();
+  if (!practice) return jsonError('Praxis nicht gefunden', request, 404);
+
+  // Safety: require confirm=<slug> in query
+  const url = new URL(request.url);
+  const confirm = url.searchParams.get('confirm');
+  if (confirm !== practice.slug) {
+    return jsonError(
+      `Bestätigung erforderlich. Sende ?confirm=${practice.slug} um endgültig zu löschen.`,
+      request, 400
+    );
+  }
+
+  // Refuse to delete system practice
+  const sys = await env.DB.prepare(
+    `SELECT id FROM practices WHERE id = ? AND specialty = 'system'`
+  ).bind(practiceId).first();
+  if (sys) return jsonError('System-Praxis kann nicht gelöscht werden', request, 403);
+
+  // Cascade delete (no FK cascade in SQLite by default)
+  const tables = [
+    'appointments', 'patients', 'closures', 'working_hours',
+    'doctor_appointment_types', 'appointment_types', 'doctors',
+    'sessions', 'practice_domains',
+  ];
+  let stats = {};
+  for (const tbl of tables) {
+    try {
+      const r = await env.DB.prepare(
+        `DELETE FROM ${tbl} WHERE practice_id = ?`
+      ).bind(practiceId).run();
+      stats[tbl] = r.meta.changes || 0;
+    } catch (e) {
+      // Table might not have practice_id column — skip
+      stats[tbl] = `skipped: ${e.message}`;
+    }
+  }
+  // Sessions for users belonging to this practice (in case)
+  try {
+    await env.DB.prepare(
+      `DELETE FROM sessions WHERE user_id IN (SELECT id FROM users WHERE practice_id = ?)`
+    ).bind(practiceId).run();
+  } catch {}
+  // Users
+  const userResult = await env.DB.prepare(
+    `DELETE FROM users WHERE practice_id = ?`
+  ).bind(practiceId).run();
+  stats.users = userResult.meta.changes || 0;
+
+  // Audit log entries (keep history elsewhere — but practice-scoped ones can go)
+  try {
+    await env.DB.prepare(
+      `DELETE FROM audit_log WHERE practice_id = ?`
+    ).bind(practiceId).run();
+  } catch {}
+
+  // Finally the practice itself
+  await env.DB.prepare(`DELETE FROM practices WHERE id = ?`).bind(practiceId).run();
+
+  // R2 logo cleanup (best-effort)
+  if (env.R2) {
+    try {
+      const list = await env.R2.list({ prefix: `praxmate/logos/${practice.slug}/` });
+      for (const obj of (list.objects || [])) {
+        await env.R2.delete(obj.key);
+      }
+    } catch {}
+  }
+
+  return jsonResponse({
+    ok: true,
+    deleted: practice.slug,
+    stats,
+  }, request);
+}
+
+// ============================================================
+// POST /api/super/practices/:id/impersonate — log in as practice owner
+// ============================================================
+// Returns a praxis-scoped session token that the super-admin can use
+// to log in as the owner of the target practice for support purposes.
+export async function handleSuperImpersonate(env, request, practiceId) {
+  const superUser = await requireSuperAdmin(env, request);
+
+  const practice = await env.DB.prepare(
+    `SELECT id, slug, name FROM practices WHERE id = ?`
+  ).bind(practiceId).first();
+  if (!practice) return jsonError('Praxis nicht gefunden', request, 404);
+
+  // Find the owner (or any active admin)
+  const owner = await env.DB.prepare(`
+    SELECT id, email, name, role, doctor_id, avatar_initials, practice_id
+    FROM users
+    WHERE practice_id = ? AND status = 'active'
+    ORDER BY CASE role WHEN 'owner' THEN 1 WHEN 'doctor' THEN 2 ELSE 3 END
+    LIMIT 1
+  `).bind(practiceId).first();
+
+  if (!owner) return jsonError('Kein aktiver Nutzer in dieser Praxis gefunden', request, 404);
+
+  // Create session for this user
+  const session = await createSession(env, owner, request, false);
+
+  await logAudit(env, {
+    practice_id: practiceId,
+    actor_type: 'user',
+    actor_id: superUser.user_id,
+    action: 'practice.impersonated',
+    meta: {
+      slug: practice.slug,
+      by: superUser.email,
+      as_user: owner.email,
+    },
+    request,
+  });
+
+  return jsonResponse({
+    token: session.token,
+    expires_at: session.expires_at,
+    user: {
+      id: owner.id,
+      email: owner.email,
+      name: owner.name,
+      role: owner.role,
+      doctor_id: owner.doctor_id,
+      avatar_initials: owner.avatar_initials,
+    },
+    practice: {
+      id: practice.id,
+      slug: practice.slug,
+      name: practice.name,
+    },
+    redirect_url: `/praxis/dashboard.html?practice=${practice.slug}`,
+  }, request);
 }

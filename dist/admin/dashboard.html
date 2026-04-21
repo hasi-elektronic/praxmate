@@ -265,8 +265,139 @@ a { color: var(--hasi); text-decoration: none; }
   text-decoration: none;
   transition: all 0.15s;
   min-width: 80px;
+  font-family: inherit;
 }
 .act-btn:hover { background: white; border-color: var(--hasi); color: var(--hasi); }
+.act-btn:disabled { opacity: 0.5; cursor: wait; }
+.act-btn.act-primary {
+  background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+  color: white;
+  border-color: transparent;
+  flex: 2;
+  min-width: 140px;
+  box-shadow: 0 2px 8px rgba(14,165,233,0.25);
+}
+.act-btn.act-primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(14,165,233,0.35);
+  color: white;
+}
+.act-btn.act-danger {
+  flex: 0 0 auto;
+  min-width: 38px;
+  padding: 8px 10px;
+  font-size: 14px;
+  color: #dc2626;
+}
+.act-btn.act-danger:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+  color: #b91c1c;
+}
+
+/* Quick stats (3-column mini stats per card) */
+.practice-quickstats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.qs-item { text-align: center; }
+.qs-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.qs-lbl {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* Meta row: specialty + city */
+.practice-meta-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  flex-wrap: wrap;
+}
+.pm-spec {
+  background: var(--bg);
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-weight: 600;
+}
+.pm-city { color: var(--muted); }
+
+/* Plan dropdown row */
+.practice-plan-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+.pp-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.pp-select {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+.pp-select:focus { outline: none; border-color: var(--hasi); }
+.pp-select:disabled { opacity: 0.5; cursor: wait; }
+
+/* Status badge in card head */
+.practice-card-head .badge {
+  align-self: flex-start;
+}
+
+/* Toast on card after change */
+.card-flash {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: #16a34a;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(22,163,74,0.3);
+  animation: cardFlashIn 0.3s ease;
+  z-index: 5;
+}
+@keyframes cardFlashIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.practice-card { position: relative; }
 
 /* MODAL */
 .modal-overlay {
@@ -598,7 +729,7 @@ a { color: var(--hasi); text-decoration: none; }
 
 <!-- NEW PRACTICE MODAL -->
 <div class="modal-overlay" id="newPracticeModal">
-  <div class="modal">
+  <div class="modal" style="max-width:680px;">
     <div class="modal-head">
       <div class="modal-title">Neue Praxis anlegen</div>
       <button class="modal-close" data-close>✕</button>
@@ -606,6 +737,7 @@ a { color: var(--hasi); text-decoration: none; }
     <div class="modal-body">
       <div id="newPracticeError" class="error-msg" style="display:none;"></div>
 
+      <h3 style="font-size:14px; font-weight:700; margin-bottom:12px;">Praxis-Info</h3>
       <div class="form-row">
         <div class="form-group">
           <label>Praxisname *</label>
@@ -614,7 +746,7 @@ a { color: var(--hasi); text-decoration: none; }
         <div class="form-group">
           <label>URL-Slug *</label>
           <input id="npSlug" type="text" placeholder="mueller" pattern="[a-z0-9-]+">
-          <div class="help">Klein, ohne Leerzeichen (z.B. "mueller") → mueller.praxmate.de</div>
+          <div class="help">Klein, ohne Leerzeichen → mueller.praxmate.de</div>
         </div>
       </div>
 
@@ -622,15 +754,15 @@ a { color: var(--hasi); text-decoration: none; }
         <div class="form-group">
           <label>Fachrichtung</label>
           <select id="npSpecialty">
-            <option value="dentist">Zahnarzt</option>
-            <option value="gp" selected>Hausarzt</option>
-            <option value="pediatric">Kinderarzt</option>
-            <option value="physio">Physiotherapie</option>
-            <option value="dermatology">Dermatologie</option>
-            <option value="gyn">Gynäkologie</option>
-            <option value="orthopedic">Orthopäde</option>
-            <option value="ent">HNO</option>
-            <option value="other">Sonstige</option>
+            <option value="dentist">🦷 Zahnarzt</option>
+            <option value="gp" selected>❤️ Hausarzt</option>
+            <option value="pediatric">👶 Kinderarzt</option>
+            <option value="physio">💪 Physiotherapie</option>
+            <option value="dermatology">🧴 Dermatologie</option>
+            <option value="gyn">🌸 Gynäkologie</option>
+            <option value="orthopedic">🦴 Orthopäde</option>
+            <option value="ent">👂 HNO</option>
+            <option value="other">🏥 Sonstige</option>
           </select>
         </div>
         <div class="form-group">
@@ -643,42 +775,72 @@ a { color: var(--hasi); text-decoration: none; }
         </div>
       </div>
 
+      <h3 style="font-size:14px; font-weight:700; margin:20px 0 12px;">Kontakt &amp; Adresse</h3>
+      <div class="form-group">
+        <label>Straße &amp; Nr</label>
+        <input id="npStreet" type="text" placeholder="Hauptstraße 12">
+      </div>
       <div class="form-row">
+        <div class="form-group">
+          <label>PLZ</label>
+          <input id="npPostalCode" type="text" placeholder="71665" maxlength="5">
+        </div>
         <div class="form-group">
           <label>Stadt</label>
           <input id="npCity" type="text" placeholder="Vaihingen an der Enz">
         </div>
+      </div>
+      <div class="form-row">
         <div class="form-group">
           <label>Telefon</label>
-          <input id="npPhone" type="text" placeholder="07042 ...">
+          <input id="npPhone" type="text" placeholder="07042 12345">
+        </div>
+        <div class="form-group">
+          <label>Praxis-E-Mail</label>
+          <input id="npEmail" type="email" placeholder="info@praxis.de">
         </div>
       </div>
-
       <div class="form-group">
-        <label>Praxis-E-Mail</label>
-        <input id="npEmail" type="email" placeholder="info@praxis.de">
+        <label>Website (optional)</label>
+        <input id="npWebsite" type="url" placeholder="https://www.praxis.de">
+      </div>
+
+      <h3 style="font-size:14px; font-weight:700; margin:20px 0 12px;">Sprechzeiten-Vorlage</h3>
+      <div class="form-group">
+        <label>Standard-Wochenplan (Mo–Fr)</label>
+        <select id="npHoursTemplate">
+          <option value="standard" selected>🕘 Standard: 08:00–12:00 · 14:00–18:00</option>
+          <option value="extended">🕙 Erweitert: 08:00–13:00 · 14:00–19:00</option>
+          <option value="mornings">☀ Nur Vormittag: 08:00–13:00</option>
+          <option value="none">⊘ Keine Vorlage (Praxis trägt selbst ein)</option>
+        </select>
+        <div class="help">Wir legen einen Behandler (Inhaber) und eine Behandlung "Beratung 30 Min" mit den gewählten Zeiten an. Der Kunde kann alles später anpassen.</div>
       </div>
 
       <div style="height: 1px; background: var(--border); margin: 20px 0;"></div>
 
       <h3 style="font-size:14px; font-weight:700; margin-bottom:12px;">Owner-Konto (Chef/Chefin der Praxis)</h3>
-
       <div class="form-row">
         <div class="form-group">
           <label>Name *</label>
           <input id="npOwnerName" type="text" placeholder="Dr. Max Mustermann">
         </div>
         <div class="form-group">
+          <label>Titel (optional)</label>
+          <input id="npOwnerTitle" type="text" placeholder="Dr. med.">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
           <label>E-Mail *</label>
           <input id="npOwnerEmail" type="email" placeholder="max@praxis.de">
         </div>
+        <div class="form-group">
+          <label>Passwort *</label>
+          <input id="npOwnerPassword" type="text" value="Praxmate2026!" placeholder="min. 8 Zeichen">
+        </div>
       </div>
-
-      <div class="form-group">
-        <label>Passwort *</label>
-        <input id="npOwnerPassword" type="text" value="Praxmate2026!" placeholder="min. 8 Zeichen">
-        <div class="help">Merke dir das Passwort — der Kunde muss es zum ersten Login wissen.</div>
-      </div>
+      <div class="help" style="font-size:12px;">💡 Merken Sie sich das Passwort — der Kunde benötigt es zum ersten Login. Sie können sich später jederzeit als Praxis-Inhaber einloggen (kein Passwort nötig).</div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" data-close>Abbrechen</button>
@@ -773,32 +935,61 @@ function renderPractices(practices) {
       ? `<div class="practice-logo"><img src="${p.logo_url}" alt=""></div>`
       : `<div class="practice-logo" style="--practice-color: ${p.brand_primary || '#2d6a8e'}">${p.name.charAt(0)}</div>`;
 
-    const planBadge = `<span class="badge plan">${(p.plan || 'team').toUpperCase()}</span>`;
     const statusBadge = `<span class="badge ${p.plan_status || 'trial'}">${p.plan_status === 'active' ? 'Aktiv' : p.plan_status === 'suspended' ? 'Gesperrt' : 'Trial'}</span>`;
 
     return `
-      <div class="practice-card" data-id="${p.id}">
+      <div class="practice-card" data-id="${p.id}" data-slug="${p.slug}" data-name="${escapeHtml(p.name)}">
         <div class="practice-card-head">
           ${logoHtml}
           <div class="practice-card-info">
             <div class="practice-name">${escapeHtml(p.name)}</div>
             <div class="practice-slug">${p.slug}.praxmate.de</div>
           </div>
-        </div>
-        <div class="practice-meta">
-          ${p.city ? `<span>📍 ${escapeHtml(p.city)}</span>` : ''}
-          <span>${specialtyLabel(p.specialty)}</span>
-        </div>
-        <div class="practice-badges">
           ${statusBadge}
-          ${planBadge}
-          <span class="badge plan">${p.doctor_count || 0} Behandler</span>
-          <span class="badge plan">${p.appointment_count || 0} Termine</span>
         </div>
+
+        <div class="practice-quickstats">
+          <div class="qs-item">
+            <div class="qs-num">${p.doctor_count || 0}</div>
+            <div class="qs-lbl">Behandler</div>
+          </div>
+          <div class="qs-item">
+            <div class="qs-num">${p.patient_count || 0}</div>
+            <div class="qs-lbl">Patienten</div>
+          </div>
+          <div class="qs-item">
+            <div class="qs-num">${p.appointment_count || 0}</div>
+            <div class="qs-lbl">Termine</div>
+          </div>
+        </div>
+
+        <div class="practice-meta-row">
+          <span class="pm-spec">${specialtyLabel(p.specialty)}</span>
+          ${p.city ? `<span class="pm-city">📍 ${escapeHtml(p.city)}</span>` : ''}
+        </div>
+
+        <div class="practice-plan-row">
+          <label class="pp-lbl">Plan</label>
+          <select class="pp-select" data-action="change-plan" data-id="${p.id}">
+            <option value="solo" ${p.plan==='solo'?'selected':''}>Solo (1 Behandler)</option>
+            <option value="team" ${p.plan==='team'?'selected':''}>Team (3 Behandler)</option>
+            <option value="praxis" ${p.plan==='praxis'?'selected':''}>Praxis (10 Behandler)</option>
+          </select>
+        </div>
+
         <div class="practice-actions">
-          <button class="act-btn" data-action="edit" data-id="${p.id}">⚙ Bearbeiten</button>
-          <a class="act-btn" href="/book.html?practice=${p.slug}" target="_blank">🙋 Buchung</a>
-          <a class="act-btn" href="/praxis/?practice=${p.slug}" target="_blank">👥 Praxis</a>
+          <button class="act-btn act-primary" data-action="impersonate" data-id="${p.id}" title="Als Inhaber dieser Praxis einloggen">
+            🔓 Als Praxis einloggen
+          </button>
+          <button class="act-btn" data-action="edit" data-id="${p.id}" title="Alle Einstellungen bearbeiten">
+            ⚙ Bearbeiten
+          </button>
+          <a class="act-btn" href="/book.html?practice=${p.slug}" target="_blank" title="Patienten-Buchungsseite öffnen">
+            🙋 Buchung
+          </a>
+          <button class="act-btn act-danger" data-action="delete" data-id="${p.id}" data-slug="${p.slug}" data-name="${escapeHtml(p.name)}" title="Praxis und alle Daten unwiderruflich löschen">
+            🗑
+          </button>
         </div>
       </div>
     `;
@@ -859,12 +1050,18 @@ document.getElementById('createPracticeBtn').addEventListener('click', async () 
     slug: document.getElementById('npSlug').value.trim(),
     specialty: document.getElementById('npSpecialty').value,
     plan: document.getElementById('npPlan').value,
+    street: document.getElementById('npStreet').value.trim(),
+    postal_code: document.getElementById('npPostalCode').value.trim(),
     city: document.getElementById('npCity').value.trim(),
     phone: document.getElementById('npPhone').value.trim(),
     email: document.getElementById('npEmail').value.trim(),
+    website: document.getElementById('npWebsite').value.trim(),
     owner_name: document.getElementById('npOwnerName').value.trim(),
+    owner_title: document.getElementById('npOwnerTitle').value.trim(),
     owner_email: document.getElementById('npOwnerEmail').value.trim(),
     owner_password: document.getElementById('npOwnerPassword').value,
+    hours_template: document.getElementById('npHoursTemplate').value,
+    create_defaults: document.getElementById('npHoursTemplate').value !== 'none',
   };
   if (!payload.name || !payload.slug || !payload.owner_name || !payload.owner_email || !payload.owner_password) {
     err.textContent = 'Bitte alle Pflichtfelder (*) ausfüllen.';
@@ -884,7 +1081,7 @@ document.getElementById('createPracticeBtn').addEventListener('click', async () 
     alert(`✓ Praxis angelegt!\n\nLogin-URL: ${result.login_url}\nBuchungs-URL: ${result.booking_url}\n\nKunde kann sich jetzt mit ${payload.owner_email} einloggen.`);
     document.getElementById('newPracticeModal').classList.remove('visible');
     // Reset form
-    ['npName','npSlug','npCity','npPhone','npEmail','npOwnerName','npOwnerEmail'].forEach(id => document.getElementById(id).value = '');
+    ['npName','npSlug','npStreet','npPostalCode','npCity','npPhone','npEmail','npWebsite','npOwnerName','npOwnerTitle','npOwnerEmail'].forEach(id => document.getElementById(id).value = '');
     delete document.getElementById('npSlug').dataset.touched;
     await loadAll();
   } catch (e) {
@@ -898,13 +1095,134 @@ document.getElementById('createPracticeBtn').addEventListener('click', async () 
 
 // Edit practice
 document.getElementById('practicesList').addEventListener('click', async (e) => {
-  const editBtn = e.target.closest('[data-action="edit"]');
+  // Avoid card-wide click triggering when clicking specific buttons
+  const actionBtn = e.target.closest('[data-action]');
+  if (actionBtn) {
+    e.stopPropagation();
+    const action = actionBtn.dataset.action;
+    const id = actionBtn.dataset.id;
+
+    if (action === 'edit') {
+      await openEditModal(id);
+    } else if (action === 'impersonate') {
+      await impersonatePractice(id, actionBtn);
+    } else if (action === 'delete') {
+      await deletePractice(id, actionBtn.dataset.slug, actionBtn.dataset.name, actionBtn);
+    }
+    // 'change-plan' is handled by 'change' listener below
+    return;
+  }
+  // Click on link <a> — let it pass through
+  if (e.target.closest('a')) return;
+  // Click on plan select — handled by change event
+  if (e.target.closest('select')) return;
+  // Click anywhere else on the card → open edit modal
   const card = e.target.closest('.practice-card');
-  if (!editBtn && !card) return;
-  if (editBtn) e.stopPropagation();
-  const id = (editBtn || card).dataset.id;
-  await openEditModal(id);
+  if (!card) return;
+  await openEditModal(card.dataset.id);
 });
+
+// Plan dropdown change → quick PATCH
+document.getElementById('practicesList').addEventListener('change', async (e) => {
+  const sel = e.target.closest('[data-action="change-plan"]');
+  if (!sel) return;
+  const id = sel.dataset.id;
+  const newPlan = sel.value;
+  const oldPlan = sel.dataset.previous || sel.options[Array.from(sel.options).findIndex(o => o.defaultSelected)]?.value;
+  sel.disabled = true;
+  try {
+    await api('/super/practices/' + id, {
+      method: 'PUT',
+      body: JSON.stringify({ plan: newPlan }),
+    });
+    sel.dataset.previous = newPlan;
+    flashCard(sel, '✓ Plan auf ' + newPlan.toUpperCase() + ' gesetzt');
+  } catch (err) {
+    alert('Plan-Änderung fehlgeschlagen: ' + err.message);
+    if (oldPlan) sel.value = oldPlan;
+  } finally {
+    sel.disabled = false;
+  }
+});
+
+function flashCard(el, msg) {
+  const card = el.closest('.practice-card');
+  if (!card) return;
+  const flash = document.createElement('div');
+  flash.className = 'card-flash';
+  flash.textContent = msg;
+  card.appendChild(flash);
+  setTimeout(() => flash.remove(), 2200);
+}
+
+async function impersonatePractice(practiceId, btn) {
+  if (!confirm('Möchten Sie sich als Inhaber dieser Praxis einloggen?\n\nSie öffnen die Praxis-Verwaltung in einem neuen Tab — die Patienten-Daten werden im Klartext sichtbar. Nutzen Sie diese Funktion nur für Support.')) return;
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ Lade...';
+  try {
+    const result = await api(`/super/practices/${practiceId}/impersonate`, {
+      method: 'POST',
+      body: '{}',
+    });
+    if (!result || !result.token) throw new Error('Kein Token erhalten');
+    // Open new tab with token pre-loaded
+    const slug = result.practice?.slug || '';
+    const target = result.redirect_url || `/praxis/dashboard.html?practice=${slug}`;
+    // Pass token via sessionStorage of the new tab through a tiny launcher
+    const launcher = `data:text/html;charset=utf-8,${encodeURIComponent(`
+      <html><body><scr` + `ipt>
+        localStorage.setItem('praxmate_token', '${result.token}');
+        if ('${slug}') localStorage.setItem('praxmate_practice', '${slug}');
+        window.location.replace('https://praxmate.pages.dev${target}');
+      </scr` + `ipt>Wird geöffnet...</body></html>
+    `)}`;
+    const win = window.open(launcher, '_blank');
+    if (!win) {
+      alert('Popup blockiert — bitte erlauben oder folgenden Link manuell öffnen:\n\n' + target);
+    }
+    btn.textContent = '✓ Geöffnet';
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+  } catch (err) {
+    alert('Login fehlgeschlagen: ' + err.message);
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
+}
+
+async function deletePractice(practiceId, slug, name, btn) {
+  const confirmed = prompt(
+    `⚠ ACHTUNG: Praxis "${name}" wird komplett gelöscht!\n\n` +
+    `Alle Patienten, Termine, Behandler und Daten gehen UNWIDERRUFLICH verloren.\n\n` +
+    `Tippen Sie zur Bestätigung den Slug ein: ${slug}`
+  );
+  if (confirmed !== slug) {
+    if (confirmed !== null) alert('Slug stimmt nicht überein. Löschung abgebrochen.');
+    return;
+  }
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳';
+  try {
+    const result = await api(`/super/practices/${practiceId}?confirm=${encodeURIComponent(slug)}`, {
+      method: 'DELETE',
+    });
+    if (!result || !result.ok) throw new Error('Unbekannter Fehler');
+    // Remove card with fade
+    const card = btn.closest('.practice-card');
+    if (card) {
+      card.style.transition = 'all 0.4s';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(0.9)';
+      setTimeout(() => card.remove(), 400);
+    }
+    setTimeout(() => loadAll(), 600); // reload stats
+  } catch (err) {
+    alert('Löschen fehlgeschlagen: ' + err.message);
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
+}
 
 async function openEditModal(practiceId) {
   const modal = document.getElementById('editPracticeModal');
@@ -1224,3 +1542,4 @@ document.getElementById('logoutBtn')?.addEventListener('click', async () => {
 </html>
 <!-- v0.6 admin sidebar -->
 <!-- v0.6.1 enable soon links -->
+<!-- v0.8.0 praxen card improvements -->
