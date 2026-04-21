@@ -718,6 +718,27 @@ textarea { resize: vertical; min-height: 70px; }
   .form-row.two { grid-template-columns: 1fr; }
   .radio-row { flex-direction: column; }
 }
+/* ========== EMBED MODE ========== */
+html.is-embed, html.is-embed body {
+  background: transparent !important;
+}
+html.is-embed body {
+  margin: 0;
+  padding: 12px;
+}
+html.is-embed .widget {
+  max-width: 100% !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border-radius: 12px;
+}
+html.is-embed-minimal .widget {
+  border: 1px solid var(--border, #e4e7eb);
+}
+html.is-embed-minimal .practice-meta {
+  display: none !important;
+}
+
 </style>
 </head>
 <body>
@@ -921,10 +942,29 @@ textarea { resize: vertical; min-height: 70px; }
     <button class="btn btn-primary" id="btn-next" onclick="nextStep()" disabled>Weiter →</button>
   </div>
 
-  <div class="widget-footer">
+  <div class="widget-footer" id="widget-footer">
     Geschützt &amp; EU-gehostet · powered by <a href="index.html">Praxmate</a> · eine Lösung von <a href="https://hasi-elektronic.de" target="_blank" rel="noopener">Hasi Elektronic</a>
   </div>
 </div>
+
+<script>
+// ========== EMBED MODE ==========
+// When loaded inside an iframe with ?embed=1 or ?embed=minimal,
+// strip outer chrome and adapt for embedding.
+(function applyEmbedMode() {
+  const _qs = new URLSearchParams(window.location.search);
+  const embed = _qs.get('embed');
+  if (!embed) return;
+  document.documentElement.classList.add('is-embed');
+  document.body.classList.add('is-embed');
+  if (embed === 'minimal') {
+    document.documentElement.classList.add('is-embed-minimal');
+    // Hide branding footer entirely
+    const f = document.getElementById('widget-footer');
+    if (f) f.style.display = 'none';
+  }
+})();
+</script>
 
 <script>
 const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
@@ -1506,3 +1546,5 @@ END:VCALENDAR`;
 </script>
 </body>
 </html>
+<!-- v0.7.2 embed -->
+<!-- v0.7.3 force 1776769070 -->

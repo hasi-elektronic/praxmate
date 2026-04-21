@@ -334,6 +334,37 @@ a { color: var(--primary); text-decoration: none; }
   .hours-row { grid-template-columns: 1fr; }
   .wrap { padding: 20px 16px; }
 }
+/* ========== WIDGET MODE PICKER ========== */
+.wm-btn {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: all 0.18s cubic-bezier(0.16,1,0.3,1);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.wm-btn:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+.wm-btn.active {
+  background: rgba(45,106,142,0.05);
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(45,106,142,0.15);
+}
+.wm-icon { font-size: 28px; margin-bottom: 6px; }
+.wm-title { font-weight: 700; font-size: 14px; color: var(--ink); }
+.wm-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+@media (max-width: 600px) {
+  .widget-modes { grid-template-columns: 1fr !important; }
+}
+
 </style>
 </head>
 <body data-page="settings">
@@ -379,6 +410,7 @@ a { color: var(--primary); text-decoration: none; }
     <button class="tab" data-tab="hours">🕘 Sprechzeiten</button>
     <button class="tab" data-tab="closures">🌴 Abwesenheit</button>
     <button class="tab" data-tab="team">👥 Team</button>
+    <button class="tab" data-tab="widget">🔌 Widget</button>
   </div>
 
   <div id="roleNotice" class="readonly-notice" style="display:none;">
@@ -578,6 +610,96 @@ a { color: var(--primary); text-decoration: none; }
         Wer darf sich im Admin-Bereich anmelden? Legen Sie Konten für Ihr Team an.
       </div>
       <div id="usersList"><div class="empty-card">Lade...</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB: WIDGET ============ -->
+  <div class="panel" data-panel="widget">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Widget für Ihre Website</div>
+        <div class="card-sub">Lassen Sie Patienten direkt auf Ihrer eigenen Website Termine buchen — mit einer einzigen Code-Zeile.</div>
+      </div>
+
+      <!-- Mode picker -->
+      <div class="widget-modes" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px;">
+        <button type="button" class="wm-btn active" data-wm="floating">
+          <div class="wm-icon">💬</div>
+          <div class="wm-title">Schwebender Button</div>
+          <div class="wm-desc">Unten rechts, immer sichtbar</div>
+        </button>
+        <button type="button" class="wm-btn" data-wm="popup">
+          <div class="wm-icon">🪟</div>
+          <div class="wm-title">Popup auf Klick</div>
+          <div class="wm-desc">Eigener Button öffnet Modal</div>
+        </button>
+        <button type="button" class="wm-btn" data-wm="inline">
+          <div class="wm-icon">📐</div>
+          <div class="wm-title">Eingebettet</div>
+          <div class="wm-desc">Direkt in der Seite</div>
+        </button>
+      </div>
+
+      <!-- Live preview info -->
+      <div class="card-sub" style="margin-bottom:8px;">
+        <strong style="color:var(--ink);">Vorschau:</strong> <span id="wmDescText">Ein schwebender "Termin online buchen"-Button erscheint unten rechts auf jeder Seite.</span>
+      </div>
+
+      <!-- Customization -->
+      <div class="form-row" style="margin-bottom:16px;">
+        <div class="form-group">
+          <label>Button-Farbe</label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input id="wmColor" type="color" value="#0ea5e9" style="width:50px; height:42px; padding:2px; border-radius:8px; cursor:pointer; border:1.5px solid var(--border);">
+            <input id="wmColorText" type="text" value="#0ea5e9" style="flex:1;">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Button-Text</label>
+          <input id="wmLabel" type="text" value="Termin online buchen">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:24px;">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+          <input id="wmMinimal" type="checkbox">
+          <span style="font-weight:500;">Praxis-Header im Buchungsformular ausblenden</span>
+        </label>
+        <div style="font-size:11px; color:var(--muted); margin-top:4px;">Empfohlen, wenn Ihre Website bereits Logo und Kontaktdaten zeigt.</div>
+      </div>
+
+      <!-- Snippet -->
+      <div class="card-sub" style="margin-bottom:8px;">
+        <strong style="color:var(--ink);">Code-Snippet</strong>
+        <span id="wmInstructions" style="margin-left:6px;">— Fügen Sie diesen Code ans Ende des <code style="background:var(--bg); padding:2px 6px; border-radius:4px; font-size:12px;">&lt;body&gt;</code>-Tags Ihrer Website ein:</span>
+      </div>
+
+      <div style="position:relative;">
+        <pre id="wmSnippet" style="background:#0f172a; color:#e2e8f0; padding:18px 50px 18px 18px; border-radius:10px; font-family:'SF Mono','Monaco',monospace; font-size:13px; line-height:1.55; overflow-x:auto; white-space:pre-wrap; word-break:break-all; margin:0;"></pre>
+        <button type="button" id="wmCopyBtn" style="position:absolute; top:10px; right:10px; padding:6px 12px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); border-radius:6px; font-family:inherit; font-size:12px; cursor:pointer;">📋 Kopieren</button>
+      </div>
+
+      <!-- Inline-only extra hint -->
+      <div id="wmInlineHint" style="display:none; margin-top:16px; padding:14px 16px; background:rgba(14,165,233,0.08); border-left:3px solid #0ea5e9; border-radius:6px; font-size:13px; line-height:1.55;">
+        <strong>Hinweis für eingebettetes Widget:</strong> Fügen Sie zusätzlich an der Stelle, an der das Buchungsformular erscheinen soll, dieses Element ein:
+        <pre style="background:white; color:#0f172a; padding:10px 12px; border-radius:6px; font-family:'SF Mono',monospace; font-size:12px; margin:8px 0 0; overflow-x:auto;">&lt;div data-praxmate-widget&gt;&lt;/div&gt;</pre>
+      </div>
+
+      <!-- Popup-only extra hint -->
+      <div id="wmPopupHint" style="display:none; margin-top:16px; padding:14px 16px; background:rgba(14,165,233,0.08); border-left:3px solid #0ea5e9; border-radius:6px; font-size:13px; line-height:1.55;">
+        <strong>Hinweis für Popup-Modus:</strong> Beliebige Elemente werden zu Buchungs-Auslösern, wenn Sie ihnen <code style="background:white; padding:2px 6px; border-radius:4px; font-size:12px;">data-praxmate-trigger</code> hinzufügen:
+        <pre style="background:white; color:#0f172a; padding:10px 12px; border-radius:6px; font-family:'SF Mono',monospace; font-size:12px; margin:8px 0 0; overflow-x:auto;">&lt;a href="#" data-praxmate-trigger&gt;Termin buchen&lt;/a&gt;
+&lt;button data-praxmate-trigger&gt;Jetzt Termin&lt;/button&gt;</pre>
+      </div>
+
+      <!-- Test link -->
+      <div style="margin-top:24px; padding:16px; background:var(--bg); border-radius:10px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+        <div style="flex:1;">
+          <div style="font-weight:600; font-size:14px;">🧪 Direkt testen</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:2px;">Öffnen Sie die Patienten-Buchungsseite in einem neuen Tab.</div>
+        </div>
+        <a id="wmTestLink" href="#" target="_blank" rel="noopener" class="btn btn-primary" style="text-decoration:none;">Buchung öffnen ↗</a>
+      </div>
     </div>
   </div>
 
@@ -1623,12 +1745,110 @@ document.getElementById('clsSaveBtn')?.addEventListener('click', async () => {
   }
 });
 
+// ============ WIDGET TAB ============
+const WIDGET_DESCRIPTIONS = {
+  floating: 'Ein schwebender "Termin online buchen"-Button erscheint unten rechts auf jeder Seite.',
+  popup: 'Ein eigener Button (z.B. "Termin buchen") öffnet das Buchungs-Modal beim Klick.',
+  inline: 'Das Buchungsformular wird direkt in der Seite eingebettet (keine Buttons, kein Modal).',
+};
+
+const WIDGET_INSTRUCTIONS = {
+  floating: '— Fügen Sie diesen Code ans Ende des <code style="background:var(--bg); padding:2px 6px; border-radius:4px; font-size:12px;">&lt;body&gt;</code>-Tags Ihrer Website ein:',
+  popup: '— Fügen Sie diesen Code ans Ende des <code style="background:var(--bg); padding:2px 6px; border-radius:4px; font-size:12px;">&lt;body&gt;</code>-Tags Ihrer Website ein:',
+  inline: '— Fügen Sie diesen Code ans Ende des <code style="background:var(--bg); padding:2px 6px; border-radius:4px; font-size:12px;">&lt;body&gt;</code>-Tags Ihrer Website ein:',
+};
+
+let widgetMode = 'floating';
+
+function buildWidgetSnippet() {
+  const slug = (practice && practice.slug) || PRACTICE_SLUG || 'YOUR_PRACTICE';
+  const color = document.getElementById('wmColor').value;
+  const label = document.getElementById('wmLabel').value;
+  const minimal = document.getElementById('wmMinimal').checked;
+
+  const baseHost = window.location.origin;
+  const attrs = [
+    `src="${baseHost}/widget.js"`,
+    `data-practice="${escapeHtml(slug)}"`,
+    `data-mode="${widgetMode}"`,
+  ];
+  if (color !== '#0ea5e9') attrs.push(`data-color="${color}"`);
+  if (widgetMode === 'floating' && label !== 'Termin online buchen') attrs.push(`data-label="${escapeHtml(label)}"`);
+  if (minimal) attrs.push(`data-source="minimal"`);
+
+  return `<script ${attrs.join('\n        ')}><\/script>`;
+}
+
+function refreshWidgetSnippet() {
+  const snippet = buildWidgetSnippet();
+  document.getElementById('wmSnippet').textContent = snippet;
+  document.getElementById('wmDescText').textContent = WIDGET_DESCRIPTIONS[widgetMode] || '';
+  document.getElementById('wmInstructions').innerHTML = WIDGET_INSTRUCTIONS[widgetMode] || '';
+  document.getElementById('wmInlineHint').style.display = widgetMode === 'inline' ? 'block' : 'none';
+  document.getElementById('wmPopupHint').style.display = widgetMode === 'popup' ? 'block' : 'none';
+  // Toggle label field — only floating uses it
+  const labelField = document.getElementById('wmLabel').closest('.form-group');
+  if (labelField) labelField.style.opacity = widgetMode === 'floating' ? '1' : '0.5';
+  // Update test link
+  const slug = (practice && practice.slug) || PRACTICE_SLUG;
+  const minimal = document.getElementById('wmMinimal').checked;
+  document.getElementById('wmTestLink').href = `/book.html?practice=${slug}${minimal ? '&embed=minimal' : ''}`;
+}
+
+document.querySelectorAll('.wm-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.wm-btn').forEach(b => b.classList.toggle('active', b === btn));
+    widgetMode = btn.dataset.wm;
+    refreshWidgetSnippet();
+  });
+});
+
+// Color sync
+document.getElementById('wmColor')?.addEventListener('input', (e) => {
+  document.getElementById('wmColorText').value = e.target.value;
+  refreshWidgetSnippet();
+});
+document.getElementById('wmColorText')?.addEventListener('input', (e) => {
+  if (/^#[0-9a-f]{6}$/i.test(e.target.value)) {
+    document.getElementById('wmColor').value = e.target.value;
+  }
+  refreshWidgetSnippet();
+});
+document.getElementById('wmLabel')?.addEventListener('input', refreshWidgetSnippet);
+document.getElementById('wmMinimal')?.addEventListener('change', refreshWidgetSnippet);
+
+document.getElementById('wmCopyBtn')?.addEventListener('click', async () => {
+  const snippet = document.getElementById('wmSnippet').textContent;
+  try {
+    await navigator.clipboard.writeText(snippet);
+    const btn = document.getElementById('wmCopyBtn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ Kopiert!';
+    btn.style.background = 'rgba(34,197,94,0.3)';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.background = '';
+    }, 1800);
+  } catch {
+    toast('Kopieren fehlgeschlagen — bitte manuell markieren', 'error');
+  }
+});
+
+// Initial render after practice loads (defer until first widget tab open)
+let widgetInitialized = false;
+function initWidgetTabIfNeeded() {
+  if (widgetInitialized) return;
+  widgetInitialized = true;
+  refreshWidgetSnippet();
+}
+
 // ============ TABS ============
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     const name = tab.dataset.tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
     document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.panel === name));
+    if (name === 'widget') initWidgetTabIfNeeded();
   });
 });
 
@@ -1658,3 +1878,4 @@ init();
 <!-- v6.3 null-safe old DOM refs -->
 <!-- v6.4 fix orphan topbar fragments -->
 <!-- v0.7 closures UI -->
+<!-- v0.7.2 widget -->
