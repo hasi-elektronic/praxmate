@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2d6a8e">
+<meta name="robots" content="noindex, nofollow">
+<title>Praxmate — Praxis-Login</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232d6a8e'/%3E%3Ctext x='50' y='68' font-family='Georgia' font-size='50' font-weight='700' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+<style>
+:root {
+  --primary: #2d6a8e;
+  --primary-dark: #1e4d6b;
+  --primary-soft: #4a8eb0;
+  --accent: #e9b949;
+  --ink: #1a2a3a;
+  --ink-soft: #3d5368;
+  --muted: #7a8b9c;
+  --border: #dde4e9;
+  --bg: #f4f8fa;
+  --bg-card: #ffffff;
+  --error: #c84545;
+  --success: #2d8e5f;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #e8f0f4 0%, #c9d9e2 100%);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.login-wrap {
+  width: 100%;
+  max-width: 420px;
+  animation: slideIn 0.4s ease-out;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.brand {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  box-shadow: 0 4px 12px rgba(45, 106, 142, 0.35);
+}
+.brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.brand-sub {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 32px 28px;
+  box-shadow:
+    0 10px 40px rgba(26, 42, 58, 0.08),
+    0 2px 6px rgba(26, 42, 58, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+.card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.card-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+.field {
+  margin-bottom: 16px;
+}
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+.field input[type="email"],
+.field input[type="password"],
+.field input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--bg);
+  transition: all 0.15s ease;
+}
+.field input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(45, 106, 142, 0.12);
+}
+.field input::placeholder { color: #a8b5c0; }
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+.btn-primary {
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(45, 106, 142, 0.35);
+}
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-box {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: var(--error);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.error-box::before {
+  content: '⚠';
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.footer-note {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.footer-note a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+.footer-note a:hover { text-decoration: underline; }
+.security-badge {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.security-badge::before {
+  content: '🔒';
+  font-size: 13px;
+}
+
+/* Test credentials hint (demo only) */
+.demo-hint {
+  background: #fffbf1;
+  border: 1px dashed #e9b949;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #856b1f;
+  margin-top: 16px;
+  line-height: 1.5;
+}
+.demo-hint strong { color: #5c4a11; }
+.demo-hint code {
+  background: rgba(233, 185, 73, 0.15);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 11px;
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="login-wrap">
+    <div class="brand">
+      <div class="brand-logo">
+        <div class="brand-mark">P</div>
+        <div class="brand-name">Praxmate</div>
+      </div>
+      <div class="brand-sub">Praxis-Login{{ practiceName ? ' · ' + practiceName : '' }}</div>
+    </div>
+
+    <div class="card">
+      <h1 class="card-title">Anmelden</h1>
+      <p class="card-sub">{{ practiceName ? 'Für ' + practiceName : 'Bitte geben Sie Ihre Zugangsdaten ein.' }}</p>
+
+      <div v-if="!PRACTICE_SLUG" class="error-box" style="background:#fff4e0;color:#5c4a0e;border-left:3px solid #e9b949;">
+        <strong>Keine Praxis erkannt.</strong><br>
+        Bitte über Ihre Praxis-URL zugreifen (z. B. <code>hild.praxmate.de/admin/</code>)<br>
+        oder mit <code>?practice=SLUG</code> in der URL.
+      </div>
+
+      <div v-if="error" class="error-box">{{ error }}</div>
+
+      <form @submit.prevent="login">
+        <div class="field">
+          <label for="email">E-Mail</label>
+          <input
+            id="email"
+            v-model="email"
+            type="email"
+            placeholder="name@zahnarzthild.de"
+            autocomplete="username"
+            required
+            :disabled="loading"
+          >
+        </div>
+
+        <div class="field">
+          <label for="password">Passwort</label>
+          <input
+            id="password"
+            v-model="password"
+            type="password"
+            autocomplete="current-password"
+            required
+            :disabled="loading"
+          >
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" v-model="trustDevice">
+          <span>Dieses Gerät für 30 Tage vertrauen</span>
+        </label>
+
+        <button type="submit" class="btn-primary" :disabled="loading || !email || !password">
+          <span v-if="loading" class="spinner"></span>
+          <span>{{ loading ? 'Anmelden...' : 'Anmelden' }}</span>
+        </button>
+      </form>
+
+      <div class="security-badge">
+        DSGVO-konform · Server in Frankfurt
+      </div>
+
+      <div v-if="PRACTICE_SLUG === 'hild'" class="demo-hint">
+        <strong>Demo-Zugang:</strong><br>
+        <code>juliane@zahnarzthild.de</code> · Owner<br>
+        <code>wolfgang@zahnarzthild.de</code> · Doctor<br>
+        <code>elena@zahnarzthild.de</code> · Staff<br>
+        Passwort für alle: <code>Praxmate2026!</code>
+      </div>
+      <div v-else-if="PRACTICE_SLUG === 'vayhinger'" class="demo-hint">
+        <strong>Demo-Zugang:</strong><br>
+        <code>martin@praxis-vayhinger.de</code> · Owner<br>
+        Passwort: <code>Praxmate2026!</code>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      © 2026 Hasi Elektronic · <a href="/">Zurück zur Startseite</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
+
+    // ========== MULTI-TENANT: resolve practice slug ==========
+    // Priority: 1) subdomain (hild.praxmate.de), 2) query param (?practice=hild), 3) stored
+    function resolvePracticeSlug() {
+      const host = window.location.hostname;
+      const RESERVED = ['www','admin','api','app','mail','praxmate'];
+
+      // Pattern A: {slug}.praxmate.de
+      let m = host.match(/^([a-z0-9-]+)\.praxmate\.de$/);
+      if (m && !RESERVED.includes(m[1])) return m[1];
+
+      // Pattern B: {slug}.praxmate.pages.dev  (Cloudflare Pages multi-tenant)
+      m = host.match(/^([a-z0-9-]+)\.praxmate\.pages\.dev$/);
+      if (m && !RESERVED.includes(m[1])) {
+        // Ignore build hashes like "abc12345" — Cloudflare creates these for preview URLs.
+        // Build hashes are 8 hex characters exactly.
+        if (!/^[a-f0-9]{8}$/.test(m[1])) return m[1];
+      }
+
+      // Query param fallback (?practice=slug)
+      const qs = new URLSearchParams(window.location.search);
+      const qp = qs.get('practice');
+      if (qp) {
+        localStorage.setItem('praxmate_practice', qp);
+        return qp;
+      }
+
+      // Stored from previous visit (only for pages.dev, not for subdomain access)
+      const isSubdomainAccess = /\.praxmate\.(de|pages\.dev)$/.test(host);
+      if (!isSubdomainAccess) {
+        const stored = localStorage.getItem('praxmate_practice');
+        if (stored) return stored;
+      }
+
+      return null;
+    }
+    const PRACTICE_SLUG = resolvePracticeSlug();
+
+
+const { createApp, ref, onMounted } = Vue;
+
+createApp({
+  setup() {
+    const email = ref('');
+    const password = ref('');
+    const trustDevice = ref(true);
+    const loading = ref(false);
+    const error = ref('');
+    const practiceName = ref('');
+
+    // Default email by practice (for demo convenience)
+    if (PRACTICE_SLUG === 'hild') email.value = 'juliane@zahnarzthild.de';
+    else if (PRACTICE_SLUG === 'vayhinger') email.value = 'martin@praxis-vayhinger.de';
+
+    // Fetch practice name to display
+    if (PRACTICE_SLUG) {
+      fetch(API_BASE + '/practice', {
+        headers: { 'X-Praxmate-Practice': PRACTICE_SLUG }
+      }).then(r => r.json()).then(data => {
+        if (data && data.name) {
+          practiceName.value = data.name;
+          document.title = `Praxmate — ${data.name}`;
+          // Apply brand color to CSS
+          if (data.brand_primary) {
+            document.documentElement.style.setProperty('--primary', data.brand_primary);
+          }
+        }
+      }).catch(() => {});
+    }
+
+    // Check if already logged in (token in localStorage)
+    const existingToken = localStorage.getItem('praxmate_token');
+    if (existingToken) {
+      // Verify token still valid
+      fetch(API_BASE + '/admin/auth/me', {
+        headers: {
+          'Authorization': 'Bearer ' + existingToken,
+          ...(PRACTICE_SLUG ? { 'X-Praxmate-Practice': PRACTICE_SLUG } : {}),
+        }
+      }).then(r => r.json()).then(data => {
+        if (data.user) {
+          window.location.href = '/praxis/dashboard.html' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+        } else {
+          localStorage.removeItem('praxmate_token');
+        }
+      }).catch(() => {});
+    }
+
+    async function login() {
+      error.value = '';
+      loading.value = true;
+
+      try {
+        const response = await fetch(API_BASE + '/admin/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(PRACTICE_SLUG ? { 'X-Praxmate-Practice': PRACTICE_SLUG } : {}),
+          },
+          body: JSON.stringify({
+            email: email.value.trim(),
+            password: password.value,
+            trust_device: trustDevice.value
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          error.value = data.error || 'Anmeldung fehlgeschlagen';
+          loading.value = false;
+          return;
+        }
+
+        if (data.requires_2fa) {
+          error.value = '2FA erforderlich (noch nicht implementiert).';
+          loading.value = false;
+          return;
+        }
+
+        // Store token + user info
+        localStorage.setItem('praxmate_token', data.token);
+        localStorage.setItem('praxmate_user', JSON.stringify(data.user));
+        localStorage.setItem('praxmate_expires', data.expires_at);
+        if (data.practice?.slug) localStorage.setItem('praxmate_practice', data.practice.slug);
+
+        // Redirect to dashboard (preserve practice param for pages.dev hosting)
+        const qs = PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '';
+        window.location.href = '/praxis/dashboard.html' + qs;
+      } catch (e) {
+        error.value = 'Netzwerkfehler: ' + e.message;
+        loading.value = false;
+      }
+    }
+
+    return { email, password, trustDevice, loading, error, login, practiceName, PRACTICE_SLUG };
+  }
+}).mount('#app');
+</script>
+
+</body>
+</html>

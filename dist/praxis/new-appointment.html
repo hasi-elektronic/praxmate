@@ -125,24 +125,14 @@ body {
   .field-row.three { grid-template-columns: 1fr; }
 }
 
-/* =============== BIRTH DATE DROPDOWNS =============== */
-.birth-dropdowns {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-.birth-dd-wrap {
-  position: relative;
-  flex: 0 0 auto;
-}
-.birth-dd-wrap { width: 90px; }
-.birth-dd-month { width: 140px; }
-.birth-dd-year { width: 110px; }
 
-.birth-dd-trigger {
+/* =============== BIRTH DATE PICKER (modern single-button) =============== */
+.birth-picker {
+  position: relative;
+}
+.birth-picker-trigger {
   width: 100%;
-  padding: 11px 12px;
+  padding: 11px 14px;
   background: white;
   border: 1.5px solid var(--border);
   border-radius: 10px;
@@ -154,110 +144,137 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
   transition: all 0.12s ease;
   text-align: left;
 }
-.birth-dd-trigger:hover { border-color: var(--primary-soft); }
-.birth-dd-wrap.open .birth-dd-trigger {
+.birth-picker-trigger:hover { border-color: var(--primary-soft, var(--border)); }
+.birth-picker.open .birth-picker-trigger {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(45, 106, 142, 0.12);
-  background: white;
+  box-shadow: 0 0 0 3px rgba(45,106,142,0.1);
 }
-.birth-dd-val {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.birth-dd-val.placeholder {
-  color: #a8b5c0;
-  font-weight: 400;
-}
-.birth-dd-caret {
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1;
-  flex-shrink: 0;
-  transition: transform 0.15s ease;
-}
-.birth-dd-wrap.open .birth-dd-caret {
-  transform: rotate(180deg);
-  color: var(--primary);
-}
+.birth-picker-val { flex: 1; }
+.birth-picker-val.placeholder { color: var(--muted); font-weight: 400; }
+.birth-picker-icon { opacity: 0.6; font-size: 16px; flex-shrink: 0; }
 
-.birth-dd-panel {
+.birth-picker-panel {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
   right: 0;
   background: white;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow:
-    0 10px 28px rgba(26, 42, 58, 0.15),
-    0 2px 6px rgba(26, 42, 58, 0.06);
-  max-height: 240px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
+  border-radius: 14px;
+  box-shadow: 0 14px 36px rgba(26,42,58,0.18), 0 3px 8px rgba(26,42,58,0.06);
   z-index: 100;
-  padding: 4px;
-  animation: panelIn 0.14s ease;
+  padding: 10px;
+  animation: bpIn 0.14s ease;
+  min-width: 300px;
+  max-width: 380px;
 }
-@keyframes panelIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+@keyframes bpIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Custom scrollbar */
-.birth-dd-panel::-webkit-scrollbar { width: 8px; }
-.birth-dd-panel::-webkit-scrollbar-track { background: transparent; }
-.birth-dd-panel::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
+/* Calendar header (same style as calendar.html edit modal) */
+.bp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 8px;
 }
-.birth-dd-panel::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-soft);
+.bp-nav {
+  width: 28px; height: 28px;
+  background: var(--bg);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--ink-soft);
+  font-family: inherit;
+  line-height: 1;
+  transition: all 0.12s;
+  flex-shrink: 0;
 }
+.bp-nav:hover { background: var(--primary); color: white; }
+.bp-title { display: flex; gap: 4px; flex: 1; justify-content: center; }
+.bp-select {
+  background: var(--bg);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.bp-select:hover { background: white; border-color: var(--border); }
+.bp-select:focus { outline: none; border-color: var(--primary); }
 
-.birth-dd-item {
-  width: 100%;
-  padding: 9px 12px;
+.bp-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+.bp-weekdays span {
+  text-align: center;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 3px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bp-day-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.bp-day-btn {
+  height: 34px;
   background: transparent;
   border: none;
   border-radius: 7px;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--ink);
   cursor: pointer;
-  text-align: left;
-  transition: all 0.08s ease;
   font-variant-numeric: tabular-nums;
-  display: block;
+  transition: all 0.1s;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.birth-dd-item:hover {
+.bp-day-btn:hover:not(:disabled) {
   background: var(--bg);
   color: var(--primary);
 }
-.birth-dd-item.selected {
+.bp-day-btn.other-month { color: var(--border); font-weight: 400; }
+.bp-day-btn.other-month:hover:not(:disabled) { background: var(--bg); color: var(--muted); }
+.bp-day-btn.today {
+  color: var(--primary);
+  font-weight: 700;
+  background: rgba(45,106,142,0.06);
+}
+.bp-day-btn.selected {
   background: var(--primary);
   color: white;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 3px 8px rgba(45,106,142,0.3);
 }
-.birth-dd-item.selected:hover {
-  background: var(--primary-dark);
-  color: white;
-}
-
-/* Year panel: taller + wheel support */
-.birth-dd-year-panel {
-  max-height: 300px;
+.bp-day-btn.selected:hover { background: var(--primary); color: white; }
+.bp-day-btn.future {
+  opacity: 0.25;
+  cursor: not-allowed;
 }
 
 .birth-preview {
   width: 100%;
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: 13px;
   color: var(--success);
   font-weight: 600;
@@ -265,10 +282,7 @@ body {
   align-items: center;
   gap: 5px;
 }
-.birth-preview::before {
-  content: '✓';
-  font-size: 14px;
-}
+.birth-preview::before { content: '\2713'; font-size: 14px; }
 .birth-error {
   width: 100%;
   margin-top: 4px;
@@ -278,9 +292,9 @@ body {
 }
 
 @media (max-width: 560px) {
-  .birth-dd-wrap { width: calc(33% - 7px); }
-  .birth-dd-month { width: calc(40% - 7px); }
-  .birth-dd-year { width: calc(27% - 7px); }
+  .birth-picker-panel { min-width: 0; left: -8px; right: -8px; }
+  .bp-day-btn { font-size: 12px; }
+  .bp-select { font-size: 12px; padding: 5px 8px; }
 }
 
 /* Patient search */
@@ -679,7 +693,7 @@ body {
   <header class="header">
     <div class="header-left">
       <div class="brand-mark">P</div>
-      <a href="/admin/dashboard.html" class="back-btn">← Dashboard</a>
+      <a href="/praxis/dashboard.html" class="back-btn">← Dashboard</a>
     </div>
     <div style="font-size: 13px; color: var(--muted);" v-if="user">
       {{ user.name }} · {{ roleLabel }}
@@ -743,65 +757,47 @@ body {
           </div>
           <div class="field">
             <label>Geburtsdatum *</label>
-            <div class="birth-dropdowns">
-              <!-- Day dropdown -->
-              <div class="birth-dd-wrap" :class="{ open: dayOpen }">
-                <button type="button" class="birth-dd-trigger" @click="toggleDay">
-                  <span class="birth-dd-val" :class="{ placeholder: !birthDay }">{{ birthDay || 'Tag' }}</span>
-                  <span class="birth-dd-caret">▾</span>
-                </button>
-                <div v-if="dayOpen" class="birth-dd-panel" @click.stop>
-                  <button
-                    v-for="d in days"
-                    :key="'d-'+d"
-                    type="button"
-                    class="birth-dd-item"
-                    :class="{ selected: birthDay === d }"
-                    :ref="el => { if (birthDay === d) selectedDayRef = el }"
-                    @click="selectDay(d)"
-                  >{{ d }}</button>
-                </div>
-              </div>
+            <div class="birth-picker" :class="{ open: birthPickerOpen }">
+              <button type="button" class="birth-picker-trigger" @click.stop="toggleBirthPicker">
+                <span class="birth-picker-val" :class="{ placeholder: !fullBirthDate }">
+                  {{ fullBirthDate ? formatBirthDisplay(fullBirthDate) : 'Geburtsdatum wählen' }}
+                </span>
+                <span class="birth-picker-icon">📅</span>
+              </button>
 
-              <!-- Month dropdown -->
-              <div class="birth-dd-wrap birth-dd-month" :class="{ open: monthOpen }">
-                <button type="button" class="birth-dd-trigger" @click="toggleMonth">
-                  <span class="birth-dd-val" :class="{ placeholder: !birthMonth }">{{ monthLabel2 }}</span>
-                  <span class="birth-dd-caret">▾</span>
-                </button>
-                <div v-if="monthOpen" class="birth-dd-panel" @click.stop>
-                  <button
-                    v-for="(m, idx) in monthNames"
-                    :key="'m-'+idx"
-                    type="button"
-                    class="birth-dd-item"
-                    :class="{ selected: birthMonth === String(idx + 1).padStart(2, '0') }"
-                    @click="selectMonth(idx)"
-                  >{{ m }}</button>
+              <div v-if="birthPickerOpen" class="birth-picker-panel" @click.stop>
+                <div class="bp-head">
+                  <button type="button" class="bp-nav" @click="bpMonthNav(-1)" aria-label="Zurück">‹</button>
+                  <div class="bp-title">
+                    <select v-model.number="bpCalMonth" class="bp-select">
+                      <option v-for="(m, i) in monthNamesShort" :key="i" :value="i">{{ m }}</option>
+                    </select>
+                    <select v-model.number="bpCalYear" class="bp-select">
+                      <option v-for="y in bpYearOptions" :key="y" :value="y">{{ y }}</option>
+                    </select>
+                  </div>
+                  <button type="button" class="bp-nav" @click="bpMonthNav(1)" aria-label="Vor">›</button>
                 </div>
-              </div>
 
-              <!-- Year dropdown with wheel scroll -->
-              <div class="birth-dd-wrap birth-dd-year" :class="{ open: yearOpen }">
-                <button type="button" class="birth-dd-trigger" @click="toggleYear">
-                  <span class="birth-dd-val" :class="{ placeholder: !birthYear }">{{ birthYear || 'Jahr' }}</span>
-                  <span class="birth-dd-caret">▾</span>
-                </button>
-                <div
-                  v-if="yearOpen"
-                  ref="yearPanel"
-                  class="birth-dd-panel birth-dd-year-panel"
-                  @click.stop
-                >
+                <div class="bp-weekdays">
+                  <span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span>
+                </div>
+
+                <div class="bp-day-grid">
                   <button
-                    v-for="y in years"
-                    :key="'y-'+y"
+                    v-for="cell in bpCalCells"
+                    :key="cell.key"
                     type="button"
-                    class="birth-dd-item"
-                    :class="{ selected: birthYear === String(y) }"
-                    :ref="el => { if (birthYear === String(y)) selectedYearRef = el }"
-                    @click="selectYear(y)"
-                  >{{ y }}</button>
+                    class="bp-day-btn"
+                    :class="{
+                      'other-month': !cell.inMonth,
+                      'selected': cell.iso === fullBirthDate,
+                      'today': cell.isToday,
+                      'future': cell.isFuture
+                    }"
+                    :disabled="cell.isFuture"
+                    @click="bpSelectDate(cell)"
+                  >{{ cell.day }}</button>
                 </div>
               </div>
 
@@ -1078,7 +1074,7 @@ body {
         Behandlung: {{ successData.type_name }} · {{ successData.doctor_name }}
       </p>
       <div class="cta-group" style="justify-content: center;">
-        <a href="/admin/dashboard.html" class="btn btn-ghost">→ Dashboard</a>
+        <a href="/praxis/dashboard.html" class="btn btn-ghost">→ Dashboard</a>
         <button class="btn btn-primary" @click="resetForm">+ Nächster Termin</button>
       </div>
     </div>
@@ -1094,21 +1090,35 @@ const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
     // Priority: 1) subdomain (hild.praxmate.de), 2) query param (?practice=hild), 3) stored
     function resolvePracticeSlug() {
       const host = window.location.hostname;
-      // Subdomain: hild.praxmate.de → "hild"
-      const subMatch = host.match(/^([a-z0-9-]+)\.praxmate\.de$/);
-      if (subMatch && !['www','admin','api','app'].includes(subMatch[1])) {
-        return subMatch[1];
+      const RESERVED = ['www','admin','api','app','mail','praxmate'];
+
+      // Pattern A: {slug}.praxmate.de
+      let m = host.match(/^([a-z0-9-]+)\.praxmate\.de$/);
+      if (m && !RESERVED.includes(m[1])) return m[1];
+
+      // Pattern B: {slug}.praxmate.pages.dev  (Cloudflare Pages multi-tenant)
+      m = host.match(/^([a-z0-9-]+)\.praxmate\.pages\.dev$/);
+      if (m && !RESERVED.includes(m[1])) {
+        // Ignore build hashes like "abc12345" — Cloudflare creates these for preview URLs.
+        // Build hashes are 8 hex characters exactly.
+        if (!/^[a-f0-9]{8}$/.test(m[1])) return m[1];
       }
-      // Query param fallback (for praxmate.pages.dev)
+
+      // Query param fallback (?practice=slug)
       const qs = new URLSearchParams(window.location.search);
       const qp = qs.get('practice');
       if (qp) {
         localStorage.setItem('praxmate_practice', qp);
         return qp;
       }
-      // Stored from previous visit
-      const stored = localStorage.getItem('praxmate_practice');
-      if (stored) return stored;
+
+      // Stored from previous visit (only for pages.dev, not for subdomain access)
+      const isSubdomainAccess = /\.praxmate\.(de|pages\.dev)$/.test(host);
+      if (!isSubdomainAccess) {
+        const stored = localStorage.getItem('praxmate_practice');
+        if (stored) return stored;
+      }
+
       return null;
     }
     const PRACTICE_SLUG = resolvePracticeSlug();
@@ -1116,7 +1126,7 @@ const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
     // ========== Preserve ?practice= in all internal links ==========
     if (typeof document !== 'undefined' && PRACTICE_SLUG && window.location.search.includes('practice=')) {
       const preserveQuery = () => {
-        document.querySelectorAll('a[href^="/admin/"]').forEach(a => {
+        document.querySelectorAll('a[href^="/praxis/"]').forEach(a => {
           const u = new URL(a.href, window.location.origin);
           if (!u.searchParams.has('practice')) {
             u.searchParams.set('practice', PRACTICE_SLUG);
@@ -1141,7 +1151,7 @@ const { createApp, ref, computed, onMounted, watch } = Vue;
 createApp({
   setup() {
     const token = localStorage.getItem('praxmate_token');
-    if (!token) { window.location.href = '/admin/'; return {}; }
+    if (!token) { window.location.href = '/praxis/'; return {}; }
 
     const user = ref(null);
     const types = ref([]);
@@ -1186,75 +1196,129 @@ createApp({
       return arr;
     });
 
+    // Decade-based year picker (modern replacement for long scroll list)
+    const decades = computed(() => {
+      const arr = [];
+      const startDecade = Math.floor(currentYear / 10) * 10;
+      for (let d = startDecade; d >= 1920; d -= 10) arr.push(d);
+      return arr;
+    });
+    // Default active decade: 1970s (sweet spot for typical patient ages)
+    const activeDecade = ref(1970);
+    const yearsInDecade = computed(() => {
+      const arr = [];
+      for (let y = activeDecade.value; y < activeDecade.value + 10; y++) arr.push(y);
+      return arr;
+    });
+    const decadeBar = ref(null);
+
     const monthLabel2 = computed(() => {
       if (!birthMonth.value) return 'Monat';
       const idx = parseInt(birthMonth.value) - 1;
       return monthNames[idx] || 'Monat';
     });
 
-    function toggleDay() {
-      dayOpen.value = !dayOpen.value;
-      monthOpen.value = false;
-      yearOpen.value = false;
-      if (dayOpen.value) {
-        setTimeout(() => {
-          if (selectedDayRef.value) {
-            selectedDayRef.value.scrollIntoView({ block: 'center' });
-          }
-        }, 20);
+    // Short month names for picker
+    const monthNamesShort = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+
+    // Single-view calendar picker state
+    const birthPickerOpen = ref(false);
+    const _bpToday = new Date();
+    const bpCalMonth = ref(_bpToday.getMonth()); // 0-11
+    const bpCalYear = ref(_bpToday.getFullYear() - 30); // default: 30 yrs ago
+
+    // Year options for dropdown (1920 .. current year)
+    const bpYearOptions = computed(() => {
+      const arr = [];
+      for (let y = currentYear; y >= 1920; y--) arr.push(y);
+      return arr;
+    });
+
+    // Calendar cells including padding from adjacent months
+    const bpCalCells = computed(() => {
+      const y = bpCalYear.value;
+      const m = bpCalMonth.value;
+      const first = new Date(y, m, 1);
+      const last = new Date(y, m + 1, 0);
+      const dow = (first.getDay() + 6) % 7; // Mon=0
+      const cells = [];
+      const todayObj = new Date();
+      todayObj.setHours(0, 0, 0, 0);
+
+      // Prev month padding
+      const prevLast = new Date(y, m, 0);
+      for (let i = dow - 1; i >= 0; i--) {
+        const d = new Date(prevLast);
+        d.setDate(prevLast.getDate() - i);
+        cells.push(cellFromDate(d, false, todayObj));
       }
+      // Current month
+      for (let d = 1; d <= last.getDate(); d++) {
+        cells.push(cellFromDate(new Date(y, m, d), true, todayObj));
+      }
+      // Next month padding
+      const remaining = (7 - (cells.length % 7)) % 7;
+      for (let i = 1; i <= remaining; i++) {
+        cells.push(cellFromDate(new Date(y, m + 1, i), false, todayObj));
+      }
+      return cells;
+    });
+
+    function cellFromDate(d, inMonth, todayObj) {
+      const pad = n => String(n).padStart(2, '0');
+      const iso = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      const dCompare = new Date(d); dCompare.setHours(0,0,0,0);
+      const isToday = dCompare.getTime() === todayObj.getTime();
+      const isFuture = dCompare.getTime() > todayObj.getTime();
+      return { key: iso, day: d.getDate(), iso, inMonth, isToday, isFuture };
     }
-    function toggleMonth() {
-      monthOpen.value = !monthOpen.value;
-      dayOpen.value = false;
-      yearOpen.value = false;
-    }
-    function toggleYear() {
-      yearOpen.value = !yearOpen.value;
-      dayOpen.value = false;
-      monthOpen.value = false;
-      if (yearOpen.value) {
-        setTimeout(() => {
-          if (selectedYearRef.value) {
-            selectedYearRef.value.scrollIntoView({ block: 'center' });
-          } else if (yearPanel.value) {
-            // Default: scroll to ~1970 (mid-aged patients)
-            const defaultYear = 1970;
-            const items = yearPanel.value.querySelectorAll('.birth-dd-item');
-            const target = Array.from(items).find(el => el.textContent.trim() === String(defaultYear));
-            if (target) target.scrollIntoView({ block: 'center' });
-          }
-        }, 20);
+
+    function toggleBirthPicker() {
+      birthPickerOpen.value = !birthPickerOpen.value;
+      if (birthPickerOpen.value && fullBirthDate.value) {
+        // Sync calendar view to current selection
+        const [y, m] = fullBirthDate.value.split('-');
+        bpCalYear.value = parseInt(y);
+        bpCalMonth.value = parseInt(m) - 1;
       }
     }
 
-    function selectDay(d) {
+    function bpMonthNav(dir) {
+      let m = bpCalMonth.value + dir;
+      let y = bpCalYear.value;
+      if (m < 0) { m = 11; y--; }
+      else if (m > 11) { m = 0; y++; }
+      if (y < 1920) return;
+      if (y > currentYear) return;
+      bpCalMonth.value = m;
+      bpCalYear.value = y;
+    }
+
+    function bpSelectDate(cell) {
+      if (cell.isFuture) return;
+      const [y, m, d] = cell.iso.split('-');
+      birthYear.value = y;
+      birthMonth.value = m;
       birthDay.value = d;
-      dayOpen.value = false;
-      // Auto-advance to month if not yet selected
-      if (!birthMonth.value) setTimeout(toggleMonth, 80);
-    }
-    function selectMonth(idx) {
-      birthMonth.value = String(idx + 1).padStart(2, '0');
-      monthOpen.value = false;
-      if (!birthYear.value) setTimeout(toggleYear, 80);
-    }
-    function selectYear(y) {
-      birthYear.value = String(y);
-      yearOpen.value = false;
+      birthPickerOpen.value = false;
     }
 
-    // Close all dropdowns on outside click
-    function closeDropdowns() {
-      dayOpen.value = false;
-      monthOpen.value = false;
-      yearOpen.value = false;
+    // Full ISO birth date if all parts selected
+    const fullBirthDate = computed(() => {
+      if (!birthYear.value || !birthMonth.value || !birthDay.value) return '';
+      return `${birthYear.value}-${birthMonth.value}-${birthDay.value}`;
+    });
+
+    function formatBirthDisplay(iso) {
+      if (!iso) return '';
+      const [y, m, d] = iso.split('-');
+      return `${d}.${m}.${y}`;
     }
+
     if (typeof document !== 'undefined') {
       document.addEventListener('click', (e) => {
-        // Only close if click is outside any .birth-dd-wrap
-        if (!e.target.closest('.birth-dd-wrap')) {
-          closeDropdowns();
+        if (!e.target.closest('.birth-picker')) {
+          birthPickerOpen.value = false;
         }
       });
     }
@@ -1400,7 +1464,7 @@ createApp({
       });
       if (res.status === 401) {
         localStorage.removeItem('praxmate_token');
-        window.location.href = '/admin/';
+        window.location.href = '/praxis/';
         return null;
       }
       const data = await res.json();
@@ -1658,13 +1722,13 @@ createApp({
       slotDoctors, availableSlots, patientNote,
       selectedType, selectedDoctorName, todayStr, canGoFromStep1,
       submitting, successData, loadSlots,
-      // Birth date dropdowns
+      // New birth picker (unified calendar view)
       birthDay, birthMonth, birthYear,
-      dayOpen, monthOpen, yearOpen,
-      yearPanel, selectedDayRef, selectedYearRef,
-      days, monthNames, years, monthLabel2,
-      toggleDay, toggleMonth, toggleYear,
-      selectDay, selectMonth, selectYear,
+      birthPickerOpen, bpCalMonth, bpCalYear,
+      toggleBirthPicker, bpMonthNav, bpSelectDate,
+      bpCalCells, bpYearOptions,
+      fullBirthDate, formatBirthDisplay,
+      monthNamesShort, currentYear,
       birthPreview, birthError,
       // Calendar
       monthLabel, canGoPrev, canGoNext, calendarStartPad, calendarDays,
@@ -1679,3 +1743,8 @@ createApp({
 
 </body>
 </html>
+<!-- v2 year picker -->
+<!-- v5 single birth picker -->
+<!-- v6 unified calendar picker -->
+<!-- v6.1 fix today conflict -->
+<!-- v6.2 compact picker -->

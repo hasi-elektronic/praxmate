@@ -6,3 +6,10 @@ compatibility_date = "2026-04-20"
 binding = "DB"
 database_name = "praxmate"
 database_id = "d9548a59-aead-4d13-b082-ad82f602cfe4"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "hasi-elektronic"
+
+[vars]
+R2_PUBLIC_URL = "https://pub-cf131f1d711447e384202db821c79449.r2.dev"

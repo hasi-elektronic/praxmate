@@ -39,14 +39,23 @@ export async function resolvePracticeFromRequest(env, request) {
   `).bind(hostname).first();
   if (customDomain) return customDomain;
 
-  // Then subdomain of praxmate.de: "hild.praxmate.de" → slug "hild"
-  const praxmateMatch = hostname.match(/^([a-z0-9-]+)\.praxmate\.de$/);
-  if (praxmateMatch) {
-    const slug = praxmateMatch[1];
-    // Skip reserved subdomains (www, api, admin, app)
-    if (!['www', 'api', 'admin', 'app', 'mail'].includes(slug)) {
-      const p = await getPracticeBySlug(env, slug);
-      if (p) return p;
+  // Then subdomain patterns:
+  //  (a) "hild.praxmate.de"        → slug "hild"
+  //  (b) "hild.praxmate.pages.dev" → slug "hild"
+  const patterns = [
+    /^([a-z0-9-]+)\.praxmate\.de$/,
+    /^([a-z0-9-]+)\.praxmate\.pages\.dev$/,
+  ];
+  const reserved = ['www', 'api', 'admin', 'app', 'mail'];
+  for (const pattern of patterns) {
+    const m = hostname.match(pattern);
+    if (m) {
+      const slug = m[1];
+      // Skip reserved + Cloudflare 8-char hex preview hashes
+      if (!reserved.includes(slug) && !/^[a-f0-9]{8}$/.test(slug)) {
+        const p = await getPracticeBySlug(env, slug);
+        if (p) return p;
+      }
     }
   }
 

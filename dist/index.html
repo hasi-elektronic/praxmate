@@ -3,156 +3,1831 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Praxmate — Online-Termine für Ihre Praxis</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<meta name="description" content="Praxmate — Online-Terminbuchung für Arzt- und Zahnarztpraxen. DSGVO-konform, Server in Deutschland, keine Plattformgebühren.">
+<meta name="theme-color" content="#2d6a8e">
+<title>Praxmate — Online-Termine, die Ihre Praxis stärken.</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232d6a8e'/%3E%3Ctext x='50' y='68' font-family='Georgia' font-size='50' font-weight='700' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 <style>
 :root {
   --primary: #2d6a8e;
-  --primary-dark: #1e4d6b;
+  --primary-dark: #1a4a6b;
+  --primary-soft: #4a8eb0;
+  --primary-glow: rgba(45, 106, 142, 0.4);
   --accent: #e9b949;
-  --ink: #1a2a3a;
+  --accent-warm: #d68a1f;
+  --ink: #0f1e2e;
+  --ink-soft: #3d5368;
   --muted: #7a8b9c;
-  --bg: #f4f8fa;
+  --border: #e1e8ed;
+  --bg: #ffffff;
+  --bg-soft: #f4f8fa;
+  --bg-dark: #0f1e2e;
+  --success: #2d8e5f;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
   background: var(--bg);
   color: var(--ink);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+  overflow-x: hidden;
 }
+a { color: var(--primary); text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+/* ============ REVEAL ANIMATIONS ============ */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ============ NAVBAR ============ */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(225,232,237,0);
+  padding: 14px 0;
+  transition: border-color 0.3s, background 0.3s;
+}
+.nav.scrolled {
+  border-bottom-color: rgba(225,232,237,0.6);
+  background: rgba(255,255,255,0.95);
+}
+.nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+.nav-brand { display: flex; align-items: center; gap: 10px; color: var(--ink); }
+.brand-mark {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-soft) 100%);
+  color: white;
+  border-radius: 10px;
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px var(--primary-glow);
+  transition: transform 0.3s;
+}
+.nav-brand:hover .brand-mark { transform: rotate(-5deg) scale(1.05); }
+.brand-name { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.nav-links { display: flex; align-items: center; gap: 28px; }
+.nav-link { color: var(--ink-soft); font-weight: 500; font-size: 14px; transition: color 0.15s; position: relative; }
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 0; height: 2px;
+  background: var(--primary);
+  transition: width 0.2s;
+}
+.nav-link:hover { color: var(--primary); }
+.nav-link:hover::after { width: 100%; }
+.nav-cta {
+  background: var(--ink);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.nav-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.nav-cta span { position: relative; z-index: 1; }
+.nav-cta:hover::before { opacity: 1; }
+.nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(45, 106, 142, 0.3); }
+
+/* ============ HERO ============ */
 .hero {
-  min-height: 80vh;
+  padding: 100px 24px 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -40%; left: 50%;
+  transform: translateX(-50%);
+  width: 120%; max-width: 1400px;
+  aspect-ratio: 1.8;
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(74, 142, 176, 0.18), transparent 55%),
+    radial-gradient(ellipse at 70% 60%, rgba(233, 185, 73, 0.12), transparent 50%);
+  z-index: -2;
+  animation: heroGlow 20s ease-in-out infinite;
+}
+@keyframes heroGlow {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-30px); }
+}
+.hero-container { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 16px;
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--primary);
+  border-radius: 100px;
+  font-size: 13px; font-weight: 600;
+  margin-bottom: 28px;
+  box-shadow: 0 2px 12px rgba(15, 30, 46, 0.04);
+  animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-badge .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 3px rgba(45, 142, 95, 0.2);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.15); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h1.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(38px, 6vw, 72px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: 24px;
+  animation: titleIn 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes titleIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-title .accent {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-soft) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-style: italic;
+  position: relative;
+  display: inline-block;
+}
+.hero-title .accent::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0; right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  animation: underline 1s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards;
+}
+@keyframes underline {
+  to { opacity: 0.4; }
+}
+
+.hero-sub {
+  font-size: clamp(17px, 1.8vw, 20px);
+  color: var(--ink-soft);
+  max-width: 640px;
+  margin: 0 auto 40px;
+  line-height: 1.55;
+  animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-actions {
+  display: flex; gap: 14px;
+  justify-content: center; flex-wrap: wrap;
+  margin-bottom: 32px;
+  animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 15px 28px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer; border: none;
+  font-family: inherit;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  box-shadow: 0 4px 20px rgba(45, 106, 142, 0.3);
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--primary-soft) 0%, var(--primary) 100%);
+  opacity: 0; transition: opacity 0.3s;
+}
+.btn-primary span { position: relative; z-index: 1; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(45, 106, 142, 0.4); }
+.btn-primary:hover::after { opacity: 1; }
+.btn-primary .arrow { transition: transform 0.25s; position: relative; z-index: 1; }
+.btn-primary:hover .arrow { transform: translateX(4px); }
+
+.btn-ghost {
+  background: white;
+  color: var(--ink);
+  border: 1.5px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+.btn-ghost .play-icon {
+  width: 22px; height: 22px;
+  background: rgba(45, 106, 142, 0.1);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  color: var(--primary);
+  transition: all 0.2s;
+}
+.btn-ghost:hover .play-icon { background: var(--primary); color: white; transform: scale(1.1); }
+
+.hero-meta {
+  display: flex; justify-content: center; gap: 28px;
+  flex-wrap: wrap; font-size: 13px; color: var(--muted);
+  animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+}
+.hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+.hero-meta span::before { content: '✓'; color: var(--success); font-weight: 700; }
+
+/* ============ FLOATING DASHBOARD ============ */
+.hero-screen-wrap {
+  max-width: 1100px;
+  margin: 60px auto 0;
+  padding: 0 24px;
+  perspective: 2000px;
+  position: relative;
+  z-index: 1;
+  animation: screenFloat 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both;
+}
+@keyframes screenFloat {
+  from { opacity: 0; transform: translateY(40px) rotateX(10deg); }
+  to { opacity: 1; transform: translateY(0) rotateX(0); }
+}
+.hero-screen {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow:
+    0 40px 80px -20px rgba(15, 30, 46, 0.3),
+    0 15px 30px -10px rgba(15, 30, 46, 0.15),
+    0 0 0 1px rgba(225, 232, 237, 0.8);
+  background: white;
+  transform: perspective(2000px) rotateX(2deg);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-screen:hover { transform: perspective(2000px) rotateX(0); }
+.hero-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top, rgba(74, 142, 176, 0.08), transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.screen-bar {
+  background: #fafbfc;
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.screen-dots { display: flex; gap: 7px; }
+.screen-dots > div {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+}
+.screen-dots > div:nth-child(1) { background: #ff5f57; }
+.screen-dots > div:nth-child(2) { background: #ffbd2e; }
+.screen-dots > div:nth-child(3) { background: #28c840; }
+.screen-url {
+  margin-left: 14px;
+  font-size: 13px;
+  color: var(--muted);
+  background: white;
+  padding: 5px 14px;
+  border-radius: 8px;
+  flex: 1;
+  max-width: 380px;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; gap: 6px;
+}
+.screen-url::before { content: '🔒'; font-size: 11px; }
+
+.mockup {
+  background: var(--bg-soft);
+  padding: 32px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.mockup-stat {
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: white;
+  transition: transform 0.2s;
+}
+.mockup-stat:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.06); }
+.mockup-stat.accent {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 8px 20px rgba(45, 106, 142, 0.25);
+}
+.mockup-stat-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+.mockup-stat.accent .mockup-stat-label { color: rgba(255,255,255,0.85); }
+.mockup-stat-value { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; line-height: 1; }
+.mockup-stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.mockup-stat.accent .mockup-stat-sub { color: rgba(255,255,255,0.8); }
+
+.mockup-panel {
+  grid-column: 1 / -1;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px;
+  margin-top: 8px;
+}
+.mockup-panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.mockup-panel-title { font-weight: 700; font-size: 14px; }
+.mockup-add-btn { font-size: 12px; color: var(--primary); font-weight: 600; padding: 6px 12px; background: rgba(45, 106, 142, 0.08); border-radius: 6px; }
+.mockup-row {
+  display: flex; gap: 12px; align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.mockup-row:hover { background: #fafbfc; margin: 0 -10px; padding-left: 10px; padding-right: 10px; border-radius: 6px; }
+.mockup-row:last-child { border-bottom: none; }
+.mockup-time { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; min-width: 52px; color: var(--ink); }
+.mockup-name { font-weight: 600; font-size: 14px; }
+.mockup-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.mockup-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+.mockup-avatar.soft { background: var(--primary-soft); }
+.mockup-avatar.accent { background: var(--accent-warm); }
+.neu-badge {
+  background: var(--accent); color: #5c4a11;
+  padding: 2px 8px; border-radius: 10px;
+  font-size: 9px; font-weight: 700;
+  margin-left: 6px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Floating orbs around hero */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: -1;
+}
+.orb-1 {
+  top: 10%; left: -100px;
+  width: 300px; height: 300px;
+  background: rgba(74, 142, 176, 0.4);
+  animation: orbFloat1 15s ease-in-out infinite;
+}
+.orb-2 {
+  top: 20%; right: -120px;
+  width: 400px; height: 400px;
+  background: rgba(233, 185, 73, 0.3);
+  animation: orbFloat2 18s ease-in-out infinite;
+}
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(80px, 50px); }
+  66% { transform: translate(40px, 100px); }
+}
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-80px, 60px); }
+}
+
+/* ============ LOGO BAR ============ */
+.logos {
+  padding: 40px 24px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-soft);
+}
+.logos-wrap { max-width: 1100px; margin: 0 auto; text-align: center; }
+.logos-title {
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.logos-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 48px;
+  flex-wrap: wrap;
+  opacity: 0.65;
+}
+.logo-item {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+/* ============ SECTIONS ============ */
+section { padding: 100px 24px; }
+.container { max-width: 1100px; margin: 0 auto; }
+.section-head { text-align: center; margin-bottom: 60px; max-width: 680px; margin-left: auto; margin-right: auto; }
+.section-eyebrow {
+  display: inline-block;
+  font-size: 12px; font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 16px;
+  padding: 4px 12px;
+  background: rgba(45, 106, 142, 0.08);
+  border-radius: 100px;
+}
+h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 4.5vw, 48px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 18px;
+  color: var(--ink);
+}
+h2 .accent {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-soft) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-style: italic;
+}
+.section-sub { font-size: 17px; color: var(--ink-soft); line-height: 1.55; }
+
+/* ============ DEMO PLAYER SECTION ============ */
+.demo-player {
+  background: linear-gradient(180deg, var(--bg-dark) 0%, #162a3e 100%);
+  color: white;
+  padding: 100px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.demo-player::before {
+  content: '';
+  position: absolute;
+  top: -200px; left: 50%;
+  transform: translateX(-50%);
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(74, 142, 176, 0.15), transparent 70%);
+  pointer-events: none;
+}
+.demo-player h2 { color: white; }
+.demo-player .section-eyebrow {
+  background: rgba(233, 185, 73, 0.15);
+  color: var(--accent);
+}
+.demo-player .section-sub { color: rgba(255, 255, 255, 0.7); }
+
+.demo-stage {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.demo-tabs {
+  display: flex;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 6px;
+  border-radius: 12px;
+  margin-bottom: 28px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.demo-tab {
+  flex: 1;
+  padding: 11px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.65);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 24px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  gap: 8px;
+}
+.demo-tab:hover { color: white; }
+.demo-tab.active {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-soft) 100%);
   color: white;
-  text-align: center;
+  box-shadow: 0 6px 16px rgba(45, 106, 142, 0.4);
 }
-.hero-content { max-width: 720px; }
-.brand {
-  display: inline-flex; align-items: center; gap: 12px;
-  margin-bottom: 32px;
+
+.demo-window {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  color: var(--ink);
+  aspect-ratio: 16 / 10;
+  max-height: 640px;
+  position: relative;
 }
-.brand-mark {
-  width: 48px; height: 48px;
-  background: white; color: var(--primary);
-  border-radius: 12px;
+.demo-url-bar {
+  background: #fafbfc;
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.demo-url {
+  background: white;
+  padding: 5px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  flex: 1;
+  max-width: 320px;
+  border: 1px solid var(--border);
+  font-family: 'SF Mono', Monaco, monospace;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.demo-url::before { content: '🔒'; font-size: 11px; }
+
+.demo-body {
+  position: relative;
+  height: calc(100% - 50px);
+  overflow: hidden;
+}
+.demo-frame {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.5s;
+  padding: 32px;
+  overflow-y: auto;
+}
+.demo-frame.active { opacity: 1; z-index: 2; }
+
+/* Patient booking frames */
+.demo-title {
   font-family: 'Playfair Display', serif;
-  font-size: 28px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-}
-.brand-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 32px; font-weight: 700;
-  letter-spacing: -0.02em;
-}
-h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 44px;
+  font-size: 24px;
   font-weight: 700;
-  line-height: 1.15;
-  margin-bottom: 20px;
-  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+  color: var(--ink);
 }
-.sub {
-  font-size: 18px;
-  opacity: 0.92;
-  margin-bottom: 40px;
-  max-width: 560px;
-  margin-left: auto;
-  margin-right: auto;
+.demo-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+.demo-step-indicator {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
 }
-.demo-links {
-  display: flex; flex-direction: column; gap: 14px;
-  max-width: 420px; margin: 0 auto;
+.demo-dot {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  transition: background 0.4s;
 }
-.demo-link {
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.18);
-  padding: 16px 22px;
-  border-radius: 12px;
-  color: white;
-  text-decoration: none;
-  display: flex; align-items: center; justify-content: space-between;
+.demo-dot.done { background: var(--primary); }
+.demo-dot.active {
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-soft) 100%);
+  animation: dotPulse 1.5s infinite;
+}
+@keyframes dotPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+.demo-types {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.demo-type-btn {
+  padding: 14px;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
   transition: all 0.2s;
 }
-.demo-link:hover {
-  background: rgba(255,255,255,0.2);
+.demo-type-btn:hover { border-color: var(--primary-soft); transform: translateX(2px); }
+.demo-type-btn.highlighted {
+  border-color: var(--primary);
+  background: rgba(45, 106, 142, 0.04);
   transform: translateX(3px);
+  box-shadow: 0 4px 12px rgba(45, 106, 142, 0.1);
 }
-.demo-link-label {
-  font-weight: 600; font-size: 15px;
-  display: flex; flex-direction: column; gap: 2px;
-  text-align: left;
+.demo-type-icon { font-size: 22px; margin-bottom: 4px; display: block; }
+.demo-type-name { font-weight: 600; font-size: 13px; color: var(--ink); }
+.demo-type-dur { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.demo-cal {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
 }
-.demo-link-sub {
+.demo-cal-head { text-align: center; font-weight: 700; font-size: 14px; margin-bottom: 12px; font-family: 'Playfair Display', serif; }
+.demo-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.demo-day-label { font-size: 10px; color: var(--muted); text-align: center; font-weight: 700; padding: 4px 0; text-transform: uppercase; }
+.demo-day {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
   font-size: 12px;
-  opacity: 0.8;
-  font-weight: 400;
-}
-.arrow {
-  font-size: 22px;
-  opacity: 0.8;
-}
-.footer {
-  text-align: center;
-  padding: 32px;
   color: var(--muted);
-  font-size: 13px;
+  position: relative;
+  transition: all 0.2s;
 }
-.footer a { color: var(--muted); }
-@media (max-width: 640px) {
-  h1 { font-size: 32px; }
-  .sub { font-size: 16px; }
+.demo-day.available {
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--ink);
+  font-weight: 600;
+  cursor: pointer;
+}
+.demo-day.available::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  width: 4px; height: 4px;
+  background: var(--primary);
+  border-radius: 50%;
+}
+.demo-day.selected {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  transform: scale(1.08);
+  box-shadow: 0 4px 10px rgba(45, 106, 142, 0.3);
+}
+.demo-day.selected::after { background: var(--accent); }
+
+.demo-slots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+.demo-slot {
+  padding: 10px;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-variant-numeric: tabular-nums;
+}
+.demo-slot:hover { border-color: var(--primary-soft); transform: translateY(-1px); }
+.demo-slot.highlighted {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(45, 106, 142, 0.3);
+}
+
+.demo-form { display: grid; gap: 12px; }
+.demo-field { display: flex; flex-direction: column; gap: 4px; }
+.demo-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.demo-input {
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  background: white;
+  transition: border-color 0.2s;
+}
+.demo-input.typing {
+  border-color: var(--primary);
+  background: rgba(45, 106, 142, 0.02);
+}
+
+.demo-success {
+  text-align: center;
+  padding: 30px 20px;
+}
+.demo-success-icon {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--success), #1f6843);
+  color: white;
+  margin: 0 auto 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  animation: successPop 0.6s cubic-bezier(0.16, 1.6, 0.3, 1);
+  box-shadow: 0 12px 30px rgba(45, 142, 95, 0.4);
+}
+@keyframes successPop {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.demo-success-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.demo-success-code {
+  font-family: 'SF Mono', Monaco, monospace;
+  background: rgba(45, 106, 142, 0.08);
+  color: var(--primary);
+  padding: 6px 14px;
+  border-radius: 8px;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 10px;
+  letter-spacing: 0.03em;
+}
+
+/* Admin frame (simpler mockup of the dashboard) */
+.admin-frame .mockup { border-radius: 0; background: transparent; padding: 0; }
+.admin-frame .mockup-stat-value { font-size: 28px; }
+
+/* Demo controls */
+.demo-controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+.demo-control {
+  padding: 10px 22px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 100px;
+  color: white;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.demo-control:hover { background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.25); }
+.demo-control.primary {
+  background: var(--accent);
+  color: var(--ink);
+  border-color: var(--accent);
+}
+.demo-control.primary:hover { background: #f5c557; border-color: #f5c557; }
+.demo-cta-row {
+  display: flex; justify-content: center; gap: 14px; margin-top: 30px; flex-wrap: wrap;
+}
+.demo-link-btn {
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.demo-link-btn:hover { background: rgba(255, 255, 255, 0.18); transform: translateY(-2px); color: white; }
+
+/* ============ FEATURES ============ */
+.features { background: var(--bg-soft); padding: 100px 24px; position: relative; overflow: hidden; }
+.feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.feat-card {
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+.feat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s;
+}
+.feat-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--primary-soft);
+  box-shadow: 0 20px 40px rgba(45, 106, 142, 0.1);
+}
+.feat-card:hover::before { transform: scaleX(1); }
+.feat-icon {
+  width: 52px; height: 52px;
+  background: linear-gradient(135deg, rgba(45, 106, 142, 0.1), rgba(74, 142, 176, 0.15));
+  color: var(--primary);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  transition: transform 0.3s;
+}
+.feat-card:hover .feat-icon { transform: rotate(-8deg) scale(1.05); }
+.feat-card h3 { font-size: 19px; font-weight: 700; margin-bottom: 10px; color: var(--ink); }
+.feat-card p { color: var(--ink-soft); font-size: 14.5px; line-height: 1.6; }
+
+/* ============ HOW IT WORKS ============ */
+.how { padding: 100px 24px; }
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 32px;
+  position: relative;
+}
+.how-steps::before {
+  content: '';
+  position: absolute;
+  top: 24px;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-soft) 50%, var(--accent) 100%);
+  opacity: 0.2;
+  z-index: 0;
+}
+@media (max-width: 760px) { .how-steps::before { display: none; } }
+
+.how-step { text-align: center; position: relative; z-index: 1; }
+.how-num {
+  width: 56px; height: 56px;
+  background: white;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 auto 20px;
+  transition: all 0.3s;
+  position: relative;
+}
+.how-step:hover .how-num {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  transform: scale(1.1) rotate(-5deg);
+  box-shadow: 0 12px 24px rgba(45, 106, 142, 0.3);
+}
+.how-step h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+.how-step p { color: var(--ink-soft); font-size: 14.5px; line-height: 1.6; }
+
+/* ============ PRICING ============ */
+.pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; max-width: 960px; margin: 0 auto; }
+.price-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px 30px;
+  position: relative;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.price-card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.07); }
+.price-card.featured {
+  border: 2px solid var(--primary);
+  box-shadow: 0 20px 60px rgba(45, 106, 142, 0.15);
+  transform: scale(1.03);
+  background: linear-gradient(180deg, white 0%, rgba(45, 106, 142, 0.02) 100%);
+}
+.price-card.featured:hover { transform: scale(1.03) translateY(-4px); }
+.price-badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 16px;
+  border-radius: 100px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 6px 16px rgba(45, 106, 142, 0.3);
+}
+.price-name { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.price-desc { font-size: 13px; color: var(--muted); margin-bottom: 22px; min-height: 40px; }
+.price-amount { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 700; color: var(--ink); line-height: 1; }
+.price-period { font-size: 14px; color: var(--muted); font-weight: 400; font-family: 'Inter'; }
+.price-features { list-style: none; margin: 30px 0; }
+.price-features li { padding: 7px 0; color: var(--ink-soft); font-size: 14.5px; display: flex; align-items: flex-start; gap: 10px; }
+.price-features li::before { content: '✓'; color: var(--success); font-weight: 700; flex-shrink: 0; }
+.price-cta {
+  display: block; width: 100%;
+  text-align: center;
+  padding: 13px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1.5px solid var(--border);
+  color: var(--ink);
+  background: white;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.price-card.featured .price-cta {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 6px 18px rgba(45, 106, 142, 0.3);
+}
+.price-cta:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+.price-card.featured .price-cta:hover { color: white; box-shadow: 0 10px 24px rgba(45, 106, 142, 0.4); }
+
+/* ============ CTA BAND ============ */
+.cta-band {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 100px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-band::before, .cta-band::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+.cta-band::before {
+  top: -100px; left: 20%;
+  width: 300px; height: 300px;
+  background: rgba(233, 185, 73, 0.3);
+  animation: ctaGlow1 12s ease-in-out infinite;
+}
+.cta-band::after {
+  bottom: -100px; right: 15%;
+  width: 400px; height: 400px;
+  background: rgba(74, 142, 176, 0.4);
+  animation: ctaGlow2 14s ease-in-out infinite;
+}
+@keyframes ctaGlow1 { 0%,100%{transform:translate(0,0);} 50%{transform:translate(60px,40px);} }
+@keyframes ctaGlow2 { 0%,100%{transform:translate(0,0);} 50%{transform:translate(-80px,-50px);} }
+
+.cta-band h2 { color: white; margin-bottom: 18px; position: relative; }
+.cta-band p { font-size: 18px; color: rgba(255,255,255,0.9); max-width: 580px; margin: 0 auto 36px; position: relative; }
+.cta-band .btn-primary {
+  background: white;
+  color: var(--primary);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+.cta-band .btn-primary::after { background: var(--accent); }
+.cta-band .btn-primary:hover { color: var(--ink); }
+
+/* ============ FOOTER ============ */
+.footer { background: var(--bg-dark); color: rgba(255,255,255,0.75); padding: 70px 24px 36px; }
+.footer-container { max-width: 1100px; margin: 0 auto; }
+.footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
+.footer-brand .brand-mark { background: white; color: var(--primary); }
+.footer-brand .brand-name { color: white; }
+.footer-tag { font-size: 14px; color: rgba(255,255,255,0.55); margin-top: 16px; max-width: 280px; line-height: 1.55; }
+.footer-col h4 { color: white; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 18px; }
+.footer-col ul { list-style: none; }
+.footer-col li { margin-bottom: 10px; }
+.footer-col a { color: rgba(255,255,255,0.6); font-size: 14px; transition: color 0.2s; }
+.footer-col a:hover { color: white; }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: rgba(255,255,255,0.5); flex-wrap: wrap; gap: 16px; }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 860px) {
+  .nav-links { display: none; }
+  .nav-cta { padding: 8px 16px; font-size: 13px; }
+  .hero { padding: 60px 20px 50px; }
+  .hero-screen { transform: none !important; }
+  section { padding: 70px 20px; }
+  .features { padding: 70px 20px; }
+  .demo-player { padding: 70px 20px; }
+  .cta-band { padding: 70px 20px; }
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 30px; }
+  .price-card.featured { transform: none; }
+  .price-card.featured:hover { transform: translateY(-4px); }
+  .mockup { grid-template-columns: 1fr 1fr; padding: 20px; }
+  .demo-types { grid-template-columns: 1fr 1fr; }
+  .demo-slots { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 480px) {
+  .footer-top { grid-template-columns: 1fr; }
+  .footer-bottom { justify-content: center; text-align: center; }
+  .demo-tabs { max-width: 100%; }
+  .demo-tab { font-size: 12px; padding: 10px 12px; }
 }
 </style>
 </head>
 <body>
 
-<section class="hero">
-  <div class="hero-content">
-    <div class="brand">
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">
       <div class="brand-mark">P</div>
       <div class="brand-name">Praxmate</div>
+    </a>
+    <div class="nav-links">
+      <a href="#features" class="nav-link">Funktionen</a>
+      <a href="#how" class="nav-link">So funktioniert's</a>
+      <a href="#demo" class="nav-link">Live-Demo</a>
+      <a href="#pricing" class="nav-link">Preise</a>
     </div>
+    <a href="#cta" class="nav-cta"><span>Pilot starten →</span></a>
+  </div>
+</nav>
 
-    <h1>Online-Terminbuchung für Ihre Praxis.</h1>
-    <p class="sub">DSGVO-konform · Server in Frankfurt · Keine Plattformgebühren · Ihre Praxis, Ihre Marke.</p>
+<!-- FLOATING ORBS -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
 
-    <div class="demo-links">
-      <a href="/book.html?practice=hild" class="demo-link">
-        <div class="demo-link-label">
-          <span>🦷 Zahnarztpraxis Hild &amp; Kollegen</span>
-          <span class="demo-link-sub">Demo · Termin als Patient buchen</span>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-container">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      DSGVO-konform · Server in Frankfurt
+    </div>
+    <h1 class="hero-title">
+      Online-Termine,<br>
+      die Ihre <span class="accent">Praxis stärken.</span>
+    </h1>
+    <p class="hero-sub">
+      Ihre Patienten buchen online — rund um die Uhr, in Ihrem Branding,
+      auf Ihrer Website. Ihr Team sieht alles in einem modernen Kalender.
+      Ohne Plattformgebühr, ohne Doctolib-Abhängigkeit.
+    </p>
+    <div class="hero-actions">
+      <a href="#demo" class="btn btn-primary"><span>Interaktive Demo starten</span> <span class="arrow">→</span></a>
+      <a href="#cta" class="btn btn-ghost"><span class="play-icon">▶</span>Pilot-Phase buchen</a>
+    </div>
+    <div class="hero-meta">
+      <span>3 Monate kostenlos</span>
+      <span>Keine Einrichtungsgebühr</span>
+      <span>Jederzeit kündbar</span>
+    </div>
+  </div>
+
+  <!-- LIVE DASHBOARD PREVIEW -->
+  <div class="hero-screen-wrap">
+    <div class="hero-screen">
+      <div class="screen-bar">
+        <div class="screen-dots"><div></div><div></div><div></div></div>
+        <div class="screen-url">hild.praxmate.de/admin</div>
+      </div>
+      <div class="mockup">
+        <div class="mockup-stat accent">
+          <div class="mockup-stat-label">Heute</div>
+          <div class="mockup-stat-value" id="liveTodayCount">12</div>
+          <div class="mockup-stat-sub">Termine geplant</div>
         </div>
-        <span class="arrow">→</span>
-      </a>
-      <a href="/book.html?practice=vayhinger" class="demo-link">
-        <div class="demo-link-label">
-          <span>❤ Hausarztpraxis Vayhinger</span>
-          <span class="demo-link-sub">Demo · Termin als Patient buchen</span>
+        <div class="mockup-stat">
+          <div class="mockup-stat-label">Diese Woche</div>
+          <div class="mockup-stat-value">58</div>
+          <div class="mockup-stat-sub">Termine gesamt</div>
         </div>
-        <span class="arrow">→</span>
-      </a>
-      <a href="/admin/?practice=hild" class="demo-link">
-        <div class="demo-link-label">
-          <span>👩‍⚕️ Admin-Panel (Praxis-Team)</span>
-          <span class="demo-link-sub">Login · für Praxis-Personal</span>
+        <div class="mockup-stat">
+          <div class="mockup-stat-label">No-Shows</div>
+          <div class="mockup-stat-value">0</div>
+          <div class="mockup-stat-sub">diese Woche</div>
         </div>
-        <span class="arrow">→</span>
-      </a>
+        <div class="mockup-stat">
+          <div class="mockup-stat-label">Neupatienten</div>
+          <div class="mockup-stat-value">8</div>
+          <div class="mockup-stat-sub">diesen Monat</div>
+        </div>
+        <div class="mockup-panel">
+          <div class="mockup-panel-head">
+            <div class="mockup-panel-title">Heutige Termine</div>
+            <div class="mockup-add-btn">+ Termin</div>
+          </div>
+          <div class="mockup-row">
+            <div class="mockup-time">08:00</div>
+            <div style="flex:1;"><div class="mockup-name">Renate Hofmann</div><div class="mockup-meta">✨ Prophylaxe (PZR) · 45 Min</div></div>
+            <div class="mockup-avatar">JH</div>
+          </div>
+          <div class="mockup-row">
+            <div class="mockup-time">09:20</div>
+            <div style="flex:1;"><div class="mockup-name">Rolf Krause</div><div class="mockup-meta">⎈ Prothetik-Beratung · 45 Min</div></div>
+            <div class="mockup-avatar soft">WH</div>
+          </div>
+          <div class="mockup-row">
+            <div class="mockup-time">10:40</div>
+            <div style="flex:1;"><div class="mockup-name">Claudia Braun <span class="neu-badge">Neu</span></div><div class="mockup-meta">🦷 Kontrolle / Vorsorge · 20 Min</div></div>
+            <div class="mockup-avatar">JH</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
+<!-- LOGOS / SOCIAL PROOF -->
+<section class="logos">
+  <div class="logos-wrap">
+    <div class="logos-title">Vertraut von Praxen in der Region</div>
+    <div class="logos-row">
+      <div class="logo-item">Hild &amp; Kollegen</div>
+      <div class="logo-item">Hausarztpraxis Vayhinger</div>
+      <div class="logo-item">Ihre Praxis?</div>
+    </div>
+  </div>
+</section>
+
+<!-- INTERACTIVE DEMO -->
+<section id="demo" class="demo-player">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-eyebrow">Live-Demo</div>
+      <h2>Sehen Sie Praxmate <span class="accent">in Aktion.</span></h2>
+      <p class="section-sub">Starten Sie die interaktive Tour. Wir zeigen Ihnen Schritt für Schritt, wie ein Patient einen Termin bucht.</p>
+    </div>
+
+    <div class="demo-stage reveal reveal-delay-1">
+      <div class="demo-tabs">
+        <button class="demo-tab active" data-frame="patient">🙋 Patient bucht Termin</button>
+        <button class="demo-tab" data-frame="admin">👩‍⚕️ Team-Dashboard</button>
+      </div>
+
+      <div class="demo-window">
+        <div class="demo-url-bar">
+          <div class="demo-url" id="demoUrlText">hild.praxmate.de/termin</div>
+        </div>
+        <div class="demo-body">
+
+          <!-- PATIENT FRAMES -->
+          <div class="demo-frame active" id="patientFrame" data-frame="patient">
+            <!-- Frame 1: Welcome -->
+            <div class="demo-content" id="frame1">
+              <div class="demo-title">Zahnarztpraxis Hild &amp; Kollegen</div>
+              <div class="demo-sub">📍 Lupinenweg 1, 71665 Vaihingen · ☎ 07042 14069</div>
+              <div class="demo-step-indicator">
+                <div class="demo-dot active"></div>
+                <div class="demo-dot"></div>
+                <div class="demo-dot"></div>
+                <div class="demo-dot"></div>
+              </div>
+              <div style="margin-bottom: 20px; font-size: 15px; color: var(--ink-soft);">Welche Behandlung benötigen Sie?</div>
+              <div class="demo-types">
+                <button class="demo-type-btn" data-code="kontrolle">
+                  <span class="demo-type-icon">🦷</span>
+                  <div class="demo-type-name">Kontrolle / Vorsorge</div>
+                  <div class="demo-type-dur">20 Minuten</div>
+                </button>
+                <button class="demo-type-btn" data-code="pzr">
+                  <span class="demo-type-icon">✨</span>
+                  <div class="demo-type-name">Prophylaxe (PZR)</div>
+                  <div class="demo-type-dur">45 Minuten</div>
+                </button>
+                <button class="demo-type-btn" data-code="fuellung">
+                  <span class="demo-type-icon">◉</span>
+                  <div class="demo-type-name">Füllung</div>
+                  <div class="demo-type-dur">30 Minuten</div>
+                </button>
+                <button class="demo-type-btn" data-code="schmerz">
+                  <span class="demo-type-icon">⚡</span>
+                  <div class="demo-type-name">Schmerzbehandlung</div>
+                  <div class="demo-type-dur">20 Minuten</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Frame 2: Date/Time -->
+            <div class="demo-content" id="frame2" style="display:none;">
+              <div class="demo-title">Wählen Sie Datum &amp; Zeit</div>
+              <div class="demo-sub">✨ Prophylaxe (PZR) · 45 Minuten · Frau Hild</div>
+              <div class="demo-step-indicator">
+                <div class="demo-dot done"></div>
+                <div class="demo-dot active"></div>
+                <div class="demo-dot"></div>
+                <div class="demo-dot"></div>
+              </div>
+
+              <div class="demo-cal">
+                <div class="demo-cal-head">April 2026</div>
+                <div class="demo-cal-grid">
+                  <div class="demo-day-label">Mo</div>
+                  <div class="demo-day-label">Di</div>
+                  <div class="demo-day-label">Mi</div>
+                  <div class="demo-day-label">Do</div>
+                  <div class="demo-day-label">Fr</div>
+                  <div class="demo-day-label">Sa</div>
+                  <div class="demo-day-label">So</div>
+                  <div class="demo-day"></div>
+                  <div class="demo-day"></div>
+                  <div class="demo-day"></div>
+                  <div class="demo-day"></div>
+                  <div class="demo-day"></div>
+                  <div class="demo-day"></div>
+                  <div class="demo-day"></div>
+                  <div class="demo-day">1</div>
+                  <div class="demo-day available">21</div>
+                  <div class="demo-day available" id="demoDay22">22</div>
+                  <div class="demo-day available">23</div>
+                  <div class="demo-day available">24</div>
+                  <div class="demo-day"></div>
+                  <div class="demo-day"></div>
+                  <div class="demo-day available">27</div>
+                  <div class="demo-day available">28</div>
+                  <div class="demo-day available">29</div>
+                  <div class="demo-day available">30</div>
+                </div>
+              </div>
+
+              <div class="demo-slots" id="demoSlots" style="display:none;">
+                <div class="demo-slot">08:00</div>
+                <div class="demo-slot">08:45</div>
+                <div class="demo-slot">09:30</div>
+                <div class="demo-slot" id="demoSlot1030">10:30</div>
+                <div class="demo-slot">11:15</div>
+                <div class="demo-slot">15:00</div>
+                <div class="demo-slot">15:45</div>
+                <div class="demo-slot">16:30</div>
+              </div>
+            </div>
+
+            <!-- Frame 3: Form -->
+            <div class="demo-content" id="frame3" style="display:none;">
+              <div class="demo-title">Ihre Kontaktdaten</div>
+              <div class="demo-sub">Mittwoch, 22. April 2026 um 10:30 Uhr · Prophylaxe (PZR)</div>
+              <div class="demo-step-indicator">
+                <div class="demo-dot done"></div>
+                <div class="demo-dot done"></div>
+                <div class="demo-dot active"></div>
+                <div class="demo-dot"></div>
+              </div>
+
+              <div class="demo-form">
+                <div class="demo-field">
+                  <div class="demo-label">Vorname</div>
+                  <div class="demo-input" id="demoInputFirst">&nbsp;</div>
+                </div>
+                <div class="demo-field">
+                  <div class="demo-label">Nachname</div>
+                  <div class="demo-input" id="demoInputLast">&nbsp;</div>
+                </div>
+                <div class="demo-field">
+                  <div class="demo-label">E-Mail</div>
+                  <div class="demo-input" id="demoInputEmail">&nbsp;</div>
+                </div>
+                <div class="demo-field">
+                  <div class="demo-label">Telefon</div>
+                  <div class="demo-input" id="demoInputPhone">&nbsp;</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Frame 4: Success -->
+            <div class="demo-content" id="frame4" style="display:none;">
+              <div class="demo-step-indicator">
+                <div class="demo-dot done"></div>
+                <div class="demo-dot done"></div>
+                <div class="demo-dot done"></div>
+                <div class="demo-dot done"></div>
+              </div>
+              <div class="demo-success">
+                <div class="demo-success-icon">✓</div>
+                <div class="demo-success-title">Termin bestätigt!</div>
+                <div class="demo-sub">Eine Bestätigungs-E-Mail wurde an <strong>maria.schmidt@web.de</strong> gesendet</div>
+                <div class="demo-success-code">PRX-K7H2QX</div>
+                <div style="margin-top: 24px; padding: 16px; background: var(--bg-soft); border-radius: 10px; text-align: left;">
+                  <div style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;">Ihr Termin</div>
+                  <div style="font-weight: 600;">✨ Prophylaxe (PZR)</div>
+                  <div style="font-size: 13px; color: var(--ink-soft); margin-top: 2px;">Mittwoch, 22. April 2026 · 10:30 Uhr</div>
+                  <div style="font-size: 13px; color: var(--ink-soft);">Bei Frau Juliane Hild</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ADMIN FRAME -->
+          <div class="demo-frame admin-frame" data-frame="admin">
+            <div class="demo-title">Dashboard · Frau Hild</div>
+            <div class="demo-sub">Montag, 21. April 2026</div>
+            <div class="mockup" style="margin-top: 16px;">
+              <div class="mockup-stat accent">
+                <div class="mockup-stat-label">Heute</div>
+                <div class="mockup-stat-value">12</div>
+                <div class="mockup-stat-sub">Termine geplant</div>
+              </div>
+              <div class="mockup-stat">
+                <div class="mockup-stat-label">Diese Woche</div>
+                <div class="mockup-stat-value">58</div>
+                <div class="mockup-stat-sub">Termine gesamt</div>
+              </div>
+              <div class="mockup-stat">
+                <div class="mockup-stat-label">No-Shows</div>
+                <div class="mockup-stat-value">0</div>
+                <div class="mockup-stat-sub">diese Woche</div>
+              </div>
+              <div class="mockup-stat">
+                <div class="mockup-stat-label">Neupatienten</div>
+                <div class="mockup-stat-value">8</div>
+                <div class="mockup-stat-sub">diesen Monat</div>
+              </div>
+              <div class="mockup-panel">
+                <div class="mockup-panel-head">
+                  <div class="mockup-panel-title">Heutige Termine</div>
+                  <div class="mockup-add-btn">+ Termin</div>
+                </div>
+                <div class="mockup-row">
+                  <div class="mockup-time">08:00</div>
+                  <div style="flex:1;"><div class="mockup-name">Renate Hofmann</div><div class="mockup-meta">✨ Prophylaxe · 45 Min</div></div>
+                  <div class="mockup-avatar">JH</div>
+                </div>
+                <div class="mockup-row">
+                  <div class="mockup-time">10:30</div>
+                  <div style="flex:1;"><div class="mockup-name">Maria Schmidt <span class="neu-badge">Neu</span></div><div class="mockup-meta">✨ Prophylaxe · 45 Min</div></div>
+                  <div class="mockup-avatar">JH</div>
+                </div>
+                <div class="mockup-row">
+                  <div class="mockup-time">14:20</div>
+                  <div style="flex:1;"><div class="mockup-name">Thomas Weber</div><div class="mockup-meta">🦷 Kontrolle · 20 Min</div></div>
+                  <div class="mockup-avatar soft">WH</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="demo-controls">
+        <button class="demo-control primary" id="playDemo">▶ Demo abspielen</button>
+        <button class="demo-control" id="resetDemo">↻ Neu starten</button>
+      </div>
+
+      <div class="demo-cta-row">
+        <a href="/book.html?practice=hild" class="demo-link-btn">🦷 Echte Hild-Praxis öffnen →</a>
+        <a href="/book.html?practice=vayhinger" class="demo-link-btn">❤️ Hausarzt Vayhinger öffnen →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-eyebrow">Funktionen</div>
+      <h2>Alles, was eine moderne <span class="accent">Praxis braucht.</span></h2>
+      <p class="section-sub">Ein System für Patienten, Team und Inhaber. Ohne Plattformgebühren. Ohne Datentransfer ins Ausland.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card reveal">
+        <div class="feat-icon">🌐</div>
+        <h3>Online-Buchung 24/7</h3>
+        <p>Patienten buchen selbst — außerhalb der Sprechzeiten, am Wochenende, nachts. Ihre Helferinnen haben das Telefon frei für echte Gespräche.</p>
+      </div>
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon">🎨</div>
+        <h3>Ihre Marke, Ihr Branding</h3>
+        <p>Logo, Farben, Ihre Behandler, Ihre Leistungen. Der Patient sieht Ihre Praxis — nicht unser Logo. Auf Wunsch auch unter Ihrer eigenen Domain.</p>
+      </div>
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon">🛡️</div>
+        <h3>DSGVO-konform</h3>
+        <p>Server in Frankfurt, keine Daten außerhalb der EU. AV-Vertrag inklusive. Getrennte Mandantenumgebung für jede Praxis.</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">📅</div>
+        <h3>Kalender mit Drag &amp; Drop</h3>
+        <p>Tages-, Wochen- und Monatsansicht. Termine verschieben mit der Maus. Farbcodierte Behandlungsarten. Filter nach Behandler.</p>
+      </div>
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon">👥</div>
+        <h3>Team-Konten mit Rollen</h3>
+        <p>Inhaber, Behandler, Helferinnen — jeder sieht, was er braucht. Audit-Log erfasst jede Änderung. 2FA optional.</p>
+      </div>
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon">💶</div>
+        <h3>Transparente Preise</h3>
+        <p>Keine Provisionen pro Termin. Kein Aufpreis je Patient. Ein fester Monatspreis — das war's.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how" class="how">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-eyebrow">So funktioniert's</div>
+      <h2>In 24 Stunden <span class="accent">einsatzbereit.</span></h2>
+      <p class="section-sub">Wir übernehmen die komplette Einrichtung. Sie öffnen einfach am nächsten Morgen das Dashboard.</p>
+    </div>
+    <div class="how-steps">
+      <div class="how-step reveal">
+        <div class="how-num">1</div>
+        <h3>Gespräch</h3>
+        <p>30 Minuten vor Ort oder telefonisch. Wir erfassen Ihre Behandler, Öffnungszeiten und Leistungen.</p>
+      </div>
+      <div class="how-step reveal reveal-delay-1">
+        <div class="how-num">2</div>
+        <h3>Einrichtung</h3>
+        <p>Wir richten Ihr System ein — Logo, Farben, Ihre persönliche Praxis-URL. Alles innerhalb von 24 Stunden.</p>
+      </div>
+      <div class="how-step reveal reveal-delay-2">
+        <div class="how-num">3</div>
+        <h3>Schulung</h3>
+        <p>Ihr Team bekommt eine 60-minütige Einweisung. Kein Vorwissen nötig — das System erklärt sich selbst.</p>
+      </div>
+      <div class="how-step reveal reveal-delay-3">
+        <div class="how-num">4</div>
+        <h3>Live gehen</h3>
+        <p>Der Buchungs-Button kommt auf Ihre Website. Patienten können ab dem ersten Tag online Termine machen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-eyebrow">Preise</div>
+      <h2>Fair. Einfach. <span class="accent">Kein Kleingedrucktes.</span></h2>
+      <p class="section-sub">Monatlich kündbar. Keine Einrichtungsgebühr während der Pilot-Phase.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card reveal">
+        <div class="price-name">Solo</div>
+        <div class="price-desc">Für Einzelpraxen mit einem Behandler.</div>
+        <div class="price-amount">39 €<span class="price-period">/Monat</span></div>
+        <ul class="price-features">
+          <li>1 Behandler</li>
+          <li>Unbegrenzte Online-Buchungen</li>
+          <li>Admin-Dashboard &amp; Kalender</li>
+          <li>E-Mail-Bestätigungen</li>
+          <li>Praxmate-Subdomain</li>
+        </ul>
+        <a href="#cta" class="price-cta">Pilot starten</a>
+      </div>
+      <div class="price-card featured reveal reveal-delay-1">
+        <div class="price-badge">Am beliebtesten</div>
+        <div class="price-name">Team</div>
+        <div class="price-desc">Für Praxen mit mehreren Behandlern.</div>
+        <div class="price-amount">69 €<span class="price-period">/Monat</span></div>
+        <ul class="price-features">
+          <li>Bis zu 3 Behandler</li>
+          <li>Alles aus Solo</li>
+          <li>Team-Rollen (Owner, Doctor, Staff)</li>
+          <li>Drag &amp; Drop Kalender</li>
+          <li>24h-Terminerinnerungen</li>
+          <li>Custom Domain möglich</li>
+        </ul>
+        <a href="#cta" class="price-cta">Pilot starten</a>
+      </div>
+      <div class="price-card reveal reveal-delay-2">
+        <div class="price-name">Praxis</div>
+        <div class="price-desc">Für große MVZs und Gemeinschaftspraxen.</div>
+        <div class="price-amount">119 €<span class="price-period">/Monat</span></div>
+        <ul class="price-features">
+          <li>Bis zu 10 Behandler</li>
+          <li>Alles aus Team</li>
+          <li>Prioritäts-Support</li>
+          <li>Schulung vor Ort inklusive</li>
+          <li>Individuelle Anpassungen</li>
+          <li>Direkter Kontakt zum Entwickler</li>
+        </ul>
+        <a href="#cta" class="price-cta">Pilot starten</a>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:40px;color:var(--muted);font-size:14px;">
+      Alle Preise netto zzgl. MwSt. · 3 Monate kostenloser Pilot · Danach monatlich kündbar
+    </p>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta" class="cta-band">
+  <div class="container">
+    <h2 class="reveal">Starten Sie als eine <span class="accent" style="color: var(--accent); -webkit-text-fill-color: var(--accent);">Pilot-Praxis.</span></h2>
+    <p class="reveal reveal-delay-1">Wir suchen aktiv drei Pilot-Praxen in der Region Stuttgart, die Praxmate drei Monate kostenlos testen. Keine Verpflichtung, kein Risiko.</p>
+    <a href="mailto:h.guencavdi@hasi-elektronic.de?subject=Praxmate Pilot-Interesse" class="btn btn-primary reveal reveal-delay-2"><span>✉️ Kostenloses Erstgespräch</span></a>
+  </div>
+</section>
+
+<!-- FOOTER -->
 <footer class="footer">
-  © 2026 Hasi Elektronic · Vaihingen an der Enz · <a href="mailto:h.guencavdi@hasi-elektronic.de">Kontakt</a>
+  <div class="footer-container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="/" class="nav-brand">
+          <div class="brand-mark">P</div>
+          <div class="brand-name">Praxmate</div>
+        </a>
+        <p class="footer-tag">Online-Terminbuchung für Arzt- und Zahnarztpraxen. Made in Germany · Hosted in Frankfurt.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Produkt</h4>
+        <ul>
+          <li><a href="#features">Funktionen</a></li>
+          <li><a href="#pricing">Preise</a></li>
+          <li><a href="#demo">Demos</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Unternehmen</h4>
+        <ul>
+          <li><a href="mailto:h.guencavdi@hasi-elektronic.de">Kontakt</a></li>
+          <li><a href="https://www.hasi-elektronic.de" target="_blank" rel="noopener">Hasi Elektronic</a></li>
+          <li><a href="#">Impressum</a></li>
+          <li><a href="#">Datenschutz</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Rechtliches</h4>
+        <ul>
+          <li><a href="#">AGB</a></li>
+          <li><a href="#">AV-Vertrag</a></li>
+          <li><a href="#">DSGVO</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 Hasi Elektronic · Grabenstraße 18 · 71665 Vaihingen an der Enz</div>
+      <div>Made with ❤️ in Baden-Württemberg</div>
+    </div>
+  </div>
 </footer>
+
+<script>
+// Subdomain redirect - if accessed via {slug}.praxmate.pages.dev, go to /book.html
+(function() {
+  const host = window.location.hostname;
+  const parts = host.split('.');
+  const RESERVED = ['www','api','admin','app','mail','praxmate'];
+  if (parts.length >= 3) {
+    const first = parts[0];
+    if (!RESERVED.includes(first) && !/^[a-f0-9]{8}$/.test(first)) {
+      window.location.replace('/book.html');
+    }
+  }
+})();
+
+// Navbar scroll effect
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 20) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+}, { passive: true });
+
+// Reveal on scroll
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// Animated counter (today count goes from 5 to 12)
+const countEl = document.getElementById('liveTodayCount');
+const countObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      let n = 0;
+      const target = 12;
+      const step = () => {
+        if (n < target) {
+          n++;
+          countEl.textContent = n;
+          setTimeout(step, 100);
+        }
+      };
+      step();
+      countObserver.unobserve(countEl);
+    }
+  });
+});
+if (countEl) countObserver.observe(countEl);
+
+// ========== INTERACTIVE DEMO PLAYER ==========
+const demoState = {
+  playing: false,
+  frame: 1,
+  tab: 'patient',
+  timers: [],
+};
+
+function clearDemoTimers() {
+  demoState.timers.forEach(t => clearTimeout(t));
+  demoState.timers = [];
+}
+
+function showFrame(n) {
+  demoState.frame = n;
+  [1, 2, 3, 4].forEach(i => {
+    const el = document.getElementById('frame' + i);
+    if (el) el.style.display = i === n ? 'block' : 'none';
+  });
+  // Update URL
+  const urlEl = document.getElementById('demoUrlText');
+  const urls = {
+    1: 'hild.praxmate.de/termin',
+    2: 'hild.praxmate.de/termin#datum',
+    3: 'hild.praxmate.de/termin#daten',
+    4: 'hild.praxmate.de/termin/bestätigt',
+  };
+  if (urlEl) urlEl.textContent = urls[n] || 'hild.praxmate.de/termin';
+}
+
+function resetDemo() {
+  clearDemoTimers();
+  demoState.playing = false;
+  demoState.frame = 1;
+  showFrame(1);
+  // Reset all highlights
+  document.querySelectorAll('.demo-type-btn, .demo-day, .demo-slot').forEach(el => {
+    el.classList.remove('highlighted', 'selected');
+  });
+  ['demoInputFirst', 'demoInputLast', 'demoInputEmail', 'demoInputPhone'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = ''; el.innerHTML = '&nbsp;'; el.classList.remove('typing'); }
+  });
+  const slotsEl = document.getElementById('demoSlots');
+  if (slotsEl) slotsEl.style.display = 'none';
+  const playBtn = document.getElementById('playDemo');
+  if (playBtn) playBtn.innerHTML = '▶ Demo abspielen';
+}
+
+function typewriter(el, text, delay = 40) {
+  return new Promise(resolve => {
+    let i = 0;
+    el.textContent = '';
+    el.classList.add('typing');
+    const step = () => {
+      if (i <= text.length) {
+        el.textContent = text.slice(0, i);
+        if (i === text.length) el.innerHTML = el.textContent || '&nbsp;';
+        i++;
+        const timer = setTimeout(step, delay);
+        demoState.timers.push(timer);
+      } else {
+        el.classList.remove('typing');
+        resolve();
+      }
+    };
+    step();
+  });
+}
+
+function wait(ms) {
+  return new Promise(resolve => {
+    const t = setTimeout(resolve, ms);
+    demoState.timers.push(t);
+  });
+}
+
+async function playDemo() {
+  if (demoState.playing) return;
+  demoState.playing = true;
+  resetDemo();
+  demoState.playing = true;
+
+  const playBtn = document.getElementById('playDemo');
+  if (playBtn) playBtn.innerHTML = '⏸ Abspielen...';
+
+  // Make sure we're on patient tab
+  document.querySelectorAll('.demo-tab').forEach(t => t.classList.toggle('active', t.dataset.frame === 'patient'));
+  document.querySelectorAll('.demo-frame').forEach(f => f.classList.toggle('active', f.dataset.frame === 'patient'));
+
+  // Step 1: highlight PZR
+  await wait(600);
+  const pzrBtn = document.querySelector('.demo-type-btn[data-code="pzr"]');
+  if (pzrBtn) pzrBtn.classList.add('highlighted');
+  await wait(1100);
+
+  // Step 2: go to date/time
+  showFrame(2);
+  await wait(700);
+  const day = document.getElementById('demoDay22');
+  if (day) day.classList.add('selected');
+  await wait(800);
+  const slots = document.getElementById('demoSlots');
+  if (slots) slots.style.display = 'grid';
+  await wait(900);
+  const slot = document.getElementById('demoSlot1030');
+  if (slot) slot.classList.add('highlighted');
+  await wait(1200);
+
+  // Step 3: form
+  showFrame(3);
+  await wait(400);
+  await typewriter(document.getElementById('demoInputFirst'), 'Maria', 60);
+  await wait(150);
+  await typewriter(document.getElementById('demoInputLast'), 'Schmidt', 55);
+  await wait(150);
+  await typewriter(document.getElementById('demoInputEmail'), 'maria.schmidt@web.de', 40);
+  await wait(150);
+  await typewriter(document.getElementById('demoInputPhone'), '0176 5432167', 55);
+  await wait(800);
+
+  // Step 4: success
+  showFrame(4);
+  await wait(2500);
+
+  if (playBtn) playBtn.innerHTML = '▶ Erneut abspielen';
+  demoState.playing = false;
+}
+
+// Tab switching
+document.querySelectorAll('.demo-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.frame;
+    document.querySelectorAll('.demo-tab').forEach(t => t.classList.toggle('active', t === tab));
+    document.querySelectorAll('.demo-frame').forEach(f => f.classList.toggle('active', f.dataset.frame === target));
+    // Update URL bar
+    const urlEl = document.getElementById('demoUrlText');
+    if (urlEl) {
+      urlEl.textContent = target === 'admin' ? 'hild.praxmate.de/admin' : 'hild.praxmate.de/termin';
+    }
+    if (target === 'patient' && !demoState.playing) {
+      resetDemo();
+    }
+  });
+});
+
+document.getElementById('playDemo')?.addEventListener('click', playDemo);
+document.getElementById('resetDemo')?.addEventListener('click', () => {
+  clearDemoTimers();
+  resetDemo();
+});
+
+// Auto-start demo when it enters viewport for the first time
+const demoStage = document.querySelector('.demo-stage');
+let demoAutoPlayed = false;
+const demoAutoObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !demoAutoPlayed) {
+      demoAutoPlayed = true;
+      setTimeout(() => { if (!demoState.playing) playDemo(); }, 800);
+    }
+  });
+}, { threshold: 0.4 });
+if (demoStage) demoAutoObserver.observe(demoStage);
+</script>
 
 </body>
 </html>

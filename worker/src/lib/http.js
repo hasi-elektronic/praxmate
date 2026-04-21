@@ -5,7 +5,8 @@
 const ALLOWED_ORIGINS = [
   /^https:\/\/[a-z0-9-]+\.praxmate\.de$/,
   /^https:\/\/praxmate\.pages\.dev$/,
-  /^https:\/\/[a-f0-9]+\.praxmate\.pages\.dev$/,
+  /^https:\/\/[a-z0-9-]+\.praxmate\.pages\.dev$/,
+  /^https:\/\/[a-f0-9]{8}\.praxmate\.pages\.dev$/,
   /^http:\/\/localhost:\d+$/,
 ];
 
@@ -15,7 +16,7 @@ export function corsHeaders(request, credentials = true) {
   return {
     'Access-Control-Allow-Origin': allowed ? origin : (credentials ? 'https://praxmate.pages.dev' : '*'),
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Praxmate-Practice',
     'Access-Control-Allow-Credentials': credentials ? 'true' : 'false',
     'Access-Control-Max-Age': '3600',
     'Vary': 'Origin',

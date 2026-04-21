@@ -3,1117 +3,1186 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#2d6a8e">
-<meta name="robots" content="noindex, nofollow">
-<title>Praxmate Admin — Dashboard</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232d6a8e'/%3E%3Ctext x='50' y='68' font-family='Georgia' font-size='50' font-weight='700' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+<title>Super-Admin · Praxmate</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2333afe2'/%3E%3Ctext x='50' y='68' font-family='Georgia' font-size='48' font-weight='700' fill='white' text-anchor='middle'%3EH%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary: #2d6a8e;
-  --primary-dark: #1e4d6b;
-  --primary-soft: #4a8eb0;
-  --accent: #e9b949;
-  --ink: #1a2a3a;
+  --hasi: #33afe2;
+  --hasi-dark: #1e7ea8;
+  --ink: #0f1e2e;
   --ink-soft: #3d5368;
   --muted: #7a8b9c;
-  --border: #dde4e9;
+  --border: #e1e8ed;
   --bg: #f4f8fa;
-  --bg-card: #ffffff;
-  --error: #c84545;
+  --bg-dark: #0f1e2e;
   --success: #2d8e5f;
-  --warning: #d68a1f;
+  --warning: #e9b949;
+  --danger: #d64545;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
-body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; -webkit-font-smoothing: antialiased; }
+a { color: var(--hasi); text-decoration: none; }
 
-/* =============== HEADER =============== */
-.header {
-  background: white;
-  border-bottom: 1px solid var(--border);
-  padding: 12px 24px;
+/* TOPBAR */
+.topbar {
+  background: var(--bg-dark);
+  color: white;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  border-bottom: 3px solid var(--hasi);
 }
-.header-left { display: flex; align-items: center; gap: 14px; }
-.brand-mark {
-  width: 36px; height: 36px; border-radius: 9px;
-  background: var(--primary); color: white;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700;
-}
-.brand-text {
+.topbar-brand { display: flex; align-items: center; gap: 12px; }
+.topbar-mark {
+  width: 34px; height: 34px;
+  background: var(--hasi);
+  border-radius: 8px;
   font-family: 'Playfair Display', serif;
-  font-size: 22px; font-weight: 700;
-  color: var(--ink); letter-spacing: -0.02em;
-}
-.brand-sub {
-  font-size: 11px; color: var(--muted);
-  text-transform: uppercase; letter-spacing: 0.08em;
-  font-weight: 600; margin-top: -2px;
-}
-.nav-links {
-  display: flex; gap: 2px;
-  margin-left: 40px;
-}
-.nav-link {
-  padding: 8px 14px; border-radius: 8px;
-  font-size: 14px; font-weight: 500;
-  color: var(--ink-soft); text-decoration: none;
-  transition: background 0.12s;
-}
-.nav-link:hover { background: var(--bg); }
-.nav-link.active { background: var(--primary); color: white; }
-.user-menu {
-  display: flex; align-items: center; gap: 10px;
-  padding: 6px 12px 6px 6px;
-  border-radius: 30px;
-  border: 1px solid var(--border);
-  cursor: pointer;
-  font-size: 13px;
-  transition: all 0.12s;
-}
-.user-menu:hover { border-color: var(--primary); background: var(--bg); }
-.user-avatar {
-  width: 28px; height: 28px; border-radius: 50%;
-  background: var(--primary); color: white;
+  font-size: 18px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
-  font-weight: 600; font-size: 12px;
+  color: white;
 }
-.user-info { line-height: 1.2; }
-.user-name { font-weight: 600; color: var(--ink); }
-.user-role {
-  font-size: 10px; color: var(--muted);
-  text-transform: uppercase; letter-spacing: 0.05em;
+.topbar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
 }
+.topbar-sub {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  font-weight: 700;
+}
+.topbar-right { display: flex; align-items: center; gap: 20px; }
+.topbar-user { font-size: 13px; color: rgba(255,255,255,0.8); }
+.topbar-logout {
+  color: rgba(255,255,255,0.6);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+.topbar-logout:hover { background: rgba(255,255,255,0.1); color: white; }
 
-/* =============== LAYOUT =============== */
-.main {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 28px 24px 60px;
+/* LAYOUT */
+.wrap { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+
+/* PAGE HEADER */
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
-.page-head { margin-bottom: 24px; }
 .page-title {
   font-family: 'Playfair Display', serif;
-  font-size: 32px; font-weight: 700;
-  color: var(--ink); letter-spacing: -0.01em;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
-.page-sub {
-  font-size: 14px; color: var(--muted);
-  margin-top: 2px;
+.page-sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--hasi) 0%, var(--hasi-dark) 100%);
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(51, 175, 226, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(51, 175, 226, 0.4); }
+.btn-secondary {
+  background: white;
+  color: var(--ink);
+  border: 1.5px solid var(--border);
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: var(--hasi); color: var(--hasi); }
 
-/* =============== STATS =============== */
+/* STATS */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 }
 .stat-card {
   background: white;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px 20px;
-  transition: all 0.15s;
-  cursor: pointer;
-  font-family: inherit;
-  text-align: left;
-  position: relative;
-  overflow: hidden;
+  border-radius: 14px;
+  padding: 20px;
+  transition: all 0.2s;
 }
-.stat-card:hover {
-  border-color: var(--primary-soft);
-  box-shadow: 0 4px 12px rgba(45, 106, 142, 0.08);
-  transform: translateY(-1px);
-}
-.stat-card:hover .stat-hint { opacity: 1; transform: translateY(0); }
-.stat-label {
-  font-size: 12px; color: var(--muted);
-  font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.06em;
-  margin-bottom: 4px;
-}
-.stat-value {
-  font-family: 'Playfair Display', serif;
-  font-size: 34px; font-weight: 700;
-  color: var(--ink); line-height: 1;
-}
-.stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
-.stat-hint {
-  position: absolute;
-  top: 14px; right: 16px;
-  font-size: 10px;
-  color: var(--primary);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  opacity: 0;
-  transform: translateY(-4px);
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-.stat-hint::after { content: '→'; font-size: 12px; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
 .stat-card.accent {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(135deg, var(--hasi) 0%, var(--hasi-dark) 100%);
+  color: white;
   border-color: transparent;
-  box-shadow: 0 4px 14px rgba(45, 106, 142, 0.28);
+  box-shadow: 0 8px 24px rgba(51, 175, 226, 0.25);
 }
-.stat-card.accent .stat-label,
-.stat-card.accent .stat-sub { color: rgba(255,255,255,0.8); }
-.stat-card.accent .stat-value { color: white; }
-.stat-card.accent .stat-hint { color: var(--accent); opacity: 1; transform: translateY(0); }
-.stat-card.accent .stat-hint::before { content: '●'; font-size: 8px; }
-.stat-card.accent .stat-hint::after { content: 'aktiv'; font-size: 10px; }
-
-/* Panel sub-title */
-.panel-sub {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 2px;
-}
-
-/* Appointment date prefix */
-.appt-row {
-  grid-template-columns: 72px 1fr auto !important;
-}
-.appt-date {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
+.stat-label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   font-weight: 700;
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 2px;
+  margin-bottom: 6px;
+}
+.stat-card.accent .stat-label { color: rgba(255,255,255,0.85); }
+.stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: 700;
   line-height: 1;
 }
+.stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.stat-card.accent .stat-sub { color: rgba(255,255,255,0.85); }
 
-/* =============== CONTENT GRID =============== */
-.content-grid {
+/* PRACTICES TABLE */
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.practice-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
 }
-@media (max-width: 900px) {
-  .content-grid { grid-template-columns: 1fr; }
-  .nav-links { display: none; }
-}
-
-.panel {
+.practice-card {
   background: white;
   border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  transition: all 0.25s;
+  cursor: pointer;
+}
+.practice-card:hover {
+  border-color: var(--hasi);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+}
+.practice-card-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.practice-logo {
+  width: 48px; height: 48px;
   border-radius: 12px;
+  background: var(--practice-color, var(--hasi));
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  flex-shrink: 0;
   overflow: hidden;
 }
-.panel-head {
-  padding: 18px 22px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
+.practice-logo img { width: 100%; height: 100%; object-fit: contain; background: white; padding: 4px; }
+.practice-card-info { flex: 1; min-width: 0; }
+.practice-name {
+  font-weight: 700;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.panel-title {
-  font-size: 16px; font-weight: 700; color: var(--ink);
-}
-.panel-action {
-  font-size: 13px; color: var(--primary); font-weight: 600;
-  text-decoration: none; cursor: pointer;
-}
-.panel-action:hover { text-decoration: underline; }
+.practice-slug { color: var(--muted); font-size: 12px; font-family: 'SF Mono', monospace; margin-top: 2px; }
 
-/* =============== APPOINTMENTS LIST =============== */
-.appt-row {
-  display: grid;
-  grid-template-columns: 65px 1fr auto;
-  gap: 14px;
-  padding: 14px 22px;
-  border-bottom: 1px solid var(--border);
+.practice-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+}
+.practice-meta span { display: inline-flex; align-items: center; gap: 4px; }
+
+.practice-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.badge {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.badge.trial { background: rgba(233, 185, 73, 0.15); color: #8b6a0f; }
+.badge.active { background: rgba(45, 142, 95, 0.15); color: var(--success); }
+.badge.suspended { background: rgba(214, 69, 69, 0.15); color: var(--danger); }
+.badge.plan { background: var(--bg); color: var(--ink-soft); border: 1px solid var(--border); }
+
+.practice-actions {
+  display: flex;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.act-btn {
+  flex: 1;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-align: center;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s;
+  min-width: 80px;
+}
+.act-btn:hover { background: white; border-color: var(--hasi); color: var(--hasi); }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(15, 30, 46, 0.6);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+  display: none;
   align-items: center;
-  transition: background 0.12s;
+  justify-content: center;
+  padding: 20px;
 }
-.appt-row:hover { background: var(--bg); }
-.appt-row:last-child { border-bottom: none; }
-.appt-time {
-  font-family: 'Playfair Display', serif;
-  font-size: 20px; font-weight: 700;
-  color: var(--primary); line-height: 1;
+.modal-overlay.visible { display: flex; animation: fadeIn 0.2s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal {
+  background: white;
+  border-radius: 18px;
+  max-width: 580px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+  animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.appt-body { min-width: 0; }
-.appt-name {
-  font-size: 15px; font-weight: 600; color: var(--ink);
-  display: flex; align-items: center; gap: 6px; margin-bottom: 2px;
+@keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.modal-head {
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.appt-meta {
-  font-size: 12px; color: var(--muted);
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+.modal-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; }
+.modal-close {
+  background: var(--bg);
+  border: none;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--muted);
+  transition: all 0.15s;
 }
-.appt-type-pill {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 8px; border-radius: 10px;
-  font-size: 11px; font-weight: 600;
-  background: rgba(45, 106, 142, 0.08); color: var(--primary);
+.modal-close:hover { background: var(--border); color: var(--ink); }
+
+.modal-body { padding: 24px 28px; }
+.modal-footer {
+  padding: 16px 28px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  background: var(--bg);
+  border-radius: 0 0 18px 18px;
 }
-.new-badge {
-  background: var(--accent); color: #5c4a11;
-  padding: 1px 6px; border-radius: 8px;
-  font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.04em;
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
-.appt-doctor {
-  font-size: 12px; color: var(--ink-soft); font-weight: 500;
-  text-align: right;
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  background: white;
+  transition: border-color 0.2s;
 }
-.appt-doctor-avatar {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 24px; height: 24px; border-radius: 50%;
-  background: var(--primary-soft); color: white;
-  font-size: 10px; font-weight: 700;
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: var(--hasi);
+  box-shadow: 0 0 0 3px rgba(51,175,226,0.1);
+}
+.form-group .help { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.form-group .color-preview {
+  display: inline-block;
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  vertical-align: middle;
   margin-left: 6px;
 }
 
-.empty {
-  padding: 40px 20px; text-align: center; color: var(--muted);
-  font-size: 14px;
-}
-
-/* =============== QUICK ACTIONS =============== */
-.quick-actions { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
-.quick-btn {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 14px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  cursor: pointer;
-  text-decoration: none;
-  color: var(--ink);
-  font-size: 14px; font-weight: 500;
-  font-family: inherit;
-  transition: all 0.12s;
-  text-align: left;
-}
-.quick-btn:hover {
-  background: var(--primary); color: white;
-  border-color: var(--primary);
-  transform: translateY(-1px);
-}
-.quick-btn-icon { font-size: 18px; width: 24px; text-align: center; }
-.quick-btn.primary {
-  background: var(--primary); color: white;
-  border-color: var(--primary);
-}
-.quick-btn.primary:hover { background: var(--primary-dark); }
-
-/* =============== ACTIVITY =============== */
-.activity-list { padding: 4px 0; }
-.activity-row {
-  padding: 10px 22px;
-  border-bottom: 1px solid var(--border);
-  font-size: 12px;
-  color: var(--ink-soft);
-}
-.activity-row:last-child { border-bottom: none; }
-.activity-row .time { color: var(--muted); font-size: 11px; display: block; margin-top: 1px; }
-.activity-row .action { font-weight: 500; }
-
-/* =============== LOADING =============== */
-.loading-overlay {
-  position: fixed; inset: 0;
-  background: rgba(244, 248, 250, 0.9);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 100;
-}
-.spinner-big {
-  width: 40px; height: 40px;
-  border: 3px solid rgba(45, 106, 142, 0.2);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* =============== TOAST =============== */
-.toast {
-  position: fixed; top: 80px; left: 50%;
-  transform: translateX(-50%);
-  background: var(--ink); color: white;
-  padding: 10px 16px; border-radius: 8px;
-  font-size: 13px; font-weight: 500;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-  z-index: 200;
-  animation: toastIn 0.25s ease;
-}
-.toast.error { background: var(--error); }
-.toast.success { background: var(--success); }
-@keyframes toastIn {
-  from { opacity: 0; transform: translate(-50%, -8px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
-}
-
-/* =============== APPOINTMENT ROW CLICKABLE =============== */
-.appt-row { cursor: pointer; }
-
-/* =============== MODAL (APPOINTMENT DETAIL) =============== */
-.modal-backdrop {
-  position: fixed; inset: 0;
-  background: rgba(26, 42, 58, 0.55);
-  backdrop-filter: blur(4px);
-  z-index: 500;
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px;
-  animation: fadeIn 0.2s ease;
-}
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.modal {
-  background: white;
-  border-radius: 16px;
-  max-width: 520px; width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-  animation: modalIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-@keyframes modalIn {
-  from { opacity: 0; transform: translateY(12px) scale(0.96); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-.modal-head {
-  padding: 22px 24px 12px;
-  display: flex; align-items: start; justify-content: space-between;
-  gap: 16px;
-}
-.modal-close {
-  width: 32px; height: 32px;
-  border-radius: 8px; border: none;
-  background: var(--bg); color: var(--ink-soft);
-  font-size: 18px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.12s;
-}
-.modal-close:hover { background: var(--border); }
-.modal-badge {
-  display: inline-block;
-  background: rgba(45, 106, 142, 0.08); color: var(--primary);
-  padding: 3px 10px; border-radius: 12px;
-  font-family: 'SF Mono', Monaco, monospace;
-  font-size: 12px; font-weight: 700;
-  letter-spacing: 0.03em;
-  margin-bottom: 6px;
-}
-.modal-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 22px; font-weight: 700;
-  color: var(--ink); line-height: 1.2;
-  margin-bottom: 3px;
-}
-.modal-sub { font-size: 13px; color: var(--muted); }
-.modal-body { padding: 4px 24px 20px; }
-.detail-grid {
+/* LOGO UPLOAD */
+.logo-upload {
   display: grid;
   grid-template-columns: 100px 1fr;
-  gap: 10px 16px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--border);
-}
-.detail-grid:last-child { border-bottom: none; }
-.detail-label {
-  font-size: 12px; color: var(--muted);
-  font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.04em;
-}
-.detail-value {
-  font-size: 14px; color: var(--ink);
-  font-weight: 500;
-}
-.detail-value a { color: var(--primary); text-decoration: none; }
-.detail-value a:hover { text-decoration: underline; }
-.status-pill {
-  display: inline-block;
-  padding: 2px 10px; border-radius: 12px;
-  font-size: 11px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.06em;
-}
-.status-confirmed { background: #e3f3ea; color: var(--success); }
-.status-cancelled { background: #fde7e7; color: var(--error); }
-.status-noshow { background: #fff4e0; color: var(--warning); }
-.modal-note {
-  background: #fffbf1; border: 1px dashed #e9b949;
-  padding: 12px 14px; border-radius: 8px;
-  font-size: 13px; color: #6b5618;
-  margin-top: 14px;
-}
-.modal-note-label {
-  font-size: 10px; font-weight: 700; color: #997e1f;
-  text-transform: uppercase; letter-spacing: 0.06em;
-  margin-bottom: 4px;
-}
-.modal-foot {
-  padding: 14px 24px;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
   background: var(--bg);
-  display: flex; gap: 10px; justify-content: flex-end;
-  border-top: 1px solid var(--border);
+  transition: all 0.2s;
 }
-.btn {
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 13px; font-weight: 600;
+.logo-upload.dragover {
+  border-color: var(--hasi);
+  background: rgba(51, 175, 226, 0.06);
+  border-style: dashed;
+}
+.logo-preview {
+  width: 100px; height: 100px;
+  border-radius: 12px;
+  background: white;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.logo-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.logo-placeholder {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'Playfair Display', serif;
+  font-size: 40px;
+  font-weight: 700;
+}
+.logo-drop {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
   cursor: pointer;
-  font-family: inherit;
-  border: none;
-  display: inline-flex; align-items: center; gap: 6px;
-  transition: all 0.12s;
+  border-radius: 8px;
+  transition: background 0.15s;
 }
-.btn-ghost { background: transparent; color: var(--ink-soft); border: 1.5px solid var(--border); }
-.btn-ghost:hover { background: white; }
-.btn-danger { background: var(--error); color: white; }
-.btn-danger:hover:not(:disabled) { background: #a53838; }
-.btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
-.spinner-inline {
-  width: 12px; height: 12px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
+.logo-drop:hover { background: rgba(51, 175, 226, 0.04); }
+.logo-drop-icon {
+  font-size: 22px;
+  margin-bottom: 4px;
+  opacity: 0.6;
+}
+.logo-drop-text {
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.logo-drop-text strong { color: var(--ink); font-weight: 600; }
+.logo-drop-text a { color: var(--hasi); font-weight: 600; }
+.logo-drop-hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.logo-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+}
+.logo-remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--danger);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.logo-remove-btn:hover { background: rgba(214, 69, 69, 0.08); }
+
+.logo-upload.uploading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+.logo-upload.uploading .logo-preview::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo-preview { position: relative; }
+.logo-upload.uploading .logo-preview::before {
+  content: '⏳';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  z-index: 2;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+.loading { text-align: center; padding: 40px; color: var(--muted); }
+.success-msg {
+  background: #e8f5ed;
+  color: #1a5f3f;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  border-left: 3px solid var(--success);
+}
+.error-msg {
+  background: #fef2f2;
+  color: #991b1b;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  border-left: 3px solid var(--danger);
 }
 
 @media (max-width: 640px) {
-  .header { padding: 10px 14px; }
-  .main { padding: 20px 14px 40px; }
-  .page-title { font-size: 24px; }
-  .stat-value { font-size: 26px; }
-  .brand-text { display: none; }
-  .brand-sub { display: none; }
+  .form-row { grid-template-columns: 1fr; }
+  .practice-actions { flex-direction: column; }
+  .act-btn { flex: 1 1 auto; }
+  .wrap { padding: 20px 16px; }
 }
 </style>
 </head>
 <body>
 
-<div id="app">
-  <div v-if="initialLoading" class="loading-overlay">
-    <div class="spinner-big"></div>
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-mark">H</div>
+    <div>
+      <div class="topbar-title">Praxmate</div>
+      <div class="topbar-sub">Super-Admin · Hasi Elektronic</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-user" id="userName"></span>
+    <button class="topbar-logout" id="logoutBtn">Abmelden</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="page-head">
+    <div>
+      <div class="page-title">Alle Praxen</div>
+      <div class="page-sub">Verwalte deine Kunden-Praxen, Logos, Branding und Pläne.</div>
+    </div>
+    <button class="btn-primary" id="newPracticeBtn">+ Neue Praxis anlegen</button>
   </div>
 
-  <header v-if="!initialLoading" class="header">
-    <div class="header-left">
-      <div class="brand-mark">P</div>
-      <div>
-        <div class="brand-text">Praxmate</div>
-        <div class="brand-sub" v-if="practice">{{ practice.name }}</div>
-      </div>
-      <nav class="nav-links">
-        <a href="/admin/dashboard.html" class="nav-link active">Dashboard</a>
-        <a href="/admin/new-appointment.html" class="nav-link">Neuer Termin</a>
-        <a href="/admin/calendar.html" class="nav-link">Kalender</a>
-        <a href="#" class="nav-link" @click.prevent="showToast('Patienten kommt in Sprint 2', 'success')">Patienten</a>
-      </nav>
+  <!-- STATS -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card accent">
+      <div class="stat-label">Praxen</div>
+      <div class="stat-value" id="statPractices">—</div>
+      <div class="stat-sub" id="statActive">—</div>
     </div>
-    <div class="user-menu" @click="logout">
-      <div class="user-avatar">{{ userInitials }}</div>
-      <div class="user-info">
-        <div class="user-name">{{ user?.name }}</div>
-        <div class="user-role">{{ roleLabel }} · Abmelden →</div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-label">Behandler</div>
+      <div class="stat-value" id="statDoctors">—</div>
+      <div class="stat-sub">Aktiv in allen Praxen</div>
     </div>
-  </header>
-
-  <main v-if="!initialLoading" class="main">
-    <div class="page-head">
-      <h1 class="page-title">{{ greeting }}, {{ firstName }}.</h1>
-      <p class="page-sub">{{ todayFormatted }}</p>
+    <div class="stat-card">
+      <div class="stat-label">Patienten</div>
+      <div class="stat-value" id="statPatients">—</div>
+      <div class="stat-sub">Gesamt erfasst</div>
     </div>
-
-    <div class="stats-grid">
-      <button
-        class="stat-card"
-        :class="{ accent: activeFilter === 'today' }"
-        @click="setFilter('today')"
-        type="button"
-      >
-        <div class="stat-label">Heute</div>
-        <div class="stat-value">{{ stats?.today ?? '—' }}</div>
-        <div class="stat-sub">Termine geplant</div>
-        <div class="stat-hint">Tippen für Details</div>
-      </button>
-      <button
-        class="stat-card"
-        :class="{ accent: activeFilter === 'week' }"
-        @click="setFilter('week')"
-        type="button"
-      >
-        <div class="stat-label">Diese Woche</div>
-        <div class="stat-value">{{ stats?.this_week ?? '—' }}</div>
-        <div class="stat-sub">Termine gesamt</div>
-        <div class="stat-hint">Tippen für Details</div>
-      </button>
-      <button
-        class="stat-card"
-        :class="{ accent: activeFilter === 'noshows' }"
-        @click="setFilter('noshows')"
-        type="button"
-      >
-        <div class="stat-label">No-Shows</div>
-        <div class="stat-value">{{ stats?.noshows_week ?? '—' }}</div>
-        <div class="stat-sub">diese Woche</div>
-        <div class="stat-hint">Tippen für Details</div>
-      </button>
-      <button
-        class="stat-card"
-        :class="{ accent: activeFilter === 'new_patients' }"
-        @click="setFilter('new_patients')"
-        type="button"
-      >
-        <div class="stat-label">Neupatienten</div>
-        <div class="stat-value">{{ stats?.new_patients_month ?? '—' }}</div>
-        <div class="stat-sub">diesen Monat</div>
-        <div class="stat-hint">Tippen für Details</div>
-      </button>
-    </div>
-
-    <div class="content-grid">
-      <div class="panel">
-        <div class="panel-head">
-          <div>
-            <div class="panel-title">{{ panelTitle }}</div>
-            <div class="panel-sub" v-if="panelSub">{{ panelSub }}</div>
-          </div>
-          <a class="panel-action" href="/admin/new-appointment.html">+ Termin hinzufügen</a>
-        </div>
-        <div v-if="loadingFilter" class="empty">
-          <div class="spinner-big" style="margin: 10px auto; width: 24px; height: 24px; border-width: 2px;"></div>
-        </div>
-        <div v-else-if="!filteredList.length" class="empty">
-          {{ emptyMessage }}
-        </div>
-        <div v-else>
-          <div v-for="appt in filteredList" :key="appt.id" class="appt-row" @click="openAppointment(appt)">
-            <div class="appt-time">
-              <div v-if="activeFilter !== 'today' && activeFilter !== 'new_patients'" class="appt-date">
-                {{ formatDateShort(appt.start_datetime) }}
-              </div>
-              {{ formatTime(appt.start_datetime) }}
-            </div>
-            <div class="appt-body">
-              <div class="appt-name">
-                {{ appt.first_name }} {{ appt.last_name }}
-                <span v-if="appt.is_new_patient" class="new-badge">Neu</span>
-                <span v-if="appt.status === 'noshow'" class="new-badge" style="background:#d68a1f;color:white;">No-Show</span>
-              </div>
-              <div class="appt-meta">
-                <span class="appt-type-pill">{{ appt.type_icon }} {{ appt.type_name }}</span>
-                <span>{{ appt.duration_minutes }} Min</span>
-                <span>· {{ insuranceLabel(appt.insurance_type) }}</span>
-              </div>
-            </div>
-            <div class="appt-doctor">
-              {{ appt.doctor_name?.split(' ').slice(-1)[0] }}
-              <span class="appt-doctor-avatar">{{ appt.doctor_initials }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div style="display: flex; flex-direction: column; gap: 20px;">
-        <div class="panel">
-          <div class="panel-head">
-            <div class="panel-title">Schnellaktionen</div>
-          </div>
-          <div class="quick-actions">
-            <a href="/admin/new-appointment.html" class="quick-btn primary">
-              <span class="quick-btn-icon">+</span>
-              <span>Termin für Anrufer erstellen</span>
-            </a>
-            <button class="quick-btn" @click="showToast('Patientensuche kommt in Sprint 2', 'success')">
-              <span class="quick-btn-icon">🔍</span>
-              <span>Patient suchen</span>
-            </button>
-            <a href="/demo-hild-live" target="_blank" class="quick-btn">
-              <span class="quick-btn-icon">🌐</span>
-              <span>Online-Widget öffnen</span>
-            </a>
-            <button class="quick-btn" @click="refresh">
-              <span class="quick-btn-icon">↻</span>
-              <span>Aktualisieren</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="panel" v-if="activity.length > 0">
-          <div class="panel-head">
-            <div class="panel-title">Letzte Aktivität</div>
-          </div>
-          <div class="activity-list">
-            <div v-for="(a, i) in activity.slice(0, 8)" :key="i" class="activity-row">
-              <div class="action">{{ formatAction(a.action) }}</div>
-              <div class="time">{{ formatRelative(a.created_at) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- APPOINTMENT DETAIL MODAL -->
-  <div v-if="selectedAppt" class="modal-backdrop" @click.self="closeAppointment">
-    <div class="modal">
-      <div class="modal-head">
-        <div>
-          <div class="modal-badge">{{ selectedAppt.booking_code }}</div>
-          <div class="modal-title">{{ selectedAppt.first_name }} {{ selectedAppt.last_name }}</div>
-          <div class="modal-sub">{{ formatFullDate(selectedAppt.start_datetime) }} um {{ formatTime(selectedAppt.start_datetime) }} Uhr</div>
-        </div>
-        <button class="modal-close" @click="closeAppointment" aria-label="Schließen">✕</button>
-      </div>
-
-      <div class="modal-body">
-        <div class="detail-grid">
-          <div class="detail-label">Status</div>
-          <div class="detail-value">
-            <span class="status-pill" :class="'status-' + selectedAppt.status">
-              {{ statusLabel(selectedAppt.status) }}
-            </span>
-          </div>
-
-          <div class="detail-label">Behandlung</div>
-          <div class="detail-value">{{ selectedAppt.type_icon }} {{ selectedAppt.type_name }} · {{ selectedAppt.duration_minutes }} Min</div>
-
-          <div class="detail-label">Behandler</div>
-          <div class="detail-value">{{ selectedAppt.doctor_name || '—' }}</div>
-
-          <div class="detail-label">Geburtsdatum</div>
-          <div class="detail-value">{{ formatBirthDate(selectedAppt.birth_date) }}</div>
-
-          <div class="detail-label">Telefon</div>
-          <div class="detail-value"><a :href="'tel:' + selectedAppt.phone">{{ selectedAppt.phone }}</a></div>
-
-          <div class="detail-label">E-Mail</div>
-          <div class="detail-value"><a :href="'mailto:' + selectedAppt.email">{{ selectedAppt.email }}</a></div>
-
-          <div class="detail-label">Versicherung</div>
-          <div class="detail-value">
-            {{ insuranceLabel(selectedAppt.insurance_type) }}
-            <span v-if="selectedAppt.is_new_patient" class="new-badge" style="margin-left:6px;">Neupatient</span>
-          </div>
-
-          <div class="detail-label">Quelle</div>
-          <div class="detail-value">{{ sourceLabel(selectedAppt.source) }}</div>
-        </div>
-
-        <div v-if="selectedAppt.patient_note" class="modal-note">
-          <div class="modal-note-label">Notiz des Patienten</div>
-          {{ selectedAppt.patient_note }}
-        </div>
-      </div>
-
-      <div class="modal-foot">
-        <button class="btn btn-ghost" @click="closeAppointment">Schließen</button>
-        <button
-          v-if="selectedAppt.status === 'confirmed'"
-          class="btn btn-danger"
-          :disabled="cancelling"
-          @click="cancelAppointment"
-        >
-          <span v-if="cancelling" class="spinner-inline"></span>
-          <span>{{ cancelling ? 'Wird abgesagt...' : 'Termin absagen' }}</span>
-        </button>
-      </div>
+    <div class="stat-card">
+      <div class="stat-label">Heute</div>
+      <div class="stat-value" id="statToday">—</div>
+      <div class="stat-sub">Termine heute</div>
     </div>
   </div>
 
-  <div v-if="toastMsg" class="toast" :class="toastType">{{ toastMsg }}</div>
+  <!-- PRACTICES -->
+  <div class="section-title">
+    <span>Kunden-Praxen</span>
+  </div>
+  <div id="practicesList">
+    <div class="loading">Lade Praxen...</div>
+  </div>
+
+</div>
+
+<!-- NEW PRACTICE MODAL -->
+<div class="modal-overlay" id="newPracticeModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Neue Praxis anlegen</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="newPracticeError" class="error-msg" style="display:none;"></div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Praxisname *</label>
+          <input id="npName" type="text" placeholder="Zahnarztpraxis Müller">
+        </div>
+        <div class="form-group">
+          <label>URL-Slug *</label>
+          <input id="npSlug" type="text" placeholder="mueller" pattern="[a-z0-9-]+">
+          <div class="help">Klein, ohne Leerzeichen (z.B. "mueller") → mueller.praxmate.de</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fachrichtung</label>
+          <select id="npSpecialty">
+            <option value="dentist">Zahnarzt</option>
+            <option value="gp" selected>Hausarzt</option>
+            <option value="pediatric">Kinderarzt</option>
+            <option value="physio">Physiotherapie</option>
+            <option value="dermatology">Dermatologie</option>
+            <option value="gyn">Gynäkologie</option>
+            <option value="orthopedic">Orthopäde</option>
+            <option value="ent">HNO</option>
+            <option value="other">Sonstige</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Plan</label>
+          <select id="npPlan">
+            <option value="solo">Solo (1 Behandler)</option>
+            <option value="team" selected>Team (3 Behandler)</option>
+            <option value="praxis">Praxis (10 Behandler)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Stadt</label>
+          <input id="npCity" type="text" placeholder="Vaihingen an der Enz">
+        </div>
+        <div class="form-group">
+          <label>Telefon</label>
+          <input id="npPhone" type="text" placeholder="07042 ...">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Praxis-E-Mail</label>
+        <input id="npEmail" type="email" placeholder="info@praxis.de">
+      </div>
+
+      <div style="height: 1px; background: var(--border); margin: 20px 0;"></div>
+
+      <h3 style="font-size:14px; font-weight:700; margin-bottom:12px;">Owner-Konto (Chef/Chefin der Praxis)</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Name *</label>
+          <input id="npOwnerName" type="text" placeholder="Dr. Max Mustermann">
+        </div>
+        <div class="form-group">
+          <label>E-Mail *</label>
+          <input id="npOwnerEmail" type="email" placeholder="max@praxis.de">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Passwort *</label>
+        <input id="npOwnerPassword" type="text" value="Praxmate2026!" placeholder="min. 8 Zeichen">
+        <div class="help">Merke dir das Passwort — der Kunde muss es zum ersten Login wissen.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" data-close>Abbrechen</button>
+      <button class="btn-primary" id="createPracticeBtn">Praxis anlegen →</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PRACTICE MODAL -->
+<div class="modal-overlay" id="editPracticeModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Praxis bearbeiten</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="modal-body" id="editModalBody">
+      <!-- filled dynamically -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" data-close>Abbrechen</button>
+      <button class="btn-primary" id="savePracticeBtn">Speichern</button>
+    </div>
+  </div>
 </div>
 
 <script>
 const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
+const token = localStorage.getItem('praxmate_super_token');
 
-    // ========== MULTI-TENANT: resolve practice slug ==========
-    // Priority: 1) subdomain (hild.praxmate.de), 2) query param (?practice=hild), 3) stored
-    function resolvePracticeSlug() {
-      const host = window.location.hostname;
-      // Subdomain: hild.praxmate.de → "hild"
-      const subMatch = host.match(/^([a-z0-9-]+)\.praxmate\.de$/);
-      if (subMatch && !['www','admin','api','app'].includes(subMatch[1])) {
-        return subMatch[1];
-      }
-      // Query param fallback (for praxmate.pages.dev)
-      const qs = new URLSearchParams(window.location.search);
-      const qp = qs.get('practice');
-      if (qp) {
-        localStorage.setItem('praxmate_practice', qp);
-        return qp;
-      }
-      // Stored from previous visit
-      const stored = localStorage.getItem('praxmate_practice');
-      if (stored) return stored;
-      return null;
-    }
-    const PRACTICE_SLUG = resolvePracticeSlug();
+if (!token) { window.location.href = '/admin/'; }
 
-    // ========== Preserve ?practice= in all internal links ==========
-    if (typeof document !== 'undefined' && PRACTICE_SLUG && window.location.search.includes('practice=')) {
-      const preserveQuery = () => {
-        document.querySelectorAll('a[href^="/admin/"]').forEach(a => {
-          const u = new URL(a.href, window.location.origin);
-          if (!u.searchParams.has('practice')) {
-            u.searchParams.set('practice', PRACTICE_SLUG);
-            a.href = u.pathname + u.search + u.hash;
-          }
-        });
-      };
-      // Run on mount and whenever Vue re-renders
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', preserveQuery);
-      } else {
-        preserveQuery();
-      }
-      // Re-run after Vue mount (MutationObserver)
-      const observer = new MutationObserver(preserveQuery);
-      observer.observe(document.body, { childList: true, subtree: true });
-    }
+const userJson = localStorage.getItem('praxmate_super_user');
+if (userJson) {
+  try {
+    const u = JSON.parse(userJson);
+    document.getElementById('userName').textContent = u.name || u.email;
+  } catch {}
+}
 
-
-const { createApp, ref, computed, onMounted } = Vue;
-
-createApp({
-  setup() {
-    const initialLoading = ref(true);
-    const user = ref(null);
-    const practice = ref(null);
-    const stats = ref(null);
-    const appointments = ref([]);
-    const activity = ref([]);
-    const toastMsg = ref('');
-    const toastType = ref('');
-    const selectedAppt = ref(null);
-    const cancelling = ref(false);
-
-    // Filter state
-    const activeFilter = ref('today');
-    const filteredList = ref([]);
-    const loadingFilter = ref(false);
-    const newPatients = ref([]);
-
-    let toastTimer = null;
-
-    const token = localStorage.getItem('praxmate_token');
-
-    // Redirect to login if not authenticated
-    if (!token) {
-      window.location.href = '/admin/';
-      return {};
-    }
-
-    const firstName = computed(() => user.value?.name.split(' ')[0] || '');
-    const userInitials = computed(() => {
-      if (!user.value) return '';
-      return user.value.name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
-    });
-    const roleLabel = computed(() => {
-      const r = user.value?.role;
-      return r === 'owner' ? 'Inhaberin' : r === 'doctor' ? 'Behandler' : 'Rezeption';
-    });
-
-    const greeting = computed(() => {
-      const h = new Date().getHours();
-      if (h < 11) return 'Guten Morgen';
-      if (h < 17) return 'Guten Tag';
-      return 'Guten Abend';
-    });
-
-    const todayFormatted = computed(() => {
-      return new Date().toLocaleDateString('de-DE', {
-        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
-      });
-    });
-
-    function showToast(msg, type = '') {
-      toastMsg.value = msg;
-      toastType.value = type;
-      if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => { toastMsg.value = ''; }, 3000);
-    }
-
-    // ==================== FILTER LOGIC ====================
-    const panelTitle = computed(() => {
-      switch (activeFilter.value) {
-        case 'today': return 'Heutige Termine';
-        case 'week': return 'Termine diese Woche';
-        case 'noshows': return 'No-Shows diese Woche';
-        case 'new_patients': return 'Neupatienten diesen Monat';
-        default: return 'Termine';
-      }
-    });
-
-    const panelSub = computed(() => {
-      const n = filteredList.value.length;
-      switch (activeFilter.value) {
-        case 'today': return n === 0 ? '' : `${n} Termin${n === 1 ? '' : 'e'}`;
-        case 'week': return n === 0 ? '' : `${n} Termin${n === 1 ? '' : 'e'} · Mo–So`;
-        case 'noshows': return n === 0 ? '' : `${n} ausgefallen`;
-        case 'new_patients': return n === 0 ? '' : `${n} neue Patient${n === 1 ? '' : 'en'}`;
-        default: return '';
-      }
-    });
-
-    const emptyMessage = computed(() => {
-      switch (activeFilter.value) {
-        case 'today': return 'Heute keine Termine geplant.';
-        case 'week': return 'Diese Woche keine Termine.';
-        case 'noshows': return '🎉 Keine No-Shows diese Woche!';
-        case 'new_patients': return 'Keine Neupatienten diesen Monat.';
-        default: return 'Keine Einträge.';
-      }
-    });
-
-    function getWeekRange() {
-      const now = new Date();
-      const dow = now.getDay(); // 0=Sun
-      const mondayOffset = dow === 0 ? -6 : 1 - dow;
-      const monday = new Date(now);
-      monday.setDate(now.getDate() + mondayOffset);
-      monday.setHours(0, 0, 0, 0);
-      const sunday = new Date(monday);
-      sunday.setDate(monday.getDate() + 6);
-      return {
-        from: monday.toISOString().slice(0, 10),
-        to: sunday.toISOString().slice(0, 10),
-      };
-    }
-
-    async function setFilter(filter) {
-      activeFilter.value = filter;
-      loadingFilter.value = true;
-
-      try {
-        if (filter === 'today') {
-          // Already loaded in initial dashboard call
-          filteredList.value = appointments.value;
-        } else if (filter === 'week') {
-          const { from, to } = getWeekRange();
-          const data = await api(`/admin/appointments?from=${from}&to=${to}&status=confirmed`);
-          filteredList.value = data?.appointments || [];
-        } else if (filter === 'noshows') {
-          const { from, to } = getWeekRange();
-          const data = await api(`/admin/appointments?from=${from}&to=${to}&status=noshow`);
-          filteredList.value = data?.appointments || [];
-        } else if (filter === 'new_patients') {
-          // Load new-patient appointments this month
-          const now = new Date();
-          const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-          const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
-          const data = await api(`/admin/appointments?from=${firstDay}&to=${lastDay}`);
-          filteredList.value = (data?.appointments || []).filter(a => a.is_new_patient === 1);
-        }
-      } catch (e) {
-        showToast('Fehler: ' + e.message, 'error');
-        filteredList.value = [];
-      } finally {
-        loadingFilter.value = false;
-      }
-
-      // Smooth scroll to panel on mobile
-      if (window.innerWidth < 900) {
-        setTimeout(() => {
-          document.querySelector('.panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-      }
-    }
-
-    function formatTime(iso) {
-      const d = new Date(iso);
-      return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function formatDateShort(iso) {
-      const d = new Date(iso);
-      const days = ['So','Mo','Di','Mi','Do','Fr','Sa'];
-      return `${days[d.getDay()]} ${d.getDate()}.${d.getMonth() + 1}.`;
-    }
-
-    function formatFullDate(iso) {
-      if (!iso) return '';
-      const d = new Date(iso);
-      return d.toLocaleDateString('de-DE', {
-        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
-      });
-    }
-
-    function formatBirthDate(iso) {
-      if (!iso) return '—';
-      return new Date(iso + 'T00:00:00').toLocaleDateString('de-DE');
-    }
-
-    function statusLabel(s) {
-      return {
-        confirmed: 'Bestätigt',
-        cancelled: 'Abgesagt',
-        completed: 'Erledigt',
-        noshow: 'Nicht erschienen',
-      }[s] || s;
-    }
-
-    function sourceLabel(s) {
-      return {
-        online: '🌐 Online vom Patienten',
-        staff: '👤 Durch Team erfasst',
-        phone: '☎ Telefonisch',
-        walkin: '🚶 Walk-in',
-      }[s] || s;
-    }
-
-    function openAppointment(appt) {
-      selectedAppt.value = { ...appt };
-    }
-
-    function closeAppointment() {
-      selectedAppt.value = null;
-    }
-
-    async function cancelAppointment() {
-      if (!selectedAppt.value) return;
-      const name = `${selectedAppt.value.first_name} ${selectedAppt.value.last_name}`;
-      const time = formatTime(selectedAppt.value.start_datetime);
-      if (!confirm(`Termin von ${name} um ${time} Uhr wirklich absagen?`)) return;
-
-      cancelling.value = true;
-      try {
-        await api('/admin/appointments/' + selectedAppt.value.id, {
-          method: 'DELETE',
-          body: JSON.stringify({ reason: 'Abgesagt durch Team' })
-        });
-        showToast('Termin abgesagt', 'success');
-        closeAppointment();
-        await refresh();
-      } catch (e) {
-        showToast('Fehler: ' + e.message, 'error');
-      } finally {
-        cancelling.value = false;
-      }
-    }
-
-    function insuranceLabel(t) {
-      return t === 'gkv' ? 'GKV' : t === 'privat' ? 'Privat' : 'Selbstzahler';
-    }
-
-    function formatAction(a) {
-      const map = {
-        'appointment.created': '📅 Termin erstellt',
-        'appointment.cancelled': '❌ Termin storniert',
-        'user.login': '🔐 Anmeldung',
-        'user.password_changed': '🔑 Passwort geändert',
-      };
-      return map[a] || a;
-    }
-
-    function formatRelative(iso) {
-      const d = new Date(iso);
-      const diff = Date.now() - d.getTime();
-      const mins = Math.floor(diff / 60000);
-      if (mins < 1) return 'gerade eben';
-      if (mins < 60) return `vor ${mins} Min`;
-      const hours = Math.floor(mins / 60);
-      if (hours < 24) return `vor ${hours} Std`;
-      return d.toLocaleDateString('de-DE');
-    }
-
-    async function api(path, opts = {}) {
-      const res = await fetch(API_BASE + path, {
-        ...opts,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token,
-          ...(PRACTICE_SLUG ? { 'X-Praxmate-Practice': PRACTICE_SLUG } : {}),
-          ...(opts.headers || {})
-        }
-      });
-      if (res.status === 401) {
-        localStorage.removeItem('praxmate_token');
-        window.location.href = '/admin/';
-        return null;
-      }
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-      return data;
-    }
-
-    async function loadEverything() {
-      try {
-        const [meData, dashData] = await Promise.all([
-          api('/admin/auth/me'),
-          api('/admin/dashboard'),
-        ]);
-
-        user.value = meData.user;
-        practice.value = meData.practice;
-
-        stats.value = dashData.stats;
-        appointments.value = dashData.today_appointments;
-        activity.value = dashData.recent_activity || [];
-
-        // Initialize filtered list with today's appointments
-        filteredList.value = appointments.value;
-      } catch (e) {
-        showToast('Fehler beim Laden: ' + e.message, 'error');
-      } finally {
-        initialLoading.value = false;
-      }
-    }
-
-    async function refresh() {
-      try {
-        const dashData = await api('/admin/dashboard');
-        stats.value = dashData.stats;
-        appointments.value = dashData.today_appointments;
-        activity.value = dashData.recent_activity || [];
-        // Re-apply current filter
-        await setFilter(activeFilter.value);
-        showToast('Aktualisiert', 'success');
-      } catch (e) {
-        showToast('Fehler: ' + e.message, 'error');
-      }
-    }
-
-    async function logout() {
-      if (!confirm('Wirklich abmelden?')) return;
-      try {
-        await api('/admin/auth/logout', { method: 'POST' });
-      } catch {}
-      localStorage.removeItem('praxmate_token');
-      localStorage.removeItem('praxmate_user');
-      localStorage.removeItem('praxmate_expires');
-      window.location.href = '/admin/';
-    }
-
-    onMounted(loadEverything);
-
-    return {
-      initialLoading, user, practice, stats, appointments, activity,
-      firstName, userInitials, roleLabel, greeting, todayFormatted,
-      toastMsg, toastType, showToast,
-      formatTime, formatDateShort, formatFullDate, formatBirthDate, insuranceLabel, formatAction, formatRelative,
-      statusLabel, sourceLabel,
-      selectedAppt, cancelling, openAppointment, closeAppointment, cancelAppointment,
-      // Filter
-      activeFilter, filteredList, loadingFilter,
-      panelTitle, panelSub, emptyMessage, setFilter,
-      refresh, logout,
-    };
+async function api(path, opts = {}) {
+  const res = await fetch(API_BASE + path, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      ...(opts.headers || {}),
+    },
+  });
+  if (res.status === 401) {
+    localStorage.removeItem('praxmate_super_token');
+    window.location.href = '/admin/';
+    return null;
   }
-}).mount('#app');
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+function specialtyLabel(s) {
+  return {
+    dentist: '🦷 Zahnarzt', gp: '❤️ Hausarzt', pediatric: '👶 Kinderarzt',
+    physio: '💪 Physio', dermatology: '🧴 Haut', gyn: '🌸 Gyn',
+    orthopedic: '🦴 Ortho', ent: '👂 HNO', system: '⚙️ System', other: '🏥 Praxis'
+  }[s] || s;
+}
+
+function renderStats(stats) {
+  document.getElementById('statPractices').textContent = stats.practice_count || 0;
+  document.getElementById('statActive').textContent =
+    `${stats.active_count || 0} aktiv · ${stats.trial_count || 0} Trial`;
+  document.getElementById('statDoctors').textContent = stats.total_doctors || 0;
+  document.getElementById('statPatients').textContent = stats.total_patients || 0;
+  document.getElementById('statToday').textContent = stats.today_appointments || 0;
+}
+
+function renderPractices(practices) {
+  const list = document.getElementById('practicesList');
+  // Filter out system practice
+  const customers = practices.filter(p => p.specialty !== 'system');
+
+  if (customers.length === 0) {
+    list.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🏥</div>
+      <div style="font-weight:600; margin-bottom:4px;">Noch keine Praxis</div>
+      <div>Lege deinen ersten Kunden an, um loszulegen.</div>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = '<div class="practice-grid">' + customers.map(p => {
+    const logoHtml = p.logo_url
+      ? `<div class="practice-logo"><img src="${p.logo_url}" alt=""></div>`
+      : `<div class="practice-logo" style="--practice-color: ${p.brand_primary || '#2d6a8e'}">${p.name.charAt(0)}</div>`;
+
+    const planBadge = `<span class="badge plan">${(p.plan || 'team').toUpperCase()}</span>`;
+    const statusBadge = `<span class="badge ${p.plan_status || 'trial'}">${p.plan_status === 'active' ? 'Aktiv' : p.plan_status === 'suspended' ? 'Gesperrt' : 'Trial'}</span>`;
+
+    return `
+      <div class="practice-card" data-id="${p.id}">
+        <div class="practice-card-head">
+          ${logoHtml}
+          <div class="practice-card-info">
+            <div class="practice-name">${escapeHtml(p.name)}</div>
+            <div class="practice-slug">${p.slug}.praxmate.de</div>
+          </div>
+        </div>
+        <div class="practice-meta">
+          ${p.city ? `<span>📍 ${escapeHtml(p.city)}</span>` : ''}
+          <span>${specialtyLabel(p.specialty)}</span>
+        </div>
+        <div class="practice-badges">
+          ${statusBadge}
+          ${planBadge}
+          <span class="badge plan">${p.doctor_count || 0} Behandler</span>
+          <span class="badge plan">${p.appointment_count || 0} Termine</span>
+        </div>
+        <div class="practice-actions">
+          <button class="act-btn" data-action="edit" data-id="${p.id}">⚙ Bearbeiten</button>
+          <a class="act-btn" href="/book.html?practice=${p.slug}" target="_blank">🙋 Buchung</a>
+          <a class="act-btn" href="/praxis/?practice=${p.slug}" target="_blank">👥 Praxis</a>
+        </div>
+      </div>
+    `;
+  }).join('') + '</div>';
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function loadAll() {
+  try {
+    const [statsRes, practicesRes] = await Promise.all([
+      api('/super/stats'),
+      api('/super/practices'),
+    ]);
+    if (statsRes) renderStats(statsRes.stats);
+    if (practicesRes) renderPractices(practicesRes.practices);
+  } catch (e) {
+    document.getElementById('practicesList').innerHTML =
+      `<div class="error-msg">Fehler beim Laden: ${e.message}</div>`;
+  }
+}
+loadAll();
+
+// ========== MODAL HANDLING ==========
+document.querySelectorAll('[data-close]').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('visible'));
+  });
+});
+
+// New practice
+document.getElementById('newPracticeBtn').addEventListener('click', () => {
+  document.getElementById('newPracticeModal').classList.add('visible');
+});
+
+// Slug auto-generate from name
+document.getElementById('npName').addEventListener('input', (e) => {
+  const slug = e.target.value.toLowerCase()
+    .replace(/[äöüß]/g, c => ({ä:'ae',ö:'oe',ü:'ue',ß:'ss'}[c]))
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .substring(0, 40);
+  const slugInput = document.getElementById('npSlug');
+  if (!slugInput.dataset.touched) slugInput.value = slug;
+});
+document.getElementById('npSlug').addEventListener('input', (e) => {
+  e.target.dataset.touched = '1';
+});
+
+document.getElementById('createPracticeBtn').addEventListener('click', async () => {
+  const err = document.getElementById('newPracticeError');
+  err.style.display = 'none';
+
+  const payload = {
+    name: document.getElementById('npName').value.trim(),
+    slug: document.getElementById('npSlug').value.trim(),
+    specialty: document.getElementById('npSpecialty').value,
+    plan: document.getElementById('npPlan').value,
+    city: document.getElementById('npCity').value.trim(),
+    phone: document.getElementById('npPhone').value.trim(),
+    email: document.getElementById('npEmail').value.trim(),
+    owner_name: document.getElementById('npOwnerName').value.trim(),
+    owner_email: document.getElementById('npOwnerEmail').value.trim(),
+    owner_password: document.getElementById('npOwnerPassword').value,
+  };
+  if (!payload.name || !payload.slug || !payload.owner_name || !payload.owner_email || !payload.owner_password) {
+    err.textContent = 'Bitte alle Pflichtfelder (*) ausfüllen.';
+    err.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('createPracticeBtn');
+  btn.disabled = true;
+  btn.textContent = 'Wird angelegt...';
+
+  try {
+    const result = await api('/super/practices', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    alert(`✓ Praxis angelegt!\n\nLogin-URL: ${result.login_url}\nBuchungs-URL: ${result.booking_url}\n\nKunde kann sich jetzt mit ${payload.owner_email} einloggen.`);
+    document.getElementById('newPracticeModal').classList.remove('visible');
+    // Reset form
+    ['npName','npSlug','npCity','npPhone','npEmail','npOwnerName','npOwnerEmail'].forEach(id => document.getElementById(id).value = '');
+    delete document.getElementById('npSlug').dataset.touched;
+    await loadAll();
+  } catch (e) {
+    err.textContent = e.message;
+    err.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Praxis anlegen →';
+  }
+});
+
+// Edit practice
+document.getElementById('practicesList').addEventListener('click', async (e) => {
+  const editBtn = e.target.closest('[data-action="edit"]');
+  const card = e.target.closest('.practice-card');
+  if (!editBtn && !card) return;
+  if (editBtn) e.stopPropagation();
+  const id = (editBtn || card).dataset.id;
+  await openEditModal(id);
+});
+
+async function openEditModal(practiceId) {
+  const modal = document.getElementById('editPracticeModal');
+  const body = document.getElementById('editModalBody');
+  body.innerHTML = '<div class="loading">Lade...</div>';
+  modal.classList.add('visible');
+
+  try {
+    const data = await api('/super/practices/' + practiceId);
+    const p = data.practice;
+
+    body.innerHTML = `
+      <div id="editError" class="error-msg" style="display:none;"></div>
+      <div id="editSuccess" class="success-msg" style="display:none;"></div>
+
+      <h3 style="font-size:14px; font-weight:700; margin-bottom:12px;">Praxis-Info</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Name</label>
+          <input id="edName" type="text" value="${escapeHtml(p.name)}">
+        </div>
+        <div class="form-group">
+          <label>URL-Slug</label>
+          <input id="edSlug" type="text" value="${escapeHtml(p.slug)}" disabled style="background:var(--bg);color:var(--muted)">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Telefon</label>
+          <input id="edPhone" type="text" value="${escapeHtml(p.phone || '')}">
+        </div>
+        <div class="form-group">
+          <label>E-Mail</label>
+          <input id="edEmail" type="email" value="${escapeHtml(p.email || '')}">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Website</label>
+        <input id="edWebsite" type="url" value="${escapeHtml(p.website || '')}">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Straße</label>
+          <input id="edStreet" type="text" value="${escapeHtml(p.street || '')}">
+        </div>
+        <div class="form-group">
+          <label>PLZ / Stadt</label>
+          <input id="edCity" type="text" value="${escapeHtml((p.postal_code || '') + ' ' + (p.city || ''))}"">
+        </div>
+      </div>
+
+      <h3 style="font-size:14px; font-weight:700; margin:20px 0 12px;">Branding</h3>
+
+      <div class="form-group">
+        <label>Logo</label>
+        <div class="logo-upload" id="logoUpload">
+          <div class="logo-preview" id="logoPreview">
+            ${p.logo_url
+              ? `<img src="${p.logo_url}" alt="Logo">`
+              : `<div class="logo-placeholder" style="background:${p.brand_primary||'#2d6a8e'}">${p.name.charAt(0)}</div>`}
+          </div>
+          <div class="logo-drop" id="logoDrop">
+            <div class="logo-drop-icon">📤</div>
+            <div class="logo-drop-text">
+              <strong>Logo hier ablegen</strong><br>
+              <span>oder <a href="#" id="logoBrowse">Datei auswählen</a></span>
+            </div>
+            <div class="logo-drop-hint">PNG, JPG, SVG oder WebP · Max 2 MB</div>
+          </div>
+          <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display:none">
+          <div class="logo-actions">
+            <button type="button" class="logo-remove-btn" id="logoRemoveBtn" ${p.logo_url ? '' : 'style="display:none"'}>🗑 Logo entfernen</button>
+          </div>
+        </div>
+        <input type="hidden" id="edLogo" value="${escapeHtml(p.logo_url || '')}">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Hauptfarbe <span class="color-preview" style="background:${p.brand_primary||'#2d6a8e'}"></span></label>
+          <input id="edBrandPrimary" type="text" value="${p.brand_primary||'#2d6a8e'}" placeholder="#2d6a8e">
+        </div>
+        <div class="form-group">
+          <label>Akzentfarbe <span class="color-preview" style="background:${p.brand_accent||'#e9b949'}"></span></label>
+          <input id="edBrandAccent" type="text" value="${p.brand_accent||'#e9b949'}" placeholder="#e9b949">
+        </div>
+      </div>
+
+      <h3 style="font-size:14px; font-weight:700; margin:20px 0 12px;">Plan &amp; Status</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Plan</label>
+          <select id="edPlan">
+            <option value="solo" ${p.plan==='solo'?'selected':''}>Solo</option>
+            <option value="team" ${p.plan==='team'?'selected':''}>Team</option>
+            <option value="praxis" ${p.plan==='praxis'?'selected':''}>Praxis</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="edStatus">
+            <option value="trial" ${p.plan_status==='trial'?'selected':''}>Trial</option>
+            <option value="active" ${p.plan_status==='active'?'selected':''}>Aktiv</option>
+            <option value="suspended" ${p.plan_status==='suspended'?'selected':''}>Gesperrt</option>
+          </select>
+        </div>
+      </div>
+
+      <h3 style="font-size:14px; font-weight:700; margin:20px 0 12px;">Rechtliches (Impressum)</h3>
+      <div class="form-group">
+        <label>Rechtlicher Name</label>
+        <input id="edLegalName" type="text" value="${escapeHtml(p.legal_name || '')}" placeholder="Dr. Max Mustermann Zahnarztpraxis">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Verantwortlicher</label>
+          <input id="edResponsible" type="text" value="${escapeHtml(p.responsible_person || '')}">
+        </div>
+        <div class="form-group">
+          <label>Kammer</label>
+          <input id="edChamber" type="text" value="${escapeHtml(p.professional_chamber || '')}">
+        </div>
+      </div>
+
+      <div style="background:var(--bg); padding:14px; border-radius:10px; margin-top:16px;">
+        <div style="font-size:12px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Statistik</div>
+        <div style="display:flex; gap:24px; font-size:14px;">
+          <div><strong>${data.stats.total_appointments}</strong> Termine</div>
+          <div><strong>${data.stats.patient_count}</strong> Patienten</div>
+          <div><strong>${data.doctors.length}</strong> Behandler</div>
+          <div><strong>${data.users.length}</strong> Nutzer</div>
+        </div>
+      </div>
+    `;
+
+    // Color preview live update
+    ['edBrandPrimary', 'edBrandAccent'].forEach(id => {
+      const input = document.getElementById(id);
+      input.addEventListener('input', (e) => {
+        const prev = e.target.closest('.form-group').querySelector('.color-preview');
+        if (prev) prev.style.background = e.target.value;
+      });
+    });
+
+    // ========== LOGO DRAG & DROP ==========
+    const logoUpload = document.getElementById('logoUpload');
+    const logoDrop = document.getElementById('logoDrop');
+    const logoFileInput = document.getElementById('logoFileInput');
+    const logoPreview = document.getElementById('logoPreview');
+    const logoRemoveBtn = document.getElementById('logoRemoveBtn');
+    const edLogoField = document.getElementById('edLogo');
+    const logoBrowse = document.getElementById('logoBrowse');
+
+    async function uploadLogo(file) {
+      if (!file) return;
+
+      // Client-side validation
+      const allowed = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'];
+      if (!allowed.includes(file.type)) {
+        alert(`Dateiformat nicht erlaubt: ${file.type}\nErlaubt: PNG, JPG, SVG, WebP`);
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        alert(`Datei zu groß: ${(file.size/1024/1024).toFixed(1)} MB\nMax: 2 MB`);
+        return;
+      }
+
+      logoUpload.classList.add('uploading');
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch(API_BASE + '/super/practices/' + practiceId + '/logo', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token },
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload fehlgeschlagen');
+
+        // Update preview
+        logoPreview.innerHTML = `<img src="${data.logo_url}" alt="Logo">`;
+        edLogoField.value = data.logo_url;
+        logoRemoveBtn.style.display = '';
+
+        // Update card in list (small refresh)
+        await loadAll();
+      } catch (e) {
+        alert('Fehler: ' + e.message);
+      } finally {
+        logoUpload.classList.remove('uploading');
+      }
+    }
+
+    // File input
+    logoFileInput.addEventListener('change', (e) => {
+      if (e.target.files[0]) uploadLogo(e.target.files[0]);
+    });
+    logoBrowse?.addEventListener('click', (e) => {
+      e.preventDefault();
+      logoFileInput.click();
+    });
+    logoDrop.addEventListener('click', () => logoFileInput.click());
+
+    // Drag & drop
+    ['dragenter', 'dragover'].forEach(evt => {
+      logoUpload.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        logoUpload.classList.add('dragover');
+      });
+    });
+    ['dragleave', 'drop'].forEach(evt => {
+      logoUpload.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        logoUpload.classList.remove('dragover');
+      });
+    });
+    logoUpload.addEventListener('drop', (e) => {
+      const file = e.dataTransfer.files[0];
+      if (file) uploadLogo(file);
+    });
+
+    // Remove logo
+    logoRemoveBtn?.addEventListener('click', async () => {
+      if (!confirm('Logo wirklich entfernen?')) return;
+      logoUpload.classList.add('uploading');
+      try {
+        const res = await fetch(API_BASE + '/super/practices/' + practiceId + '/logo', {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token },
+        });
+        if (!res.ok) throw new Error('Löschen fehlgeschlagen');
+
+        const practiceName = document.getElementById('edName').value || 'P';
+        const primaryColor = document.getElementById('edBrandPrimary').value || '#2d6a8e';
+        logoPreview.innerHTML = `<div class="logo-placeholder" style="background:${primaryColor}">${practiceName.charAt(0)}</div>`;
+        edLogoField.value = '';
+        logoRemoveBtn.style.display = 'none';
+        await loadAll();
+      } catch (e) {
+        alert('Fehler: ' + e.message);
+      } finally {
+        logoUpload.classList.remove('uploading');
+      }
+    });
+
+    document.getElementById('savePracticeBtn').onclick = async () => {
+      const errBox = document.getElementById('editError');
+      const succBox = document.getElementById('editSuccess');
+      errBox.style.display = 'none';
+      succBox.style.display = 'none';
+
+      const cityFull = document.getElementById('edCity').value.trim();
+      const [plz, ...cityRest] = cityFull.split(' ');
+
+      const payload = {
+        name: document.getElementById('edName').value.trim(),
+        phone: document.getElementById('edPhone').value.trim(),
+        email: document.getElementById('edEmail').value.trim(),
+        website: document.getElementById('edWebsite').value.trim(),
+        street: document.getElementById('edStreet').value.trim(),
+        postal_code: /^\d{4,5}$/.test(plz) ? plz : null,
+        city: /^\d{4,5}$/.test(plz) ? cityRest.join(' ') : cityFull,
+        logo_url: document.getElementById('edLogo').value.trim(),
+        brand_primary: document.getElementById('edBrandPrimary').value.trim(),
+        brand_accent: document.getElementById('edBrandAccent').value.trim(),
+        plan: document.getElementById('edPlan').value,
+        plan_status: document.getElementById('edStatus').value,
+        legal_name: document.getElementById('edLegalName').value.trim(),
+        responsible_person: document.getElementById('edResponsible').value.trim(),
+        professional_chamber: document.getElementById('edChamber').value.trim(),
+      };
+
+      const btn = document.getElementById('savePracticeBtn');
+      btn.disabled = true;
+      btn.textContent = 'Speichern...';
+      try {
+        await api('/super/practices/' + practiceId, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        });
+        succBox.textContent = '✓ Gespeichert';
+        succBox.style.display = 'block';
+        await loadAll();
+        setTimeout(() => modal.classList.remove('visible'), 800);
+      } catch (e) {
+        errBox.textContent = e.message;
+        errBox.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Speichern';
+      }
+    };
+  } catch (e) {
+    body.innerHTML = `<div class="error-msg">Fehler: ${e.message}</div>`;
+  }
+}
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  try { await api('/admin/auth/logout', { method: 'POST' }); } catch {}
+  localStorage.removeItem('praxmate_super_token');
+  localStorage.removeItem('praxmate_super_user');
+  window.location.href = '/admin/';
+});
 </script>
 
 </body>

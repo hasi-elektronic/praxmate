@@ -39,6 +39,52 @@ import {
   handlePatientDetail,
 } from './routes/admin.js';
 
+// Practice settings + super admin
+import {
+  handlePracticeSettingsGet,
+  handlePracticeSettingsUpdate,
+  handleSuperPracticesList,
+  handleSuperPracticeDetail,
+  handleSuperPracticeUpdate,
+  handleSuperPracticeCreate,
+  handleSuperStats,
+} from './routes/settings.js';
+
+// Logo upload
+import {
+  handleOwnerLogoUpload,
+  handleSuperLogoUpload,
+  handleLogoDelete,
+} from './routes/upload.js';
+
+// Practice resources CRUD (doctors, types, hours, users)
+import {
+  handleDoctorsListAdmin,
+  handleDoctorCreate,
+  handleDoctorUpdate,
+  handleDoctorDelete,
+  handleTypesListAdmin,
+  handleTypeCreate,
+  handleTypeUpdate,
+  handleTypeDelete,
+  handleHoursList,
+  handleHoursUpdate,
+  handleUsersList,
+  handleUserCreate,
+  handleUserUpdate,
+  handleUserDelete,
+} from './routes/resources.js';
+
+// Patients CRUD
+import {
+  handlePatientsList,
+  handlePatientDetailFull,
+  handlePatientCreate,
+  handlePatientUpdate,
+  handlePatientDelete,
+  handlePatientNotes,
+} from './routes/patients.js';
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -130,9 +176,141 @@ export default {
       if (path === '/api/admin/patients/search' && method === 'GET') {
         return await handlePatientSearch(env, request);
       }
+
+      // Paginated list with filters
+      if (path === '/api/admin/patients' && method === 'GET') {
+        return await handlePatientsList(env, request);
+      }
+      if (path === '/api/admin/patients' && method === 'POST') {
+        return await handlePatientCreate(env, request);
+      }
+
+      // Notes shortcut (before the generic :id route)
+      const adminPatNotesMatch = path.match(/^\/api\/admin\/patients\/(pat_[a-f0-9]+)\/notes$/);
+      if (adminPatNotesMatch && method === 'PUT') {
+        return await handlePatientNotes(env, request, adminPatNotesMatch[1]);
+      }
+
       const adminPatMatch = path.match(/^\/api\/admin\/patients\/(pat_[a-f0-9]+)$/);
       if (adminPatMatch && method === 'GET') {
-        return await handlePatientDetail(env, request, adminPatMatch[1]);
+        return await handlePatientDetailFull(env, request, adminPatMatch[1]);
+      }
+      if (adminPatMatch && method === 'PUT') {
+        return await handlePatientUpdate(env, request, adminPatMatch[1]);
+      }
+      if (adminPatMatch && method === 'DELETE') {
+        return await handlePatientDelete(env, request, adminPatMatch[1]);
+      }
+
+      // ============================================================
+      // ADMIN — practice settings (any user can read, only owner can edit)
+      // ============================================================
+      if (path === '/api/admin/practice/settings' && method === 'GET') {
+        return await handlePracticeSettingsGet(env, request);
+      }
+      if (path === '/api/admin/practice/settings' && method === 'PUT') {
+        return await handlePracticeSettingsUpdate(env, request);
+      }
+
+      // ============================================================
+      // ADMIN — doctors CRUD
+      // ============================================================
+      if (path === '/api/admin/doctors' && method === 'GET') {
+        return await handleDoctorsListAdmin(env, request);
+      }
+      if (path === '/api/admin/doctors' && method === 'POST') {
+        return await handleDoctorCreate(env, request);
+      }
+      const adminDocMatch = path.match(/^\/api\/admin\/doctors\/(doc_[a-f0-9]+)$/);
+      if (adminDocMatch && method === 'PUT') {
+        return await handleDoctorUpdate(env, request, adminDocMatch[1]);
+      }
+      if (adminDocMatch && method === 'DELETE') {
+        return await handleDoctorDelete(env, request, adminDocMatch[1]);
+      }
+
+      // ============================================================
+      // ADMIN — appointment types CRUD
+      // ============================================================
+      if (path === '/api/admin/types' && method === 'GET') {
+        return await handleTypesListAdmin(env, request);
+      }
+      if (path === '/api/admin/types' && method === 'POST') {
+        return await handleTypeCreate(env, request);
+      }
+      const adminTypeMatch = path.match(/^\/api\/admin\/types\/(apt_[a-f0-9]+)$/);
+      if (adminTypeMatch && method === 'PUT') {
+        return await handleTypeUpdate(env, request, adminTypeMatch[1]);
+      }
+      if (adminTypeMatch && method === 'DELETE') {
+        return await handleTypeDelete(env, request, adminTypeMatch[1]);
+      }
+
+      // ============================================================
+      // ADMIN — working hours
+      // ============================================================
+      if (path === '/api/admin/hours' && method === 'GET') {
+        return await handleHoursList(env, request);
+      }
+      const adminHoursMatch = path.match(/^\/api\/admin\/hours\/(doc_[a-f0-9]+)$/);
+      if (adminHoursMatch && method === 'PUT') {
+        return await handleHoursUpdate(env, request, adminHoursMatch[1]);
+      }
+
+      // ============================================================
+      // ADMIN — users (team)
+      // ============================================================
+      if (path === '/api/admin/users' && method === 'GET') {
+        return await handleUsersList(env, request);
+      }
+      if (path === '/api/admin/users' && method === 'POST') {
+        return await handleUserCreate(env, request);
+      }
+      const adminUserMatch = path.match(/^\/api\/admin\/users\/(usr_[a-f0-9]+)$/);
+      if (adminUserMatch && method === 'PUT') {
+        return await handleUserUpdate(env, request, adminUserMatch[1]);
+      }
+      if (adminUserMatch && method === 'DELETE') {
+        return await handleUserDelete(env, request, adminUserMatch[1]);
+      }
+
+      // ============================================================
+      // SUPER-ADMIN — cross-tenant management
+      // ============================================================
+      if (path === '/api/super/stats' && method === 'GET') {
+        return await handleSuperStats(env, request);
+      }
+      if (path === '/api/super/practices' && method === 'GET') {
+        return await handleSuperPracticesList(env, request);
+      }
+      if (path === '/api/super/practices' && method === 'POST') {
+        return await handleSuperPracticeCreate(env, request);
+      }
+      const superPrcMatch = path.match(/^\/api\/super\/practices\/(prc_[a-f0-9]+)$/);
+      if (superPrcMatch && method === 'GET') {
+        return await handleSuperPracticeDetail(env, request, superPrcMatch[1]);
+      }
+      if (superPrcMatch && method === 'PUT') {
+        return await handleSuperPracticeUpdate(env, request, superPrcMatch[1]);
+      }
+
+      // ============================================================
+      // LOGO UPLOAD (R2)
+      // ============================================================
+      // Practice owner uploads own logo
+      if (path === '/api/admin/practice/logo' && method === 'POST') {
+        return await handleOwnerLogoUpload(env, request);
+      }
+      if (path === '/api/admin/practice/logo' && method === 'DELETE') {
+        return await handleLogoDelete(env, request, 'self');
+      }
+      // Super-admin uploads for any practice
+      const superLogoMatch = path.match(/^\/api\/super\/practices\/(prc_[a-f0-9]+)\/logo$/);
+      if (superLogoMatch && method === 'POST') {
+        return await handleSuperLogoUpload(env, request, superLogoMatch[1]);
+      }
+      if (superLogoMatch && method === 'DELETE') {
+        return await handleLogoDelete(env, request, superLogoMatch[1]);
       }
 
       // ============================================================

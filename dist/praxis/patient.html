@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Praxmate — Patient</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232d6a8e'/%3E%3Ctext x='50' y='68' font-family='Georgia' font-size='50' font-weight='700' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #2d6a8e;
+  --primary-dark: #1a4a6b;
+  --ink: #0f1e2e;
+  --ink-soft: #3d5368;
+  --muted: #7a8b9c;
+  --border: #e1e8ed;
+  --bg: #f4f8fa;
+  --success: #2d8e5f;
+  --danger: #d64545;
+  --warning: #e9b949;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; -webkit-font-smoothing: antialiased; }
+a { color: var(--primary); text-decoration: none; }
+
+.topbar { background: white; border-bottom: 1px solid var(--border); padding: 14px 24px; }
+.topbar-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark { width: 36px; height: 36px; background: var(--primary); color: white; border-radius: 10px; font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.brand-mark img { width: 100%; height: 100%; object-fit: contain; padding: 3px; background: white; }
+.brand-text { line-height: 1.1; }
+.brand-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; }
+.brand-sub { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
+.nav-links { display: flex; gap: 4px; }
+.nav-link { padding: 8px 14px; color: var(--ink-soft); font-weight: 500; border-radius: 8px; transition: all 0.15s; font-size: 14px; }
+.nav-link:hover { background: var(--bg); }
+.nav-link.active { background: var(--primary); color: white; }
+.user-menu { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 12px; border-radius: 8px; transition: background 0.15s; }
+.user-menu:hover { background: var(--bg); }
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+.user-info { line-height: 1.1; }
+.user-name { font-size: 13px; font-weight: 600; }
+.user-role { font-size: 11px; color: var(--muted); }
+
+.wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+.back-link { color: var(--muted); font-size: 13px; margin-bottom: 14px; display: inline-flex; align-items: center; gap: 6px; }
+.back-link:hover { color: var(--primary); }
+
+/* PATIENT HEADER */
+.patient-head {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.big-avatar {
+  width: 84px; height: 84px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 32px; font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 10px 24px rgba(45,106,142,0.25);
+}
+.big-avatar.new { background: linear-gradient(135deg, var(--warning), #c99a1f); color: #5c4a11; }
+.patient-info { flex: 1; min-width: 240px; }
+.patient-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.patient-name .neu-badge {
+  background: var(--warning); color: #5c4a11;
+  padding: 3px 10px; border-radius: 8px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.patient-subline {
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 4px;
+}
+.patient-subline span { display: inline-flex; align-items: center; gap: 5px; }
+.patient-actions {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.btn { padding: 10px 18px; border-radius: 10px; font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-ghost { background: white; color: var(--ink); border: 1.5px solid var(--border); }
+.btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+.btn-danger { background: transparent; color: var(--danger); }
+.btn-danger:hover { background: rgba(214,69,69,0.1); }
+
+/* STATS STRIP */
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-mini {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+.stat-mini-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+.stat-mini-value { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; line-height: 1; }
+.stat-mini-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* LAYOUT */
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 960px) {
+  .grid-2col { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 16px;
+}
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.card-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; }
+.card-action { font-size: 12px; color: var(--primary); font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+.card-action:hover { background: rgba(45,106,142,0.08); }
+
+/* DATA GRID */
+.data-grid { display: grid; gap: 14px; }
+.data-row { display: grid; grid-template-columns: 130px 1fr; gap: 14px; align-items: center; }
+.data-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.data-value { font-size: 14px; color: var(--ink); }
+.data-value.empty { color: var(--muted); font-style: italic; }
+.data-value a { color: var(--primary); }
+
+.pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--bg);
+  color: var(--ink-soft);
+}
+.pill.gkv { background: rgba(45,106,142,0.1); color: var(--primary); }
+.pill.privat { background: rgba(233,185,73,0.15); color: #8b6a0f; }
+.pill.selbst { background: rgba(122,139,156,0.1); color: var(--muted); }
+
+/* FORM (edit mode) */
+.edit-form { display: none; }
+.edit-form.visible { display: block; }
+.data-grid.hidden { display: none; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 14px; background: white;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(45,106,142,0.1);
+}
+.form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+
+/* NOTES */
+.notes-editor {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  background: var(--bg);
+  resize: vertical;
+  transition: all 0.15s;
+}
+.notes-editor:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(45,106,142,0.1); }
+.notes-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 12px; color: var(--muted); }
+.notes-saved { color: var(--success); font-weight: 600; }
+
+/* TIMELINE */
+.timeline { display: flex; flex-direction: column; gap: 10px; }
+.timeline-item {
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  gap: 14px;
+  padding: 14px 16px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.15s;
+}
+.timeline-item:hover { border-color: var(--primary); }
+.timeline-item.cancelled { opacity: 0.6; background: var(--bg); }
+.timeline-item.noshow { border-left: 3px solid var(--danger); }
+.timeline-item.future { border-left: 3px solid var(--success); }
+.timeline-date {
+  text-align: center;
+  line-height: 1;
+  padding-top: 2px;
+}
+.timeline-day { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; }
+.timeline-month { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-top: 2px; }
+.timeline-year { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.timeline-body { min-width: 0; }
+.timeline-title { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+.timeline-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.timeline-meta span { margin-right: 10px; }
+.timeline-note { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; padding: 6px 10px; background: var(--bg); border-radius: 6px; font-style: italic; }
+.timeline-status {
+  font-size: 10px; font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 100px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  align-self: center;
+}
+.status-confirmed { background: rgba(45,142,95,0.12); color: var(--success); }
+.status-cancelled { background: rgba(214,69,69,0.1); color: var(--danger); }
+.status-completed { background: rgba(45,106,142,0.1); color: var(--primary); }
+.status-noshow { background: rgba(214,69,69,0.1); color: var(--danger); }
+
+.empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+.empty-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
+.loading { text-align: center; padding: 60px 20px; color: var(--muted); }
+
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: white; padding: 14px 20px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); font-size: 14px; font-weight: 500; z-index: 200; display: none; }
+.toast.visible { display: block; animation: toastIn 0.3s; }
+.toast.error { background: var(--danger); }
+.toast.success { background: var(--success); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 720px) {
+  .nav-links { display: none; }
+  .wrap { padding: 16px; }
+  .patient-head { flex-direction: column; align-items: flex-start; }
+  .patient-actions { width: 100%; }
+  .form-row { grid-template-columns: 1fr; }
+  .data-row { grid-template-columns: 1fr; gap: 2px; }
+  .data-label { margin-top: 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark" id="brandMark">P</div>
+      <div class="brand-text">
+        <div class="brand-name">Praxmate</div>
+        <div class="brand-sub" id="brandSub">Patient</div>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a href="/praxis/dashboard.html" class="nav-link">Dashboard</a>
+      <a href="/praxis/new-appointment.html" class="nav-link">Neuer Termin</a>
+      <a href="/praxis/calendar.html" class="nav-link">Kalender</a>
+      <a href="/praxis/patients.html" class="nav-link active">Patienten</a>
+      <a href="/praxis/settings.html" class="nav-link">Einstellungen</a>
+    </nav>
+    <div class="user-menu" id="userMenu">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">—</div>
+        <div class="user-role" id="userRole">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap" id="content">
+  <div class="loading">Lade Patient...</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
+
+function resolvePracticeSlug() {
+  const host = window.location.hostname;
+  const RESERVED = ['www','admin','api','app','mail','praxmate'];
+  let m = host.match(/^([a-z0-9-]+)\.praxmate\.de$/);
+  if (m && !RESERVED.includes(m[1])) return m[1];
+  m = host.match(/^([a-z0-9-]+)\.praxmate\.pages\.dev$/);
+  if (m && !RESERVED.includes(m[1]) && !/^[a-f0-9]{8}$/.test(m[1])) return m[1];
+  const qs = new URLSearchParams(window.location.search);
+  const qp = qs.get('practice');
+  if (qp) { localStorage.setItem('praxmate_practice', qp); return qp; }
+  return localStorage.getItem('praxmate_practice');
+}
+const PRACTICE_SLUG = resolvePracticeSlug();
+const token = localStorage.getItem('praxmate_token');
+if (!token) window.location.href = '/praxis/' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+
+const patientId = new URLSearchParams(window.location.search).get('id');
+if (!patientId) window.location.href = '/praxis/patients.html' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+
+async function api(path, opts = {}) {
+  const res = await fetch(API_BASE + path, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      ...(PRACTICE_SLUG ? { 'X-Praxmate-Practice': PRACTICE_SLUG } : {}),
+      ...(opts.headers || {}),
+    },
+  });
+  if (res.status === 401) {
+    localStorage.removeItem('praxmate_token');
+    window.location.href = '/praxis/' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+    return null;
+  }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function toast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast visible ' + type;
+  setTimeout(() => t.classList.remove('visible'), 3000);
+}
+function calcAge(birthDate) {
+  if (!birthDate) return null;
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age;
+}
+function formatDate(dt) {
+  if (!dt) return null;
+  return new Date(dt).toLocaleDateString('de-DE');
+}
+
+let currentUser = null;
+let patient = null;
+let appointments = [];
+let notesSaveTimer = null;
+
+async function init() {
+  try {
+    const me = await api('/admin/auth/me');
+    if (!me) return;
+    currentUser = me.user;
+    document.getElementById('userName').textContent = me.user.name;
+    document.getElementById('userRole').textContent = ({owner:'Inhaber',doctor:'Behandler',staff:'Team'}[me.user.role]) || me.user.role;
+    document.getElementById('userAvatar').textContent = (me.user.name||'?').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    if (me.practice) {
+      document.getElementById('brandSub').textContent = me.practice.name;
+      if (me.practice.brand_primary) document.documentElement.style.setProperty('--primary', me.practice.brand_primary);
+      const detail = await api('/admin/practice/settings');
+      if (detail?.logo_url) document.getElementById('brandMark').innerHTML = `<img src="${detail.logo_url}" alt="">`;
+    }
+
+    await loadPatient();
+  } catch (e) {
+    document.getElementById('content').innerHTML =
+      `<div class="empty-state">Fehler: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+async function loadPatient() {
+  const data = await api('/admin/patients/' + patientId);
+  patient = data.patient;
+  appointments = data.appointments || [];
+  render();
+}
+
+function render() {
+  const age = calcAge(patient.birth_date);
+  const birthStr = patient.birth_date ? new Date(patient.birth_date).toLocaleDateString('de-DE') : null;
+  const initials = (patient.first_name[0] + patient.last_name[0]).toUpperCase();
+
+  const insuranceLabel = { gkv: 'Gesetzlich', privat: 'Privat', selbst: 'Selbstzahler' }[patient.insurance_type] || 'Gesetzlich';
+
+  document.getElementById('content').innerHTML = `
+    <a href="/praxis/patients.html${PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : ''}" class="back-link">← Zurück zur Liste</a>
+
+    <div class="patient-head">
+      <div class="big-avatar ${patient.is_new_patient ? 'new' : ''}">${escapeHtml(initials)}</div>
+      <div class="patient-info">
+        <div class="patient-name">
+          ${escapeHtml(patient.last_name)}, ${escapeHtml(patient.first_name)}
+          ${patient.is_new_patient ? '<span class="neu-badge">Neupatient</span>' : ''}
+        </div>
+        <div class="patient-subline">
+          ${age !== null ? `<span>🎂 ${age} Jahre alt</span>` : ''}
+          ${birthStr ? `<span>📅 ${birthStr}</span>` : ''}
+          <span>💼 <span class="pill ${patient.insurance_type || 'gkv'}">${insuranceLabel}</span></span>
+        </div>
+      </div>
+      <div class="patient-actions">
+        <a href="/praxis/new-appointment.html?patient=${patient.id}${PRACTICE_SLUG ? '&practice=' + PRACTICE_SLUG : ''}" class="btn btn-primary">+ Termin</a>
+        ${patient.phone ? `<a href="tel:${patient.phone.replace(/\s/g,'')}" class="btn btn-ghost">📞 Anrufen</a>` : ''}
+        ${patient.email ? `<a href="mailto:${patient.email}" class="btn btn-ghost">✉ E-Mail</a>` : ''}
+      </div>
+    </div>
+
+    <div class="stats-strip">
+      <div class="stat-mini">
+        <div class="stat-mini-label">Termine gesamt</div>
+        <div class="stat-mini-value">${patient.confirmed_count || 0}</div>
+        <div class="stat-mini-sub">erfolgreich</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-label">Abgesagt</div>
+        <div class="stat-mini-value">${patient.cancelled_count || 0}</div>
+        <div class="stat-mini-sub">storniert</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-label">No-Shows</div>
+        <div class="stat-mini-value" style="${patient.noshow_count > 0 ? 'color:var(--danger)' : ''}">${patient.noshow_count || 0}</div>
+        <div class="stat-mini-sub">nicht erschienen</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-label">Patient seit</div>
+        <div class="stat-mini-value" style="font-size:16px; padding-top:6px;">${formatDate(patient.created_at) || '—'}</div>
+        <div class="stat-mini-sub">erstellt</div>
+      </div>
+    </div>
+
+    <div class="grid-2col">
+      <div>
+        <!-- Info card -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Stammdaten</div>
+            <span class="card-action" id="editBtn">✏ Bearbeiten</span>
+          </div>
+
+          <div class="data-grid" id="dataView">
+            <div class="data-row"><div class="data-label">E-Mail</div><div class="data-value ${patient.email?'':'empty'}">${patient.email ? `<a href="mailto:${patient.email}">${escapeHtml(patient.email)}</a>` : '—'}</div></div>
+            <div class="data-row"><div class="data-label">Telefon</div><div class="data-value ${patient.phone?'':'empty'}">${patient.phone ? `<a href="tel:${patient.phone.replace(/\s/g,'')}">${escapeHtml(patient.phone)}</a>` : '—'}</div></div>
+            <div class="data-row"><div class="data-label">Geburtsdatum</div><div class="data-value ${birthStr?'':'empty'}">${birthStr || '—'}</div></div>
+            <div class="data-row"><div class="data-label">Versicherung</div><div class="data-value"><span class="pill ${patient.insurance_type || 'gkv'}">${insuranceLabel}</span></div></div>
+            <div class="data-row"><div class="data-label">Vers.-Nr.</div><div class="data-value ${patient.insurance_number?'':'empty'}">${escapeHtml(patient.insurance_number) || '—'}</div></div>
+            <div class="data-row"><div class="data-label">Neupatient</div><div class="data-value">${patient.is_new_patient ? '✓ Ja' : 'Nein'}</div></div>
+          </div>
+
+          <form class="edit-form" id="editForm" onsubmit="return false;">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Vorname *</label>
+                <input id="efFirst" type="text" value="${escapeHtml(patient.first_name)}">
+              </div>
+              <div class="form-group">
+                <label>Nachname *</label>
+                <input id="efLast" type="text" value="${escapeHtml(patient.last_name)}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Geburtsdatum</label>
+              <input id="efBirth" type="date" value="${patient.birth_date || ''}">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>E-Mail</label>
+                <input id="efEmail" type="email" value="${escapeHtml(patient.email || '')}">
+              </div>
+              <div class="form-group">
+                <label>Telefon</label>
+                <input id="efPhone" type="tel" value="${escapeHtml(patient.phone || '')}">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Versicherung</label>
+                <select id="efInsurance">
+                  <option value="gkv"${patient.insurance_type === 'gkv' ? ' selected' : ''}>Gesetzlich</option>
+                  <option value="privat"${patient.insurance_type === 'privat' ? ' selected' : ''}>Privat</option>
+                  <option value="selbst"${patient.insurance_type === 'selbst' ? ' selected' : ''}>Selbstzahler</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Versichertennummer</label>
+                <input id="efInsNr" type="text" value="${escapeHtml(patient.insurance_number || '')}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label style="display:inline-flex; align-items:center; gap:8px; text-transform:none; letter-spacing:0;">
+                <input id="efNewPatient" type="checkbox" style="width:auto;" ${patient.is_new_patient ? 'checked' : ''}>
+                <span>Neupatient</span>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-ghost" id="cancelEditBtn">Abbrechen</button>
+              <button type="button" class="btn btn-primary" id="saveEditBtn">Speichern</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Notes card -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Interne Notizen</div>
+            <span class="notes-saved" id="notesSavedIndicator" style="font-size:12px; font-weight:600; display:none;">✓ Gespeichert</span>
+          </div>
+          <textarea class="notes-editor" id="notesEditor" placeholder="Allergien, Besonderheiten, wichtige Infos für das Team...">${escapeHtml(patient.notes || '')}</textarea>
+          <div class="notes-meta">
+            <span>Wird automatisch gespeichert</span>
+            <span id="notesCharCount">${(patient.notes || '').length} Zeichen</span>
+          </div>
+        </div>
+
+        ${currentUser.role === 'owner' && (patient.confirmed_count + patient.cancelled_count + patient.noshow_count) === 0 ? `
+        <div class="card" style="border-color: rgba(214,69,69,0.3);">
+          <div class="card-head">
+            <div class="card-title" style="color: var(--danger);">Gefahrenzone</div>
+          </div>
+          <p style="color: var(--muted); font-size: 13px; margin-bottom: 12px;">
+            Dieser Patient hat keine Termine. Er kann vollständig gelöscht werden.
+          </p>
+          <button class="btn btn-danger" id="deleteBtn">🗑 Patient löschen</button>
+        </div>
+        ` : ''}
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Terminverlauf</div>
+            <a href="/praxis/new-appointment.html?patient=${patient.id}${PRACTICE_SLUG ? '&practice=' + PRACTICE_SLUG : ''}" class="card-action">+ Neuer Termin</a>
+          </div>
+          ${renderTimeline()}
+        </div>
+      </div>
+    </div>
+  `;
+
+  attachHandlers();
+}
+
+function renderTimeline() {
+  if (appointments.length === 0) {
+    return `<div class="empty-state"><div class="empty-icon">📅</div><div>Noch keine Termine</div></div>`;
+  }
+
+  const now = new Date();
+  return `<div class="timeline">${appointments.map(a => {
+    const d = new Date(a.start_datetime);
+    const isFuture = d > now && a.status === 'confirmed';
+    const dayNum = d.getDate();
+    const monthNames = ['JAN','FEB','MRZ','APR','MAI','JUN','JUL','AUG','SEP','OKT','NOV','DEZ'];
+    const month = monthNames[d.getMonth()];
+    const year = d.getFullYear();
+    const time = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+    const statusLabel = {
+      confirmed: isFuture ? 'Geplant' : 'Besucht',
+      cancelled: 'Abgesagt',
+      completed: 'Abgeschlossen',
+      noshow: 'Nicht erschienen',
+    }[a.status] || a.status;
+
+    return `
+      <div class="timeline-item ${a.status} ${isFuture ? 'future' : ''}">
+        <div class="timeline-date">
+          <div class="timeline-day">${dayNum}</div>
+          <div class="timeline-month">${month}</div>
+          <div class="timeline-year">${year}</div>
+        </div>
+        <div class="timeline-body">
+          <div class="timeline-title">
+            <span>${a.type_icon || '🏥'}</span>
+            <span>${escapeHtml(a.type_name)}</span>
+          </div>
+          <div class="timeline-meta">
+            <span>🕒 ${time} Uhr</span>
+            <span>👤 ${escapeHtml(a.doctor_name)}</span>
+            <span style="color:var(--muted)">#${a.booking_code}</span>
+          </div>
+          ${a.patient_note ? `<div class="timeline-note">💬 ${escapeHtml(a.patient_note)}</div>` : ''}
+          ${a.staff_note ? `<div class="timeline-note">📝 ${escapeHtml(a.staff_note)}</div>` : ''}
+        </div>
+        <div class="timeline-status status-${a.status}">${statusLabel}</div>
+      </div>
+    `;
+  }).join('')}</div>`;
+}
+
+function attachHandlers() {
+  document.getElementById('editBtn')?.addEventListener('click', () => {
+    document.getElementById('dataView').classList.add('hidden');
+    document.getElementById('editForm').classList.add('visible');
+    document.getElementById('editBtn').style.display = 'none';
+  });
+  document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
+    document.getElementById('dataView').classList.remove('hidden');
+    document.getElementById('editForm').classList.remove('visible');
+    document.getElementById('editBtn').style.display = '';
+  });
+  document.getElementById('saveEditBtn')?.addEventListener('click', savePatient);
+
+  // Notes — auto-save (debounced 1s)
+  const notesEl = document.getElementById('notesEditor');
+  const savedIndicator = document.getElementById('notesSavedIndicator');
+  notesEl?.addEventListener('input', () => {
+    document.getElementById('notesCharCount').textContent = notesEl.value.length + ' Zeichen';
+    savedIndicator.style.display = 'none';
+    clearTimeout(notesSaveTimer);
+    notesSaveTimer = setTimeout(saveNotes, 1000);
+  });
+
+  document.getElementById('deleteBtn')?.addEventListener('click', deletePatient);
+}
+
+async function savePatient() {
+  const payload = {
+    first_name: document.getElementById('efFirst').value.trim(),
+    last_name: document.getElementById('efLast').value.trim(),
+    birth_date: document.getElementById('efBirth').value || null,
+    email: document.getElementById('efEmail').value.trim(),
+    phone: document.getElementById('efPhone').value.trim(),
+    insurance_type: document.getElementById('efInsurance').value,
+    insurance_number: document.getElementById('efInsNr').value.trim(),
+    is_new_patient: document.getElementById('efNewPatient').checked,
+  };
+  if (!payload.first_name || !payload.last_name) {
+    toast('Vor- und Nachname erforderlich', 'error'); return;
+  }
+  const btn = document.getElementById('saveEditBtn');
+  btn.disabled = true;
+  try {
+    await api('/admin/patients/' + patientId, { method: 'PUT', body: JSON.stringify(payload) });
+    toast('✓ Gespeichert', 'success');
+    await loadPatient();
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function saveNotes() {
+  const notes = document.getElementById('notesEditor').value;
+  try {
+    await api('/admin/patients/' + patientId + '/notes', {
+      method: 'PUT',
+      body: JSON.stringify({ notes }),
+    });
+    const ind = document.getElementById('notesSavedIndicator');
+    ind.style.display = '';
+    setTimeout(() => ind.style.display = 'none', 2000);
+  } catch (e) {
+    toast('Notizen speichern fehlgeschlagen: ' + e.message, 'error');
+  }
+}
+
+async function deletePatient() {
+  if (!confirm(`Patient "${patient.first_name} ${patient.last_name}" wirklich dauerhaft löschen?\n\nDies kann nicht rückgängig gemacht werden.`)) return;
+  try {
+    await api('/admin/patients/' + patientId, { method: 'DELETE' });
+    toast('Patient gelöscht', 'success');
+    setTimeout(() => {
+      window.location.href = '/praxis/patients.html' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+    }, 800);
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'error');
+  }
+}
+
+document.getElementById('userMenu').addEventListener('click', async () => {
+  if (!confirm('Abmelden?')) return;
+  try { await api('/admin/auth/logout', { method: 'POST' }); } catch {}
+  localStorage.removeItem('praxmate_token');
+  window.location.href = '/praxis/' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+});
+
+init();
+</script>
+
+</body>
+</html>

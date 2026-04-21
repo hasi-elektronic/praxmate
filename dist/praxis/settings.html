@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Praxmate — Einstellungen</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232d6a8e'/%3E%3Ctext x='50' y='68' font-family='Georgia' font-size='50' font-weight='700' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #2d6a8e;
+  --primary-dark: #1a4a6b;
+  --ink: #0f1e2e;
+  --ink-soft: #3d5368;
+  --muted: #7a8b9c;
+  --border: #e1e8ed;
+  --bg: #f4f8fa;
+  --success: #2d8e5f;
+  --danger: #d64545;
+  --warning: #e9b949;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; -webkit-font-smoothing: antialiased; }
+a { color: var(--primary); text-decoration: none; }
+
+/* NAV */
+.topbar { background: white; border-bottom: 1px solid var(--border); padding: 14px 24px; }
+.topbar-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  color: white;
+  border-radius: 10px;
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.brand-mark img { width: 100%; height: 100%; object-fit: contain; padding: 3px; background: white; }
+.brand-text { line-height: 1.1; }
+.brand-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; }
+.brand-sub { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
+.nav-links { display: flex; gap: 4px; }
+.nav-link { padding: 8px 14px; color: var(--ink-soft); font-weight: 500; border-radius: 8px; transition: all 0.15s; font-size: 14px; }
+.nav-link:hover { background: var(--bg); }
+.nav-link.active { background: var(--primary); color: white; }
+.user-menu { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 12px; border-radius: 8px; transition: background 0.15s; }
+.user-menu:hover { background: var(--bg); }
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+.user-info { line-height: 1.1; }
+.user-name { font-size: 13px; font-weight: 600; }
+.user-role { font-size: 11px; color: var(--muted); }
+
+/* LAYOUT */
+.wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+.page-title { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; }
+.page-sub { color: var(--muted); margin-bottom: 28px; }
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: white;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+.tab {
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.18s;
+  white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.tab:hover { background: var(--bg); color: var(--ink); }
+.tab.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(45,106,142,0.25); }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* CARDS */
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  margin-bottom: 20px;
+}
+.card-head { margin-bottom: 20px; }
+.card-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.card-sub { color: var(--muted); font-size: 13.5px; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  background: var(--bg);
+  transition: all 0.15s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(45,106,142,0.1);
+}
+.form-group input:disabled { opacity: 0.6; cursor: not-allowed; }
+.form-group .help { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.color-preview { display: inline-block; width: 22px; height: 22px; border-radius: 5px; border: 1.5px solid var(--border); vertical-align: middle; margin-left: 6px; }
+
+.btn {
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.btn-ghost { background: var(--bg); color: var(--ink); }
+.btn-ghost:hover { background: var(--border); }
+.btn-danger { background: transparent; color: var(--danger); border: 1px solid transparent; padding: 7px 12px; font-size: 13px; }
+.btn-danger:hover { background: rgba(214,69,69,0.08); }
+
+/* LOGO UPLOAD */
+.logo-upload {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  transition: all 0.2s;
+  position: relative;
+}
+.logo-upload.dragover { border-color: var(--primary); background: rgba(45,106,142,0.04); border-style: dashed; }
+.logo-preview { width: 120px; height: 120px; border-radius: 12px; background: white; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; position: relative; }
+.logo-preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.logo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 700; }
+.logo-drop { flex: 1; text-align: center; padding: 14px; cursor: pointer; border-radius: 8px; transition: background 0.15s; }
+.logo-drop:hover { background: rgba(45,106,142,0.04); }
+.logo-drop-icon { font-size: 24px; margin-bottom: 4px; opacity: 0.6; }
+.logo-drop-text { font-size: 13.5px; color: var(--ink-soft); line-height: 1.5; }
+.logo-drop-text strong { color: var(--ink); }
+.logo-drop-text a { color: var(--primary); font-weight: 600; }
+.logo-drop-hint { font-size: 11px; color: var(--muted); margin-top: 6px; }
+.logo-upload.uploading { opacity: 0.6; pointer-events: none; }
+.logo-upload.uploading::after { content: '⏳ Wird hochgeladen...'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 8px 14px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 13px; font-weight: 600; }
+
+/* LISTS */
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  transition: all 0.15s;
+}
+.list-row:hover { border-color: var(--primary); }
+.list-avatar {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; flex-shrink: 0;
+}
+.list-avatar.soft { background: #4a8eb0; }
+.list-body { flex: 1; min-width: 0; }
+.list-title { font-weight: 600; font-size: 14.5px; }
+.list-meta { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.list-actions { display: flex; gap: 4px; }
+
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--bg);
+  color: var(--ink-soft);
+  border: 1px solid var(--border);
+}
+.badge.owner { background: rgba(45,106,142,0.1); color: var(--primary); border-color: transparent; }
+.badge.doctor { background: rgba(45,142,95,0.1); color: var(--success); border-color: transparent; }
+.badge.staff { background: var(--bg); }
+.badge.inactive { background: #f5f5f5; color: var(--muted); }
+
+.empty-card {
+  padding: 40px;
+  text-align: center;
+  color: var(--muted);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  background: white;
+}
+.empty-card-icon { font-size: 40px; margin-bottom: 8px; opacity: 0.5; }
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.section-head h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* WORKING HOURS */
+.hours-grid { display: flex; flex-direction: column; gap: 10px; }
+.hours-row {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.hours-day { font-weight: 600; font-size: 14px; }
+.hours-shifts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.shift-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 5px 10px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-family: 'SF Mono', monospace;
+}
+.shift-pill .remove { cursor: pointer; color: var(--muted); font-weight: 700; padding: 0 2px; }
+.shift-pill .remove:hover { color: var(--danger); }
+.shift-add {
+  background: transparent;
+  border: 1px dashed var(--border);
+  padding: 5px 10px;
+  border-radius: 100px;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.shift-add:hover { border-color: var(--primary); background: rgba(45,106,142,0.04); }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,30,46,0.5); backdrop-filter: blur(6px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.visible { display: flex; animation: fadeIn 0.2s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal { background: white; border-radius: 18px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0,0,0,0.3); animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.modal-head { padding: 22px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
+.modal-close { background: var(--bg); border: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 16px; color: var(--muted); }
+.modal-body { padding: 22px 28px; }
+.modal-footer { padding: 16px 28px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; background: var(--bg); border-radius: 0 0 18px 18px; }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--ink);
+  color: white;
+  padding: 14px 20px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 200;
+  display: none;
+  animation: toastIn 0.3s;
+}
+.toast.visible { display: block; }
+.toast.error { background: var(--danger); }
+.toast.success { background: var(--success); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.readonly-notice {
+  padding: 12px 16px;
+  background: #fef8ea;
+  color: #5c4a11;
+  border-left: 3px solid var(--warning);
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 720px) {
+  .nav-links { display: none; }
+  .form-row { grid-template-columns: 1fr; }
+  .logo-upload { grid-template-columns: 1fr; }
+  .logo-preview { margin: 0 auto; }
+  .hours-row { grid-template-columns: 1fr; }
+  .wrap { padding: 20px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand" id="brand">
+      <div class="brand-mark" id="brandMark">P</div>
+      <div class="brand-text">
+        <div class="brand-name">Praxmate</div>
+        <div class="brand-sub" id="brandSub">Einstellungen</div>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a href="/praxis/dashboard.html" class="nav-link">Dashboard</a>
+      <a href="/praxis/new-appointment.html" class="nav-link">Neuer Termin</a>
+      <a href="/praxis/calendar.html" class="nav-link">Kalender</a>
+      <a href="/praxis/patients.html" class="nav-link">Patienten</a>
+      <a href="/praxis/settings.html" class="nav-link active">Einstellungen</a>
+    </nav>
+    <div class="user-menu" id="userMenu">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">—</div>
+        <div class="user-role" id="userRole">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="page-title">Einstellungen</div>
+  <div class="page-sub">Praxis-Informationen, Team, Leistungen und Sprechzeiten verwalten.</div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="practice">🏥 Praxis</button>
+    <button class="tab" data-tab="doctors">👨‍⚕️ Behandler</button>
+    <button class="tab" data-tab="types">💼 Leistungen</button>
+    <button class="tab" data-tab="hours">🕘 Sprechzeiten</button>
+    <button class="tab" data-tab="team">👥 Team</button>
+  </div>
+
+  <div id="roleNotice" class="readonly-notice" style="display:none;">
+    ⓘ Sie können alles sehen, aber nur der <strong>Inhaber</strong> (Owner) kann Einstellungen ändern.
+  </div>
+
+  <!-- ============ TAB: PRACTICE ============ -->
+  <div class="panel active" data-panel="practice">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Logo &amp; Branding</div>
+        <div class="card-sub">Laden Sie Ihr Praxis-Logo hoch und passen Sie die Farben an.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Logo</label>
+        <div class="logo-upload" id="logoUpload">
+          <div class="logo-preview" id="logoPreview">
+            <div class="logo-placeholder" style="background:var(--primary)">?</div>
+          </div>
+          <div class="logo-drop" id="logoDrop">
+            <div class="logo-drop-icon">📤</div>
+            <div class="logo-drop-text">
+              <strong>Logo hier ablegen</strong><br>
+              <span>oder <a href="#" id="logoBrowse">Datei auswählen</a></span>
+            </div>
+            <div class="logo-drop-hint">PNG, JPG, SVG oder WebP · Max 2 MB</div>
+          </div>
+          <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display:none">
+        </div>
+        <div style="text-align:right; margin-top:8px;">
+          <button type="button" class="btn btn-danger" id="logoRemoveBtn" style="display:none">🗑 Logo entfernen</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Hauptfarbe <span class="color-preview" id="colorPreview1"></span></label>
+          <input id="fldBrandPrimary" type="text" placeholder="#2d6a8e">
+          <div class="help">Wird für Buttons und Akzente verwendet</div>
+        </div>
+        <div class="form-group">
+          <label>Akzentfarbe <span class="color-preview" id="colorPreview2"></span></label>
+          <input id="fldBrandAccent" type="text" placeholder="#e9b949">
+          <div class="help">Für Highlights und Badges</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Praxis-Informationen</div>
+        <div class="card-sub">Diese Daten werden auf der Buchungs-Seite und im Impressum angezeigt.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Name der Praxis</label>
+        <input id="fldName" type="text" placeholder="Zahnarztpraxis Müller">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Telefon</label>
+          <input id="fldPhone" type="text" placeholder="07042 ...">
+        </div>
+        <div class="form-group">
+          <label>E-Mail</label>
+          <input id="fldEmail" type="email" placeholder="info@praxis.de">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Website</label>
+        <input id="fldWebsite" type="url" placeholder="https://www.praxis.de">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Straße &amp; Hausnummer</label>
+          <input id="fldStreet" type="text" placeholder="Musterstraße 1">
+        </div>
+        <div class="form-group">
+          <label>PLZ / Stadt</label>
+          <input id="fldCity" type="text" placeholder="71665 Vaihingen an der Enz">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Impressum &amp; Rechtliches</div>
+        <div class="card-sub">Diese Angaben sind für das Impressum auf der Buchungs-Seite erforderlich.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Rechtlicher Name</label>
+        <input id="fldLegalName" type="text" placeholder="Dr. Max Mustermann Zahnarztpraxis">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Verantwortlicher</label>
+          <input id="fldResponsible" type="text" placeholder="Dr. Max Mustermann">
+        </div>
+        <div class="form-group">
+          <label>Zuständige Kammer</label>
+          <input id="fldChamber" type="text" placeholder="Zahnärztekammer Baden-Württemberg">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>USt-IdNr / Steuernummer</label>
+        <input id="fldTaxId" type="text" placeholder="DE ...">
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top: 20px;">
+      <button class="btn btn-ghost" id="practiceResetBtn">Zurücksetzen</button>
+      <button class="btn btn-primary" id="practiceSaveBtn">💾 Praxis speichern</button>
+    </div>
+  </div>
+
+  <!-- ============ TAB: DOCTORS ============ -->
+  <div class="panel" data-panel="doctors">
+    <div class="card">
+      <div class="section-head">
+        <h3>Behandler</h3>
+        <button class="btn btn-primary" id="addDoctorBtn">+ Behandler hinzufügen</button>
+      </div>
+      <div class="card-sub" style="margin-bottom:16px;">
+        Legen Sie alle Ärzte, Zahnärzte und Therapeuten an, die in Ihrer Praxis arbeiten.
+      </div>
+      <div id="doctorsList"><div class="empty-card">Lade...</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB: TYPES ============ -->
+  <div class="panel" data-panel="types">
+    <div class="card">
+      <div class="section-head">
+        <h3>Behandlungsarten</h3>
+        <button class="btn btn-primary" id="addTypeBtn">+ Leistung hinzufügen</button>
+      </div>
+      <div class="card-sub" style="margin-bottom:16px;">
+        Welche Behandlungen bieten Sie an? Jede Art kann einem oder mehreren Behandlern zugeordnet werden.
+      </div>
+      <div id="typesList"><div class="empty-card">Lade...</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB: HOURS ============ -->
+  <div class="panel" data-panel="hours">
+    <div class="card">
+      <div class="section-head">
+        <h3>Sprechzeiten</h3>
+        <select id="hoursDocSelect" style="padding:8px 12px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit; font-size:13px; background:var(--bg);"></select>
+      </div>
+      <div class="card-sub" style="margin-bottom:16px;">
+        Wann ist dieser Behandler für Termine verfügbar?
+      </div>
+      <div id="hoursGrid" class="hours-grid"></div>
+      <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+        <button class="btn btn-primary" id="hoursSaveBtn">💾 Sprechzeiten speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB: TEAM ============ -->
+  <div class="panel" data-panel="team">
+    <div class="card">
+      <div class="section-head">
+        <h3>Team-Mitglieder (Login-Konten)</h3>
+        <button class="btn btn-primary" id="addUserBtn">+ Nutzer hinzufügen</button>
+      </div>
+      <div class="card-sub" style="margin-bottom:16px;">
+        Wer darf sich im Admin-Bereich anmelden? Legen Sie Konten für Ihr Team an.
+      </div>
+      <div id="usersList"><div class="empty-card">Lade...</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ DOCTOR MODAL ============ -->
+<div class="modal-overlay" id="doctorModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="doctorModalTitle">Behandler hinzufügen</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="doctorEditId">
+      <div class="form-group">
+        <label>Name *</label>
+        <input id="docName" type="text" placeholder="Dr. Maria Müller">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Titel</label>
+          <input id="docTitle" type="text" placeholder="Zahnärztin">
+        </div>
+        <div class="form-group">
+          <label>Rolle</label>
+          <input id="docRole" type="text" placeholder="Praxisinhaberin">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fachrichtung</label>
+          <input id="docSpecialty" type="text" placeholder="Allgemeine Zahnheilkunde">
+        </div>
+        <div class="form-group">
+          <label>Kürzel (2 Buchstaben)</label>
+          <input id="docInitials" type="text" placeholder="MM" maxlength="3">
+        </div>
+      </div>
+      <div class="form-group">
+        <label style="display:inline-flex; align-items:center; gap:8px; text-transform:none; letter-spacing:0;">
+          <input id="docNewPatients" type="checkbox" style="width:auto;" checked>
+          <span>Nimmt Neupatienten an</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close>Abbrechen</button>
+      <button class="btn btn-primary" id="docSaveBtn">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TYPE MODAL ============ -->
+<div class="modal-overlay" id="typeModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="typeModalTitle">Leistung hinzufügen</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="typeEditId">
+      <div class="form-group">
+        <label>Name *</label>
+        <input id="typName" type="text" placeholder="Prophylaxe (PZR)">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Code *</label>
+          <input id="typCode" type="text" placeholder="pzr" pattern="[a-z0-9_-]+">
+          <div class="help">Interne Kennung. Klein, ohne Leerzeichen.</div>
+        </div>
+        <div class="form-group">
+          <label>Dauer (Minuten) *</label>
+          <input id="typDuration" type="number" min="5" max="480" step="5" placeholder="45">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Icon / Emoji</label>
+          <input id="typIcon" type="text" placeholder="✨" maxlength="4">
+        </div>
+        <div class="form-group">
+          <label>Farbe (Hex)</label>
+          <input id="typColor" type="text" placeholder="#2d6a8e">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Beschreibung</label>
+        <textarea id="typDescription" rows="2" placeholder="Professionelle Zahnreinigung mit..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Behandler, die diese Leistung anbieten</label>
+        <div id="typDoctorCheckboxes" style="display:flex; flex-direction:column; gap:6px; background:var(--bg); padding:10px; border-radius:8px; border:1.5px solid var(--border);"></div>
+      </div>
+      <div class="form-group" style="display:flex; gap:16px; flex-wrap:wrap;">
+        <label style="display:inline-flex; align-items:center; gap:6px; text-transform:none; letter-spacing:0; margin-bottom:0;">
+          <input id="typOnlineBookable" type="checkbox" style="width:auto;" checked>
+          <span>Online buchbar</span>
+        </label>
+        <label style="display:inline-flex; align-items:center; gap:6px; text-transform:none; letter-spacing:0; margin-bottom:0;">
+          <input id="typNewPatientOnly" type="checkbox" style="width:auto;">
+          <span>Nur Neupatienten</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close>Abbrechen</button>
+      <button class="btn btn-primary" id="typSaveBtn">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ USER MODAL ============ -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="userModalTitle">Team-Mitglied hinzufügen</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="userEditId">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Name *</label>
+          <input id="usrName" type="text">
+        </div>
+        <div class="form-group">
+          <label>E-Mail *</label>
+          <input id="usrEmail" type="email">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rolle *</label>
+          <select id="usrRole">
+            <option value="staff">Helferin / Assistent</option>
+            <option value="doctor">Behandler</option>
+            <option value="owner">Inhaber (kann alles ändern)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Verknüpfter Behandler</label>
+          <select id="usrDoctor">
+            <option value="">— keine Verknüpfung —</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Passwort <span id="usrPasswordLabel">*</span></label>
+        <input id="usrPassword" type="text" placeholder="min. 8 Zeichen">
+        <div class="help" id="usrPasswordHelp">Wird dem Nutzer nach der Anlage mitgeteilt.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close>Abbrechen</button>
+      <button class="btn btn-primary" id="usrSaveBtn">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
+
+function resolvePracticeSlug() {
+  const host = window.location.hostname;
+  const RESERVED = ['www','admin','api','app','mail','praxmate'];
+  let m = host.match(/^([a-z0-9-]+)\.praxmate\.de$/);
+  if (m && !RESERVED.includes(m[1])) return m[1];
+  m = host.match(/^([a-z0-9-]+)\.praxmate\.pages\.dev$/);
+  if (m && !RESERVED.includes(m[1]) && !/^[a-f0-9]{8}$/.test(m[1])) return m[1];
+  const qs = new URLSearchParams(window.location.search);
+  const qp = qs.get('practice');
+  if (qp) { localStorage.setItem('praxmate_practice', qp); return qp; }
+  const stored = localStorage.getItem('praxmate_practice');
+  if (stored) return stored;
+  return null;
+}
+const PRACTICE_SLUG = resolvePracticeSlug();
+const token = localStorage.getItem('praxmate_token');
+if (!token) {
+  window.location.href = '/praxis/' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+}
+
+let currentUser = null;
+let practice = null;
+let doctors = [];
+let types = [];
+let hours = [];
+let users = [];
+
+async function api(path, opts = {}) {
+  const res = await fetch(API_BASE + path, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      ...(PRACTICE_SLUG ? { 'X-Praxmate-Practice': PRACTICE_SLUG } : {}),
+      ...(opts.headers || {}),
+    },
+  });
+  if (res.status === 401) {
+    localStorage.removeItem('praxmate_token');
+    window.location.href = '/praxis/' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+    return null;
+  }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+function toast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast visible ' + type;
+  setTimeout(() => t.classList.remove('visible'), 3000);
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function isOwner() {
+  return currentUser && currentUser.role === 'owner';
+}
+
+// ============ INIT ============
+async function init() {
+  try {
+    const me = await api('/admin/auth/me');
+    if (!me) return;
+    currentUser = me.user;
+    document.getElementById('userName').textContent = me.user.name;
+    document.getElementById('userRole').textContent = ({owner:'Inhaber', doctor:'Behandler', staff:'Team'}[me.user.role] || me.user.role);
+    document.getElementById('userAvatar').textContent = (me.user.name||'?').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+
+    if (!isOwner()) {
+      document.getElementById('roleNotice').style.display = 'block';
+      // Disable inputs (but allow viewing)
+      document.querySelectorAll('input, select, textarea, button.btn-primary').forEach(el => {
+        if (!el.id.startsWith('hoursDocSelect') && el.id !== 'logoFileInput') el.disabled = true;
+      });
+    }
+
+    await loadPractice();
+    // Apply brand to topbar
+    applyBrand();
+
+    // Load all data in parallel for speedy tab switching
+    await Promise.all([loadDoctors(), loadTypes(), loadUsers(), loadHours()]);
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'error');
+  }
+}
+
+// ============ PRACTICE ============
+async function loadPractice() {
+  practice = await api('/admin/practice/settings');
+  if (!practice) return;
+
+  document.getElementById('brandSub').textContent = practice.name || 'Einstellungen';
+  document.getElementById('fldName').value = practice.name || '';
+  document.getElementById('fldPhone').value = practice.phone || '';
+  document.getElementById('fldEmail').value = practice.email || '';
+  document.getElementById('fldWebsite').value = practice.website || '';
+  document.getElementById('fldStreet').value = practice.street || '';
+  document.getElementById('fldCity').value = [practice.postal_code, practice.city].filter(Boolean).join(' ');
+  document.getElementById('fldLegalName').value = practice.legal_name || '';
+  document.getElementById('fldResponsible').value = practice.responsible_person || '';
+  document.getElementById('fldChamber').value = practice.professional_chamber || '';
+  document.getElementById('fldTaxId').value = practice.tax_id || '';
+  document.getElementById('fldBrandPrimary').value = practice.brand_primary || '#2d6a8e';
+  document.getElementById('fldBrandAccent').value = practice.brand_accent || '#e9b949';
+  updateColorPreviews();
+  updateLogoPreview();
+}
+
+function applyBrand() {
+  if (!practice) return;
+  if (practice.brand_primary) document.documentElement.style.setProperty('--primary', practice.brand_primary);
+  if (practice.logo_url) {
+    document.getElementById('brandMark').innerHTML = `<img src="${practice.logo_url}" alt="">`;
+  }
+}
+
+function updateColorPreviews() {
+  document.getElementById('colorPreview1').style.background = document.getElementById('fldBrandPrimary').value;
+  document.getElementById('colorPreview2').style.background = document.getElementById('fldBrandAccent').value;
+}
+['fldBrandPrimary','fldBrandAccent'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateColorPreviews);
+});
+
+function updateLogoPreview() {
+  const preview = document.getElementById('logoPreview');
+  const removeBtn = document.getElementById('logoRemoveBtn');
+  if (practice?.logo_url) {
+    preview.innerHTML = `<img src="${practice.logo_url}" alt="Logo">`;
+    removeBtn.style.display = '';
+  } else {
+    const color = practice?.brand_primary || '#2d6a8e';
+    const letter = (practice?.name || '?').charAt(0);
+    preview.innerHTML = `<div class="logo-placeholder" style="background:${color}">${letter}</div>`;
+    removeBtn.style.display = 'none';
+  }
+}
+
+document.getElementById('practiceSaveBtn').addEventListener('click', async () => {
+  if (!isOwner()) return;
+  const cityFull = document.getElementById('fldCity').value.trim();
+  const [plz, ...cityRest] = cityFull.split(' ');
+  const isPlz = /^\d{4,5}$/.test(plz);
+
+  const payload = {
+    name: document.getElementById('fldName').value.trim(),
+    phone: document.getElementById('fldPhone').value.trim(),
+    email: document.getElementById('fldEmail').value.trim(),
+    website: document.getElementById('fldWebsite').value.trim(),
+    street: document.getElementById('fldStreet').value.trim(),
+    postal_code: isPlz ? plz : null,
+    city: isPlz ? cityRest.join(' ') : cityFull,
+    legal_name: document.getElementById('fldLegalName').value.trim(),
+    responsible_person: document.getElementById('fldResponsible').value.trim(),
+    professional_chamber: document.getElementById('fldChamber').value.trim(),
+    tax_id: document.getElementById('fldTaxId').value.trim(),
+    brand_primary: document.getElementById('fldBrandPrimary').value.trim(),
+    brand_accent: document.getElementById('fldBrandAccent').value.trim(),
+  };
+  try {
+    practice = await api('/admin/practice/settings', { method: 'PUT', body: JSON.stringify(payload) });
+    toast('✓ Praxis-Daten gespeichert', 'success');
+    applyBrand();
+    document.getElementById('brandSub').textContent = practice.name;
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'error');
+  }
+});
+
+document.getElementById('practiceResetBtn').addEventListener('click', loadPractice);
+
+// ============ LOGO UPLOAD ============
+const logoUpload = document.getElementById('logoUpload');
+const logoFileInput = document.getElementById('logoFileInput');
+async function uploadLogo(file) {
+  if (!file || !isOwner()) return;
+  const allowed = ['image/png','image/jpeg','image/svg+xml','image/webp'];
+  if (!allowed.includes(file.type)) { toast('Format nicht erlaubt', 'error'); return; }
+  if (file.size > 2*1024*1024) { toast('Max 2 MB', 'error'); return; }
+
+  logoUpload.classList.add('uploading');
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(API_BASE + '/admin/practice/logo', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        ...(PRACTICE_SLUG ? { 'X-Praxmate-Practice': PRACTICE_SLUG } : {}),
+      },
+      body: formData,
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Upload fehlgeschlagen');
+    practice.logo_url = data.logo_url;
+    updateLogoPreview();
+    applyBrand();
+    toast('✓ Logo hochgeladen', 'success');
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'error');
+  } finally {
+    logoUpload.classList.remove('uploading');
+  }
+}
+logoFileInput.addEventListener('change', (e) => e.target.files[0] && uploadLogo(e.target.files[0]));
+document.getElementById('logoBrowse').addEventListener('click', (e) => { e.preventDefault(); if (isOwner()) logoFileInput.click(); });
+document.getElementById('logoDrop').addEventListener('click', () => { if (isOwner()) logoFileInput.click(); });
+['dragenter','dragover'].forEach(evt => logoUpload.addEventListener(evt, (e) => { e.preventDefault(); if (isOwner()) logoUpload.classList.add('dragover'); }));
+['dragleave','drop'].forEach(evt => logoUpload.addEventListener(evt, (e) => { e.preventDefault(); logoUpload.classList.remove('dragover'); }));
+logoUpload.addEventListener('drop', (e) => { const f = e.dataTransfer.files[0]; if (f) uploadLogo(f); });
+
+document.getElementById('logoRemoveBtn').addEventListener('click', async () => {
+  if (!isOwner() || !confirm('Logo wirklich entfernen?')) return;
+  try {
+    await api('/admin/practice/logo', { method: 'DELETE' });
+    practice.logo_url = null;
+    updateLogoPreview();
+    applyBrand();
+    toast('Logo entfernt', 'success');
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'error');
+  }
+});
+
+// ============ DOCTORS ============
+async function loadDoctors() {
+  try {
+    const data = await api('/admin/doctors');
+    doctors = data?.doctors || [];
+    renderDoctors();
+    // Update hours doctor select
+    const sel = document.getElementById('hoursDocSelect');
+    sel.innerHTML = doctors.filter(d => d.is_active).map(d =>
+      `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('');
+    renderHours();
+    // Update user modal doctor select
+    const usrDoctor = document.getElementById('usrDoctor');
+    if (usrDoctor) {
+      usrDoctor.innerHTML = '<option value="">— keine Verknüpfung —</option>' +
+        doctors.filter(d => d.is_active).map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('');
+    }
+  } catch (e) {
+    toast('Behandler laden fehlgeschlagen: ' + e.message, 'error');
+  }
+}
+
+function renderDoctors() {
+  const list = document.getElementById('doctorsList');
+  const active = doctors.filter(d => d.is_active);
+  if (active.length === 0) {
+    list.innerHTML = `<div class="empty-card"><div class="empty-card-icon">👨‍⚕️</div><div>Noch keine Behandler angelegt.</div></div>`;
+    return;
+  }
+  list.innerHTML = active.map(d => `
+    <div class="list-row">
+      <div class="list-avatar">${escapeHtml(d.avatar_initials || '?')}</div>
+      <div class="list-body">
+        <div class="list-title">${escapeHtml(d.name)}</div>
+        <div class="list-meta">
+          ${d.title ? escapeHtml(d.title) + ' · ' : ''}
+          ${d.role ? escapeHtml(d.role) + ' · ' : ''}
+          ${d.type_count} Leistungen · ${d.hours_count} Sprechzeiten
+        </div>
+      </div>
+      <div class="list-actions">
+        ${isOwner() ? `
+          <button class="btn btn-ghost" data-act="edit-doctor" data-id="${d.id}">✏ Bearbeiten</button>
+          <button class="btn btn-danger" data-act="delete-doctor" data-id="${d.id}">🗑</button>
+        ` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('addDoctorBtn').addEventListener('click', () => openDoctorModal());
+
+function openDoctorModal(doctor = null) {
+  if (!isOwner()) return;
+  document.getElementById('doctorModalTitle').textContent = doctor ? 'Behandler bearbeiten' : 'Behandler hinzufügen';
+  document.getElementById('doctorEditId').value = doctor?.id || '';
+  document.getElementById('docName').value = doctor?.name || '';
+  document.getElementById('docTitle').value = doctor?.title || '';
+  document.getElementById('docRole').value = doctor?.role || '';
+  document.getElementById('docSpecialty').value = doctor?.specialty || '';
+  document.getElementById('docInitials').value = doctor?.avatar_initials || '';
+  document.getElementById('docNewPatients').checked = doctor ? !!doctor.accepts_new_patients : true;
+  document.getElementById('doctorModal').classList.add('visible');
+}
+
+document.getElementById('docSaveBtn').addEventListener('click', async () => {
+  const id = document.getElementById('doctorEditId').value;
+  const payload = {
+    name: document.getElementById('docName').value.trim(),
+    title: document.getElementById('docTitle').value.trim(),
+    role: document.getElementById('docRole').value.trim(),
+    specialty: document.getElementById('docSpecialty').value.trim(),
+    avatar_initials: document.getElementById('docInitials').value.trim().toUpperCase(),
+    accepts_new_patients: document.getElementById('docNewPatients').checked,
+  };
+  if (!payload.name) { toast('Name erforderlich', 'error'); return; }
+  try {
+    if (id) {
+      await api('/admin/doctors/' + id, { method: 'PUT', body: JSON.stringify(payload) });
+      toast('✓ Behandler aktualisiert', 'success');
+    } else {
+      await api('/admin/doctors', { method: 'POST', body: JSON.stringify(payload) });
+      toast('✓ Behandler angelegt', 'success');
+    }
+    document.getElementById('doctorModal').classList.remove('visible');
+    await loadDoctors();
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'error');
+  }
+});
+
+// ============ TYPES ============
+async function loadTypes() {
+  try {
+    const data = await api('/admin/types');
+    types = data?.types || [];
+    renderTypes();
+  } catch (e) {
+    toast('Leistungen laden fehlgeschlagen: ' + e.message, 'error');
+  }
+}
+
+function renderTypes() {
+  const list = document.getElementById('typesList');
+  const active = types.filter(t => t.is_active);
+  if (active.length === 0) {
+    list.innerHTML = `<div class="empty-card"><div class="empty-card-icon">💼</div><div>Noch keine Leistungen angelegt.</div></div>`;
+    return;
+  }
+  list.innerHTML = active.map(t => {
+    const docNames = t.doctor_ids.map(id => doctors.find(d => d.id === id)?.avatar_initials).filter(Boolean).join(' ');
+    return `
+      <div class="list-row">
+        <div class="list-avatar" style="font-size:20px; background:${t.color||'var(--primary)'}">${escapeHtml(t.icon||'🏥')}</div>
+        <div class="list-body">
+          <div class="list-title">${escapeHtml(t.name)}</div>
+          <div class="list-meta">
+            ${t.duration_minutes} Minuten · Code: <code>${escapeHtml(t.code)}</code>
+            ${docNames ? ' · Behandler: ' + docNames : ' · <span style="color:var(--danger)">⚠ Niemand zugewiesen</span>'}
+            ${!t.online_bookable ? ' · <span class="badge inactive">Offline</span>' : ''}
+            ${t.new_patient_only ? ' · <span class="badge">Nur Neupatienten</span>' : ''}
+          </div>
+        </div>
+        <div class="list-actions">
+          ${isOwner() ? `
+            <button class="btn btn-ghost" data-act="edit-type" data-id="${t.id}">✏ Bearbeiten</button>
+            <button class="btn btn-danger" data-act="delete-type" data-id="${t.id}">🗑</button>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+document.getElementById('addTypeBtn').addEventListener('click', () => openTypeModal());
+
+function openTypeModal(type = null) {
+  if (!isOwner()) return;
+  document.getElementById('typeModalTitle').textContent = type ? 'Leistung bearbeiten' : 'Leistung hinzufügen';
+  document.getElementById('typeEditId').value = type?.id || '';
+  document.getElementById('typName').value = type?.name || '';
+  document.getElementById('typCode').value = type?.code || '';
+  document.getElementById('typCode').disabled = !!type; // can't change code after creation
+  document.getElementById('typDuration').value = type?.duration_minutes || '';
+  document.getElementById('typIcon').value = type?.icon || '🏥';
+  document.getElementById('typColor').value = type?.color || '';
+  document.getElementById('typDescription').value = type?.description || '';
+  document.getElementById('typOnlineBookable').checked = type ? !!type.online_bookable : true;
+  document.getElementById('typNewPatientOnly').checked = type ? !!type.new_patient_only : false;
+
+  // Render doctor checkboxes
+  const assigned = type?.doctor_ids || [];
+  const box = document.getElementById('typDoctorCheckboxes');
+  box.innerHTML = doctors.filter(d => d.is_active).map(d => `
+    <label style="display:flex; align-items:center; gap:8px; font-weight:500; font-size:13.5px; text-transform:none; letter-spacing:0; color:var(--ink);">
+      <input type="checkbox" value="${d.id}" ${assigned.includes(d.id) ? 'checked' : ''} style="width:auto;">
+      <span>${escapeHtml(d.name)}</span>
+    </label>
+  `).join('') || '<div style="color:var(--muted); font-size:13px;">Erst Behandler anlegen.</div>';
+
+  document.getElementById('typeModal').classList.add('visible');
+}
+
+document.getElementById('typSaveBtn').addEventListener('click', async () => {
+  const id = document.getElementById('typeEditId').value;
+  const checkedDoctors = [...document.querySelectorAll('#typDoctorCheckboxes input:checked')].map(cb => cb.value);
+  const payload = {
+    name: document.getElementById('typName').value.trim(),
+    code: document.getElementById('typCode').value.trim().toLowerCase(),
+    duration_minutes: parseInt(document.getElementById('typDuration').value),
+    icon: document.getElementById('typIcon').value.trim() || '🏥',
+    color: document.getElementById('typColor').value.trim() || null,
+    description: document.getElementById('typDescription').value.trim(),
+    online_bookable: document.getElementById('typOnlineBookable').checked,
+    new_patient_only: document.getElementById('typNewPatientOnly').checked,
+    doctor_ids: checkedDoctors,
+  };
+  if (!payload.name || !payload.code || !payload.duration_minutes) { toast('Name, Code, Dauer erforderlich', 'error'); return; }
+  try {
+    if (id) {
+      delete payload.code;
+      await api('/admin/types/' + id, { method: 'PUT', body: JSON.stringify(payload) });
+      toast('✓ Leistung aktualisiert', 'success');
+    } else {
+      await api('/admin/types', { method: 'POST', body: JSON.stringify(payload) });
+      toast('✓ Leistung angelegt', 'success');
+    }
+    document.getElementById('typeModal').classList.remove('visible');
+    await loadTypes();
+    await loadDoctors(); // counts change
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'error');
+  }
+});
+
+// ============ HOURS ============
+async function loadHours() {
+  try {
+    const data = await api('/admin/hours');
+    hours = data?.hours || [];
+    renderHours();
+  } catch (e) {
+    toast('Sprechzeiten laden fehlgeschlagen: ' + e.message, 'error');
+  }
+}
+
+const DAY_NAMES = ['', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+
+function renderHours() {
+  const doctorId = document.getElementById('hoursDocSelect').value;
+  const grid = document.getElementById('hoursGrid');
+  if (!doctorId) {
+    grid.innerHTML = `<div class="empty-card">Bitte zuerst einen Behandler anlegen.</div>`;
+    return;
+  }
+  const docHours = hours.filter(h => h.doctor_id === doctorId);
+  grid.innerHTML = [1,2,3,4,5,6,7].map(d => {
+    const dayShifts = docHours.filter(h => h.day_of_week === d).sort((a,b) => a.start_time.localeCompare(b.start_time));
+    return `
+      <div class="hours-row" data-day="${d}">
+        <div class="hours-day">${DAY_NAMES[d]}</div>
+        <div class="hours-shifts">
+          ${dayShifts.map(s => `
+            <span class="shift-pill" data-start="${s.start_time}" data-end="${s.end_time}">
+              ${s.start_time} – ${s.end_time}
+              ${isOwner() ? '<span class="remove" data-act="remove-shift">✕</span>' : ''}
+            </span>
+          `).join('')}
+          ${isOwner() ? `<button class="shift-add" data-act="add-shift">+ Hinzufügen</button>` : ''}
+        </div>
+        <div></div>
+      </div>
+    `;
+  }).join('');
+}
+
+document.getElementById('hoursDocSelect').addEventListener('change', renderHours);
+
+document.getElementById('hoursGrid').addEventListener('click', (e) => {
+  if (!isOwner()) return;
+  const addBtn = e.target.closest('[data-act="add-shift"]');
+  const removeBtn = e.target.closest('[data-act="remove-shift"]');
+  if (addBtn) {
+    const start = prompt('Startzeit (HH:MM)', '08:00');
+    if (!start) return;
+    const end = prompt('Endzeit (HH:MM)', '12:00');
+    if (!end) return;
+    if (!/^\d{2}:\d{2}$/.test(start) || !/^\d{2}:\d{2}$/.test(end) || start >= end) {
+      toast('Ungültige Zeiten', 'error'); return;
+    }
+    const row = addBtn.closest('.hours-row');
+    const pill = document.createElement('span');
+    pill.className = 'shift-pill';
+    pill.dataset.start = start;
+    pill.dataset.end = end;
+    pill.innerHTML = `${start} – ${end} <span class="remove" data-act="remove-shift">✕</span>`;
+    row.querySelector('.hours-shifts').insertBefore(pill, addBtn);
+  }
+  if (removeBtn) {
+    removeBtn.closest('.shift-pill').remove();
+  }
+});
+
+document.getElementById('hoursSaveBtn').addEventListener('click', async () => {
+  if (!isOwner()) return;
+  const doctorId = document.getElementById('hoursDocSelect').value;
+  if (!doctorId) return;
+
+  const shifts = [];
+  document.querySelectorAll('#hoursGrid .hours-row').forEach(row => {
+    const day = parseInt(row.dataset.day);
+    row.querySelectorAll('.shift-pill').forEach(pill => {
+      shifts.push({ day_of_week: day, start_time: pill.dataset.start, end_time: pill.dataset.end });
+    });
+  });
+  try {
+    await api('/admin/hours/' + doctorId, { method: 'PUT', body: JSON.stringify({ shifts }) });
+    toast('✓ Sprechzeiten gespeichert', 'success');
+    await loadHours();
+    await loadDoctors();
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'error');
+  }
+});
+
+// ============ USERS ============
+async function loadUsers() {
+  try {
+    const data = await api('/admin/users');
+    users = data?.users || [];
+    renderUsers();
+  } catch (e) {
+    toast('Team laden fehlgeschlagen: ' + e.message, 'error');
+  }
+}
+
+function renderUsers() {
+  const list = document.getElementById('usersList');
+  const active = users.filter(u => u.status === 'active');
+  if (active.length === 0) {
+    list.innerHTML = `<div class="empty-card">Keine Nutzer.</div>`;
+    return;
+  }
+  list.innerHTML = active.map(u => `
+    <div class="list-row">
+      <div class="list-avatar soft">${escapeHtml(u.avatar_initials || '?')}</div>
+      <div class="list-body">
+        <div class="list-title">${escapeHtml(u.name)} <span class="badge ${u.role}">${u.role}</span></div>
+        <div class="list-meta">
+          ${escapeHtml(u.email)}
+          ${u.last_login_at ? ' · Letzter Login: ' + u.last_login_at.slice(0,10) : ' · noch nie angemeldet'}
+        </div>
+      </div>
+      <div class="list-actions">
+        ${isOwner() ? `
+          <button class="btn btn-ghost" data-act="edit-user" data-id="${u.id}">✏</button>
+          ${u.id !== currentUser.id ? `<button class="btn btn-danger" data-act="delete-user" data-id="${u.id}">🗑</button>` : ''}
+        ` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('addUserBtn').addEventListener('click', () => openUserModal());
+
+function openUserModal(user = null) {
+  if (!isOwner()) return;
+  document.getElementById('userModalTitle').textContent = user ? 'Team-Mitglied bearbeiten' : 'Team-Mitglied hinzufügen';
+  document.getElementById('userEditId').value = user?.id || '';
+  document.getElementById('usrName').value = user?.name || '';
+  document.getElementById('usrEmail').value = user?.email || '';
+  document.getElementById('usrEmail').disabled = !!user;
+  document.getElementById('usrRole').value = user?.role || 'staff';
+  document.getElementById('usrDoctor').value = user?.doctor_id || '';
+  document.getElementById('usrPassword').value = user ? '' : 'Praxmate2026!';
+  document.getElementById('usrPasswordLabel').textContent = user ? '(leer lassen = unverändert)' : '*';
+  document.getElementById('usrPasswordHelp').textContent = user ? 'Nur ausfüllen, wenn Sie das Passwort ändern möchten.' : 'Merken Sie sich dieses Passwort — der Nutzer braucht es zum Login.';
+  document.getElementById('userModal').classList.add('visible');
+}
+
+document.getElementById('usrSaveBtn').addEventListener('click', async () => {
+  const id = document.getElementById('userEditId').value;
+  const payload = {
+    name: document.getElementById('usrName').value.trim(),
+    role: document.getElementById('usrRole').value,
+    doctor_id: document.getElementById('usrDoctor').value || null,
+  };
+  if (!id) {
+    payload.email = document.getElementById('usrEmail').value.trim();
+    payload.password = document.getElementById('usrPassword').value;
+  } else {
+    const pw = document.getElementById('usrPassword').value;
+    if (pw) payload.password = pw;
+  }
+  if (!payload.name || (!id && !payload.email) || (!id && !payload.password)) {
+    toast('Pflichtfelder ausfüllen', 'error'); return;
+  }
+  try {
+    if (id) {
+      await api('/admin/users/' + id, { method: 'PUT', body: JSON.stringify(payload) });
+      toast('✓ Nutzer aktualisiert', 'success');
+    } else {
+      await api('/admin/users', { method: 'POST', body: JSON.stringify(payload) });
+      toast('✓ Nutzer angelegt', 'success');
+    }
+    document.getElementById('userModal').classList.remove('visible');
+    await loadUsers();
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'error');
+  }
+});
+
+// ============ DELEGATION ============
+document.addEventListener('click', async (e) => {
+  const act = e.target.closest('[data-act]');
+  if (!act) return;
+  const action = act.dataset.act;
+  const id = act.dataset.id;
+
+  if (action === 'edit-doctor') openDoctorModal(doctors.find(d => d.id === id));
+  if (action === 'delete-doctor') {
+    if (!confirm('Behandler wirklich entfernen?\n\n(Zukünftige Termine müssen vorher umgebucht werden.)')) return;
+    try {
+      await api('/admin/doctors/' + id, { method: 'DELETE' });
+      toast('Behandler entfernt', 'success');
+      await loadDoctors();
+    } catch (e) { toast('Fehler: ' + e.message, 'error'); }
+  }
+  if (action === 'edit-type') openTypeModal(types.find(t => t.id === id));
+  if (action === 'delete-type') {
+    if (!confirm('Leistung wirklich entfernen?')) return;
+    try {
+      await api('/admin/types/' + id, { method: 'DELETE' });
+      toast('Leistung entfernt', 'success');
+      await loadTypes();
+    } catch (e) { toast('Fehler: ' + e.message, 'error'); }
+  }
+  if (action === 'edit-user') openUserModal(users.find(u => u.id === id));
+  if (action === 'delete-user') {
+    if (!confirm('Nutzer wirklich deaktivieren? Zugriff wird sofort beendet.')) return;
+    try {
+      await api('/admin/users/' + id, { method: 'DELETE' });
+      toast('Nutzer deaktiviert', 'success');
+      await loadUsers();
+    } catch (e) { toast('Fehler: ' + e.message, 'error'); }
+  }
+});
+
+// ============ TABS ============
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const name = tab.dataset.tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.panel === name));
+  });
+});
+
+// ============ MODAL CLOSE ============
+document.querySelectorAll('[data-close]').forEach(el => {
+  el.addEventListener('click', () => document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('visible')));
+});
+
+// Logout via user menu
+document.getElementById('userMenu').addEventListener('click', async () => {
+  if (!confirm('Abmelden?')) return;
+  try { await api('/admin/auth/logout', { method: 'POST' }); } catch {}
+  localStorage.removeItem('praxmate_token');
+  window.location.href = '/praxis/' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+});
+
+init();
+</script>
+
+</body>
+</html>

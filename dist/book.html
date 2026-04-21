@@ -932,10 +932,20 @@ const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
 // ========== MULTI-TENANT: resolve practice slug ==========
 function resolvePracticeSlug() {
   const host = window.location.hostname;
-  const subMatch = host.match(/^([a-z0-9-]+)\.praxmate\.de$/);
-  if (subMatch && !['www','admin','api','app'].includes(subMatch[1])) {
-    return subMatch[1];
+  const RESERVED = ['www','admin','api','app','mail','praxmate'];
+
+  // Pattern A: {slug}.praxmate.de
+  let m = host.match(/^([a-z0-9-]+)\.praxmate\.de$/);
+  if (m && !RESERVED.includes(m[1])) return m[1];
+
+  // Pattern B: {slug}.praxmate.pages.dev
+  m = host.match(/^([a-z0-9-]+)\.praxmate\.pages\.dev$/);
+  if (m && !RESERVED.includes(m[1])) {
+    // Ignore 8-char hex build hashes from Cloudflare preview URLs
+    if (!/^[a-f0-9]{8}$/.test(m[1])) return m[1];
   }
+
+  // Fallback: ?practice=slug query param
   const qs = new URLSearchParams(window.location.search);
   return qs.get('practice');
 }

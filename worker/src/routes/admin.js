@@ -96,7 +96,8 @@ export async function handleAppointmentsList(env, request) {
 
   let query = `
     SELECT a.id, a.booking_code, a.start_datetime, a.end_datetime, a.duration_minutes,
-           a.status, a.source, a.patient_note, a.doctor_id,
+           a.status, a.source, a.patient_note, a.staff_note,
+           a.doctor_id, a.patient_id, a.appointment_type_id,
            p.first_name, p.last_name, p.email, p.phone, p.birth_date,
            p.insurance_type, p.is_new_patient,
            d.name as doctor_name, d.avatar_initials as doctor_initials,
@@ -268,7 +269,7 @@ export async function handleAppointmentUpdate(env, request, apptId) {
 
   const appt = await env.DB.prepare(`
     SELECT a.id, a.status, a.doctor_id, a.appointment_type_id,
-           a.start_datetime, a.duration_minutes, a.booking_code,
+           a.start_datetime, a.duration_minutes, a.booking_code, a.staff_note,
            t.duration_minutes as type_duration
     FROM appointments a
     JOIN appointment_types t ON t.id = a.appointment_type_id
@@ -277,16 +278,37 @@ export async function handleAppointmentUpdate(env, request, apptId) {
   if (!appt) return jsonError('Termin nicht gefunden', request, 404);
   if (appt.status === 'cancelled') return jsonError('Abgesagte Termine können nicht verschoben werden', request, 400);
 
+  // Type change → verify it belongs to practice + derive new duration
+  let newTypeId = appt.appointment_type_id;
+  let newDuration = appt.duration_minutes || appt.type_duration;
+  if (body.appointment_type_id && body.appointment_type_id !== appt.appointment_type_id) {
+    const newType = await env.DB.prepare(`
+      SELECT id, duration_minutes FROM appointment_types
+      WHERE id = ? AND practice_id = ? AND is_active = 1
+    `).bind(body.appointment_type_id, user.practice_id).first();
+    if (!newType) return jsonError('Behandlungsart nicht gefunden', request, 404);
+    newTypeId = newType.id;
+    newDuration = newType.duration_minutes;
+  }
+
   const newStart = body.start_datetime || appt.start_datetime;
   const newDoctorId = body.doctor_id || appt.doctor_id;
-  const duration = appt.duration_minutes || appt.type_duration;
+  const newStaffNote = body.staff_note !== undefined ? (body.staff_note || null) : appt.staff_note;
+
+  // If doctor changed, ensure they offer this type
+  if (newDoctorId !== appt.doctor_id || newTypeId !== appt.appointment_type_id) {
+    const offers = await env.DB.prepare(`
+      SELECT 1 FROM doctor_appointment_types WHERE doctor_id = ? AND appointment_type_id = ?
+    `).bind(newDoctorId, newTypeId).first();
+    if (!offers) return jsonError('Dieser Behandler bietet diese Leistung nicht an', request, 400);
+  }
 
   const startMs = new Date(newStart).getTime();
   if (isNaN(startMs)) return jsonError('Ungültiges Datum', request, 400);
-  const endMs = startMs + duration * 60000;
+  const endMs = startMs + newDuration * 60000;
   const newEnd = new Date(endMs).toISOString().slice(0, 19);
 
-  // Conflict (excluding self)
+  // Conflict check (excluding self)
   const conflict = await env.DB.prepare(`
     SELECT id FROM appointments
     WHERE practice_id=? AND doctor_id=? AND status != 'cancelled'
@@ -299,26 +321,32 @@ export async function handleAppointmentUpdate(env, request, apptId) {
   await env.DB.prepare(`
     UPDATE appointments
     SET start_datetime=?, end_datetime=?, doctor_id=?,
+        appointment_type_id=?, duration_minutes=?, staff_note=?,
         last_modified_by_user_id=?, last_modified_at=datetime('now')
     WHERE id=?
-  `).bind(newStart, newEnd, newDoctorId, user.user_id, apptId).run();
+  `).bind(newStart, newEnd, newDoctorId, newTypeId, newDuration, newStaffNote, user.user_id, apptId).run();
 
   await logAudit(env, {
     practice_id: user.practice_id,
     actor_type: 'user',
     actor_id: user.user_id,
-    action: 'appointment.rescheduled',
+    action: 'appointment.updated',
     target_type: 'appointment',
     target_id: apptId,
     meta: {
       booking_code: appt.booking_code,
-      from: { start: appt.start_datetime, doctor_id: appt.doctor_id },
-      to: { start: newStart, doctor_id: newDoctorId },
+      from: { start: appt.start_datetime, doctor_id: appt.doctor_id, type_id: appt.appointment_type_id },
+      to: { start: newStart, doctor_id: newDoctorId, type_id: newTypeId },
     },
     request,
   });
 
-  return jsonResponse({ ok: true, id: apptId, start_datetime: newStart, end_datetime: newEnd, doctor_id: newDoctorId }, request);
+  return jsonResponse({
+    ok: true, id: apptId,
+    start_datetime: newStart, end_datetime: newEnd,
+    doctor_id: newDoctorId, appointment_type_id: newTypeId,
+    duration_minutes: newDuration, staff_note: newStaffNote,
+  }, request);
 }
 
 // ============================================================

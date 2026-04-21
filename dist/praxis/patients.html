@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Praxmate — Patienten</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232d6a8e'/%3E%3Ctext x='50' y='68' font-family='Georgia' font-size='50' font-weight='700' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #2d6a8e;
+  --primary-dark: #1a4a6b;
+  --ink: #0f1e2e;
+  --ink-soft: #3d5368;
+  --muted: #7a8b9c;
+  --border: #e1e8ed;
+  --bg: #f4f8fa;
+  --success: #2d8e5f;
+  --danger: #d64545;
+  --warning: #e9b949;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; -webkit-font-smoothing: antialiased; }
+a { color: var(--primary); text-decoration: none; }
+
+.topbar { background: white; border-bottom: 1px solid var(--border); padding: 14px 24px; }
+.topbar-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark { width: 36px; height: 36px; background: var(--primary); color: white; border-radius: 10px; font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.brand-mark img { width: 100%; height: 100%; object-fit: contain; padding: 3px; background: white; }
+.brand-text { line-height: 1.1; }
+.brand-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; }
+.brand-sub { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
+.nav-links { display: flex; gap: 4px; }
+.nav-link { padding: 8px 14px; color: var(--ink-soft); font-weight: 500; border-radius: 8px; transition: all 0.15s; font-size: 14px; }
+.nav-link:hover { background: var(--bg); }
+.nav-link.active { background: var(--primary); color: white; }
+.user-menu { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 12px; border-radius: 8px; transition: background 0.15s; }
+.user-menu:hover { background: var(--bg); }
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+.user-info { line-height: 1.1; }
+.user-name { font-size: 13px; font-weight: 600; }
+.user-role { font-size: 11px; color: var(--muted); }
+
+.wrap { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+.page-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+.page-title { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; letter-spacing: -0.01em; }
+.page-sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+.btn { padding: 11px 22px; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+.btn-ghost { background: white; color: var(--ink); border: 1.5px solid var(--border); }
+.btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+.btn-danger { background: transparent; color: var(--danger); border: 1px solid transparent; padding: 7px 12px; font-size: 13px; cursor: pointer; font-family: inherit; font-weight: 600; border-radius: 6px; }
+.btn-danger:hover { background: rgba(214,69,69,0.08); }
+
+/* TOOLBAR */
+.toolbar {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.search-wrap { position: relative; flex: 1; min-width: 240px; }
+.search-wrap input {
+  width: 100%;
+  padding: 10px 12px 10px 38px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  background: var(--bg);
+  transition: all 0.15s;
+}
+.search-wrap input:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(45,106,142,0.1); }
+.search-wrap::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.5; font-size: 14px; }
+
+.sort-select {
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+/* TABLE-LIKE LIST */
+.patient-list {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.patient-header {
+  display: grid;
+  grid-template-columns: 44px 1.8fr 1.3fr 1fr 90px 120px 120px 50px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 18px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.patient-row {
+  display: grid;
+  grid-template-columns: 44px 1.8fr 1.3fr 1fr 90px 120px 120px 50px;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.patient-row:last-child { border-bottom: none; }
+.patient-row:hover { background: var(--bg); }
+.patient-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+.patient-avatar.new { background: var(--warning); color: #5c4a11; }
+.patient-name-cell .name { font-weight: 600; font-size: 14.5px; display: flex; align-items: center; gap: 6px; }
+.patient-name-cell .age { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.patient-contact { font-size: 13px; color: var(--ink-soft); min-width: 0; }
+.patient-contact-email { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; }
+.patient-contact-phone { color: var(--muted); font-size: 12.5px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.pill {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: var(--bg);
+  color: var(--ink-soft);
+  border: 1px solid var(--border);
+}
+.pill.gkv { background: rgba(45,106,142,0.08); color: var(--primary); border-color: transparent; }
+.pill.privat { background: rgba(233,185,73,0.15); color: #8b6a0f; border-color: transparent; }
+.pill.selbst { background: rgba(122,139,156,0.1); color: var(--muted); border-color: transparent; }
+.neu-badge {
+  background: var(--warning); color: #5c4a11;
+  padding: 2px 7px; border-radius: 8px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.count-badge {
+  background: var(--bg);
+  color: var(--ink-soft);
+  border-radius: 100px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+.next-appt { font-size: 12px; color: var(--success); font-weight: 600; }
+.next-appt.none { color: var(--muted); font-weight: normal; }
+.last-appt { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.chevron { color: var(--muted); font-size: 18px; text-align: right; }
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--muted);
+}
+.pagination-buttons { display: flex; gap: 6px; }
+.page-btn {
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.page-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.empty-state, .loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+.loading::before { content: '⏳ '; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,30,46,0.5); backdrop-filter: blur(6px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.visible { display: flex; animation: fadeIn 0.2s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal { background: white; border-radius: 18px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0,0,0,0.3); animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.modal-head { padding: 22px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
+.modal-close { background: var(--bg); border: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 16px; color: var(--muted); }
+.modal-body { padding: 22px 28px; }
+.modal-footer { padding: 16px 28px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; background: var(--bg); border-radius: 0 0 18px 18px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--ink-soft); margin-bottom: 6px; letter-spacing: 0.06em; text-transform: uppercase; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; background: white; transition: border-color 0.2s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(45,106,142,0.1); }
+
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: white; padding: 14px 20px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); font-size: 14px; font-weight: 500; z-index: 200; display: none; animation: toastIn 0.3s; }
+.toast.visible { display: block; }
+.toast.error { background: var(--danger); }
+.toast.success { background: var(--success); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 960px) {
+  .patient-header { display: none; }
+  .patient-row {
+    grid-template-columns: 44px 1fr auto;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+  .patient-row .patient-contact, .patient-row .pill, .patient-row .last-appt, .patient-row .next-appt, .patient-row .chevron { display: none; }
+  .patient-row .count-badge { display: none; }
+}
+@media (max-width: 720px) {
+  .nav-links { display: none; }
+  .wrap { padding: 20px 16px; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark" id="brandMark">P</div>
+      <div class="brand-text">
+        <div class="brand-name">Praxmate</div>
+        <div class="brand-sub" id="brandSub">Patienten</div>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a href="/praxis/dashboard.html" class="nav-link">Dashboard</a>
+      <a href="/praxis/new-appointment.html" class="nav-link">Neuer Termin</a>
+      <a href="/praxis/calendar.html" class="nav-link">Kalender</a>
+      <a href="/praxis/patients.html" class="nav-link active">Patienten</a>
+      <a href="/praxis/settings.html" class="nav-link">Einstellungen</a>
+    </nav>
+    <div class="user-menu" id="userMenu">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">—</div>
+        <div class="user-role" id="userRole">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="page-head">
+    <div>
+      <div class="page-title">Patienten</div>
+      <div class="page-sub" id="totalCount">Lade...</div>
+    </div>
+    <button class="btn btn-primary" id="newPatientBtn">+ Neuer Patient</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <input type="search" id="searchInput" placeholder="Name, E-Mail oder Telefon suchen...">
+    </div>
+    <select class="sort-select" id="sortSelect">
+      <option value="recent">Zuletzt gesehen</option>
+      <option value="name">Nach Name</option>
+      <option value="appointments">Meiste Termine</option>
+      <option value="created">Neu angelegt</option>
+    </select>
+  </div>
+
+  <div class="patient-list" id="patientList">
+    <div class="loading">Lade Patienten...</div>
+  </div>
+</div>
+
+<!-- NEW PATIENT MODAL -->
+<div class="modal-overlay" id="patientModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Neuer Patient</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Vorname *</label>
+          <input id="pmFirst" type="text">
+        </div>
+        <div class="form-group">
+          <label>Nachname *</label>
+          <input id="pmLast" type="text">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Geburtsdatum</label>
+        <input id="pmBirth" type="date">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>E-Mail</label>
+          <input id="pmEmail" type="email">
+        </div>
+        <div class="form-group">
+          <label>Telefon</label>
+          <input id="pmPhone" type="tel">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Versicherung</label>
+          <select id="pmInsurance">
+            <option value="gkv">Gesetzlich</option>
+            <option value="privat">Privat</option>
+            <option value="selbst">Selbstzahler</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Versichertennummer</label>
+          <input id="pmInsNr" type="text">
+        </div>
+      </div>
+      <div class="form-group">
+        <label style="display:inline-flex; align-items:center; gap:8px; text-transform:none; letter-spacing:0;">
+          <input id="pmNewPatient" type="checkbox" style="width:auto;" checked>
+          <span>Neupatient</span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label>Interne Notizen</label>
+        <textarea id="pmNotes" rows="3" placeholder="Allergien, Besonderheiten..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close>Abbrechen</button>
+      <button class="btn btn-primary" id="pmSaveBtn">Anlegen</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
+
+function resolvePracticeSlug() {
+  const host = window.location.hostname;
+  const RESERVED = ['www','admin','api','app','mail','praxmate'];
+  let m = host.match(/^([a-z0-9-]+)\.praxmate\.de$/);
+  if (m && !RESERVED.includes(m[1])) return m[1];
+  m = host.match(/^([a-z0-9-]+)\.praxmate\.pages\.dev$/);
+  if (m && !RESERVED.includes(m[1]) && !/^[a-f0-9]{8}$/.test(m[1])) return m[1];
+  const qs = new URLSearchParams(window.location.search);
+  const qp = qs.get('practice');
+  if (qp) { localStorage.setItem('praxmate_practice', qp); return qp; }
+  return localStorage.getItem('praxmate_practice');
+}
+const PRACTICE_SLUG = resolvePracticeSlug();
+const token = localStorage.getItem('praxmate_token');
+if (!token) window.location.href = '/praxis/' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+
+async function api(path, opts = {}) {
+  const res = await fetch(API_BASE + path, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      ...(PRACTICE_SLUG ? { 'X-Praxmate-Practice': PRACTICE_SLUG } : {}),
+      ...(opts.headers || {}),
+    },
+  });
+  if (res.status === 401) {
+    localStorage.removeItem('praxmate_token');
+    window.location.href = '/praxis/' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+    return null;
+  }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function toast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast visible ' + type;
+  setTimeout(() => t.classList.remove('visible'), 3000);
+}
+
+function calcAge(birthDate) {
+  if (!birthDate) return null;
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age;
+}
+
+function formatDate(dt) {
+  if (!dt) return null;
+  const d = new Date(dt);
+  const today = new Date();
+  const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+  const dateStr = d.toLocaleDateString('de-DE');
+  if (d.toDateString() === today.toDateString()) return 'Heute';
+  if (d.toDateString() === yesterday.toDateString()) return 'Gestern';
+  return dateStr;
+}
+function formatFuture(dt) {
+  if (!dt) return null;
+  const d = new Date(dt);
+  const today = new Date();
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+  if (d.toDateString() === today.toDateString()) return 'Heute ' + d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  if (d.toDateString() === tomorrow.toDateString()) return 'Morgen ' + d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  return d.toLocaleDateString('de-DE') + ' ' + d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+}
+
+// State
+let currentUser = null;
+let practice = null;
+let state = { page: 1, q: '', sort: 'recent' };
+let debounceTimer = null;
+
+async function init() {
+  try {
+    const me = await api('/admin/auth/me');
+    if (!me) return;
+    currentUser = me.user;
+    practice = me.practice;
+    document.getElementById('userName').textContent = me.user.name;
+    document.getElementById('userRole').textContent = ({owner:'Inhaber',doctor:'Behandler',staff:'Team'}[me.user.role]) || me.user.role;
+    document.getElementById('userAvatar').textContent = (me.user.name||'?').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    if (me.practice) {
+      document.getElementById('brandSub').textContent = me.practice.name;
+      if (me.practice.brand_primary) document.documentElement.style.setProperty('--primary', me.practice.brand_primary);
+      // Logo
+      const practiceDetail = await api('/admin/practice/settings');
+      if (practiceDetail?.logo_url) {
+        document.getElementById('brandMark').innerHTML = `<img src="${practiceDetail.logo_url}" alt="">`;
+      }
+    }
+    await loadPatients();
+  } catch (e) {
+    toast('Fehler: ' + e.message, 'error');
+  }
+}
+
+async function loadPatients() {
+  const list = document.getElementById('patientList');
+  list.innerHTML = '<div class="loading">Lade Patienten...</div>';
+
+  try {
+    const params = new URLSearchParams({
+      page: state.page,
+      limit: 50,
+      sort: state.sort,
+    });
+    if (state.q) params.set('q', state.q);
+    const data = await api('/admin/patients?' + params);
+    renderList(data);
+  } catch (e) {
+    list.innerHTML = `<div class="empty-state">Fehler: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+function renderList(data) {
+  const list = document.getElementById('patientList');
+  document.getElementById('totalCount').textContent =
+    `${data.pagination.total} Patient(en) erfasst`;
+
+  if (data.patients.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <div style="font-weight:600; margin-bottom:4px;">${state.q ? 'Keine Treffer' : 'Noch keine Patienten'}</div>
+        <div>${state.q ? 'Versuchen Sie einen anderen Suchbegriff.' : 'Patienten werden automatisch bei der ersten Buchung angelegt.'}</div>
+      </div>
+    `;
+    return;
+  }
+
+  const bgVar = '--primary';
+  list.innerHTML = `
+    <div class="patient-header">
+      <div></div>
+      <div>Name</div>
+      <div>Kontakt</div>
+      <div>Versicherung</div>
+      <div>Termine</div>
+      <div>Zuletzt</div>
+      <div>Nächster</div>
+      <div></div>
+    </div>
+    ${data.patients.map(p => {
+      const initials = (p.first_name[0] + p.last_name[0]).toUpperCase();
+      const age = calcAge(p.birth_date);
+      const last = formatDate(p.last_appt);
+      const next = formatFuture(p.next_appt);
+      return `
+      <a class="patient-row" href="/praxis/patient.html?id=${p.id}">
+        <div class="patient-avatar ${p.is_new_patient ? 'new' : ''}">${escapeHtml(initials)}</div>
+        <div class="patient-name-cell">
+          <div class="name">
+            ${escapeHtml(p.last_name)}, ${escapeHtml(p.first_name)}
+            ${p.is_new_patient ? '<span class="neu-badge">Neu</span>' : ''}
+          </div>
+          <div class="age">${age !== null ? age + ' J.' : ''}${age !== null && p.birth_date ? ' · ' : ''}${p.birth_date ? new Date(p.birth_date).toLocaleDateString('de-DE') : ''}</div>
+        </div>
+        <div class="patient-contact">
+          ${p.email ? `<span class="patient-contact-email">${escapeHtml(p.email)}</span>` : ''}
+          ${p.phone ? `<span class="patient-contact-phone">${escapeHtml(p.phone)}</span>` : ''}
+        </div>
+        <div>
+          <span class="pill ${p.insurance_type || 'gkv'}">${({gkv:'GKV',privat:'Privat',selbst:'Selbstzahler'}[p.insurance_type]) || 'GKV'}</span>
+        </div>
+        <div>
+          <span class="count-badge">${p.appt_count || 0}</span>
+        </div>
+        <div class="last-appt">${last || '—'}</div>
+        <div>
+          ${next ? `<span class="next-appt">${next}</span>` : '<span class="next-appt none">—</span>'}
+        </div>
+        <div class="chevron">›</div>
+      </a>
+    `;}).join('')}
+    <div class="pagination">
+      <div>Seite ${data.pagination.page} von ${data.pagination.total_pages} · ${data.pagination.total} Patienten</div>
+      <div class="pagination-buttons">
+        <button class="page-btn" id="prevBtn" ${state.page <= 1 ? 'disabled' : ''}>← Zurück</button>
+        <button class="page-btn" id="nextBtn" ${state.page >= data.pagination.total_pages ? 'disabled' : ''}>Weiter →</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('prevBtn')?.addEventListener('click', () => { if (state.page > 1) { state.page--; loadPatients(); } });
+  document.getElementById('nextBtn')?.addEventListener('click', () => { state.page++; loadPatients(); });
+}
+
+// Search (debounced)
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    state.q = e.target.value.trim();
+    state.page = 1;
+    loadPatients();
+  }, 250);
+});
+
+// Sort
+document.getElementById('sortSelect').addEventListener('change', (e) => {
+  state.sort = e.target.value;
+  state.page = 1;
+  loadPatients();
+});
+
+// New patient modal
+document.getElementById('newPatientBtn').addEventListener('click', () => {
+  ['pmFirst','pmLast','pmBirth','pmEmail','pmPhone','pmInsNr','pmNotes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pmInsurance').value = 'gkv';
+  document.getElementById('pmNewPatient').checked = true;
+  document.getElementById('patientModal').classList.add('visible');
+});
+
+document.getElementById('pmSaveBtn').addEventListener('click', async () => {
+  const payload = {
+    first_name: document.getElementById('pmFirst').value.trim(),
+    last_name: document.getElementById('pmLast').value.trim(),
+    birth_date: document.getElementById('pmBirth').value || null,
+    email: document.getElementById('pmEmail').value.trim(),
+    phone: document.getElementById('pmPhone').value.trim(),
+    insurance_type: document.getElementById('pmInsurance').value,
+    insurance_number: document.getElementById('pmInsNr').value.trim(),
+    is_new_patient: document.getElementById('pmNewPatient').checked,
+    notes: document.getElementById('pmNotes').value.trim(),
+  };
+  if (!payload.first_name || !payload.last_name) { toast('Vor- und Nachname erforderlich', 'error'); return; }
+  const btn = document.getElementById('pmSaveBtn');
+  btn.disabled = true;
+  try {
+    const result = await api('/admin/patients', { method: 'POST', body: JSON.stringify(payload) });
+    toast('✓ Patient angelegt', 'success');
+    document.getElementById('patientModal').classList.remove('visible');
+    // Redirect to detail
+    window.location.href = '/praxis/patient.html?id=' + result.id + (PRACTICE_SLUG ? '&practice=' + PRACTICE_SLUG : '');
+  } catch (e) {
+    if (e.message.includes('bereits')) {
+      if (confirm(e.message + '\n\nZum bestehenden Patienten wechseln?')) {
+        // Extract existing_id from message if available
+        // Actually, safer: search and redirect
+        state.q = payload.email;
+        state.page = 1;
+        document.getElementById('searchInput').value = payload.email;
+        document.getElementById('patientModal').classList.remove('visible');
+        await loadPatients();
+      }
+    } else {
+      toast('Fehler: ' + e.message, 'error');
+    }
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.querySelectorAll('[data-close]').forEach(el => {
+  el.addEventListener('click', () => document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('visible')));
+});
+
+document.getElementById('userMenu').addEventListener('click', async () => {
+  if (!confirm('Abmelden?')) return;
+  try { await api('/admin/auth/logout', { method: 'POST' }); } catch {}
+  localStorage.removeItem('praxmate_token');
+  window.location.href = '/praxis/' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+});
+
+init();
+</script>
+
+</body>
+</html>
