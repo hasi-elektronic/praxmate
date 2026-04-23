@@ -85,6 +85,7 @@ import {
   handlePatientUpdate,
   handlePatientDelete,
   handlePatientNotes,
+  handlePatientExport,
 } from './routes/patients.js';
 
 // Closures (absences)
@@ -198,6 +199,12 @@ export default {
       const adminPatNotesMatch = path.match(/^\/api\/admin\/patients\/(pat_[a-f0-9]+)\/notes$/);
       if (adminPatNotesMatch && method === 'PUT') {
         return await handlePatientNotes(env, request, adminPatNotesMatch[1]);
+      }
+
+      // GDPR Art. 20 — data portability export (before generic :id route)
+      const adminPatExportMatch = path.match(/^\/api\/admin\/patients\/(pat_[a-f0-9]+)\/export$/);
+      if (adminPatExportMatch && method === 'GET') {
+        return await handlePatientExport(env, request, adminPatExportMatch[1]);
       }
 
       const adminPatMatch = path.match(/^\/api\/admin\/patients\/(pat_[a-f0-9]+)$/);

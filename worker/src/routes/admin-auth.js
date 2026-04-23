@@ -20,9 +20,13 @@ export async function handleLogin(env, request) {
 
   if (!email || !password) return jsonError('E-Mail und Passwort erforderlich', request, 400);
 
-  // Rate limit
-  if (await isRateLimited(env, email, ip)) {
-    return jsonError('Zu viele Anmeldeversuche. Bitte später erneut.', request, 429);
+  // Rate limit — separate email / ip counters (see lib/auth.js)
+  const rl = await isRateLimited(env, email, ip);
+  if (rl.limited) {
+    const msg = rl.reason === 'email'
+      ? 'Zu viele Anmeldeversuche für dieses Konto. Bitte in 15 Minuten erneut.'
+      : 'Zu viele Anmeldeversuche von diesem Netzwerk. Bitte in 15 Minuten erneut.';
+    return jsonError(msg, request, 429);
   }
 
   // Lookup user (globally by email — one login can belong to multiple practices?

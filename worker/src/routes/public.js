@@ -204,8 +204,27 @@ async function getSlots(env, practiceId, type, dateStr, doctorFilter) {
 // ============================================================
 // POST /api/appointments — book (public)
 // ============================================================
+// Rate limit: one IP may create at most BOOKING_MAX_PER_HOUR appointments
+// per hour, across all practices. Prevents reservation-bombing / botting.
+const BOOKING_MAX_PER_HOUR = 5;
+
 export async function handleAppointmentCreate(env, request) {
   const practice = await requirePractice(env, request);
+  const ip = getClientIp(request);
+
+  // Rate limit — count successful bookings from this IP in the last hour.
+  // 'unknown' IP is skipped to avoid locking out all server-side tests;
+  // real abuse always has a concrete CF-Connecting-IP.
+  if (ip && ip !== 'unknown') {
+    const recent = await env.DB.prepare(`
+      SELECT COUNT(*) AS n FROM appointments
+      WHERE created_from_ip = ? AND created_at > datetime('now', '-1 hour')
+    `).bind(ip).first();
+    if ((recent?.n || 0) >= BOOKING_MAX_PER_HOUR) {
+      return jsonError('Zu viele Buchungen von diesem Gerät. Bitte rufen Sie die Praxis direkt an.', request, 429);
+    }
+  }
+
   let body;
   try { body = await request.json(); } catch { return jsonError('Ungültige Anfrage', request, 400); }
 
@@ -216,6 +235,21 @@ export async function handleAppointmentCreate(env, request) {
 
   if (!first_name || !last_name || !email || !phone || !doctor_id || !appointment_type_id || !start_datetime) {
     return jsonError('Alle Pflichtfelder müssen ausgefüllt werden', request, 400);
+  }
+
+  // Basic email / phone sanity — stop obvious spam before hitting the DB.
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    return jsonError('Ungültige E-Mail-Adresse', request, 400);
+  }
+  if (!/^[+0-9\s\-()]{6,}$/.test(phone)) {
+    return jsonError('Ungültige Telefonnummer', request, 400);
+  }
+
+  // Start must be in the future (not just valid — past dates are always rejected).
+  const startDate = new Date(start_datetime);
+  if (isNaN(startDate.getTime())) return jsonError('Ungültiges Datum', request, 400);
+  if (startDate.getTime() < Date.now()) {
+    return jsonError('Termin muss in der Zukunft liegen', request, 400);
   }
 
   // Verify type and doctor belong to this practice

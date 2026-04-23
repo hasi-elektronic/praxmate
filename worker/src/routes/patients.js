@@ -1,4 +1,4 @@
-import { jsonResponse, jsonError } from '../lib/http.js';
+import { jsonResponse, jsonError, corsHeaders } from '../lib/http.js';
 import { requireAuth, requireRole } from '../lib/auth.js';
 import { generateId } from '../lib/crypto.js';
 import { logAudit } from '../lib/audit.js';
@@ -184,11 +184,19 @@ export async function handlePatientUpdate(env, request, patientId) {
   }
 
   const fields = Object.keys(updates);
+  // Whitelist check — defense against field-name injection via `allowed` bypass
+  const ALLOWED_FIELDS = new Set(allowed);
+  for (const f of fields) {
+    if (!ALLOWED_FIELDS.has(f)) {
+      return jsonError(`Unerlaubtes Feld: ${f}`, request, 400);
+    }
+  }
   const setClause = fields.map(f => `${f} = ?`).join(', ');
   const values = fields.map(f => updates[f]);
 
-  await env.DB.prepare(`UPDATE patients SET ${setClause} WHERE id = ?`)
-    .bind(...values, patientId).run();
+  // Defense-in-depth: tenant isolation on the final UPDATE
+  await env.DB.prepare(`UPDATE patients SET ${setClause} WHERE id = ? AND practice_id = ?`)
+    .bind(...values, patientId, user.practice_id).run();
 
   await logAudit(env, {
     practice_id: user.practice_id, actor_type: 'user', actor_id: user.user_id,
@@ -196,7 +204,8 @@ export async function handlePatientUpdate(env, request, patientId) {
     meta: { fields }, request,
   });
 
-  const updated = await env.DB.prepare(`SELECT * FROM patients WHERE id = ?`).bind(patientId).first();
+  const updated = await env.DB.prepare(`SELECT * FROM patients WHERE id = ? AND practice_id = ?`)
+    .bind(patientId, user.practice_id).first();
   return jsonResponse(updated, request);
 }
 
@@ -221,7 +230,8 @@ export async function handlePatientDelete(env, request, patientId) {
     );
   }
 
-  await env.DB.prepare(`DELETE FROM patients WHERE id = ?`).bind(patientId).run();
+  await env.DB.prepare(`DELETE FROM patients WHERE id = ? AND practice_id = ?`)
+    .bind(patientId, user.practice_id).run();
 
   await logAudit(env, {
     practice_id: user.practice_id, actor_type: 'user', actor_id: user.user_id,
@@ -245,8 +255,8 @@ export async function handlePatientNotes(env, request, patientId) {
     .bind(patientId, user.practice_id).first();
   if (!existing) return jsonError('Patient nicht gefunden', request, 404);
 
-  await env.DB.prepare(`UPDATE patients SET notes = ? WHERE id = ?`)
-    .bind(body.notes || null, patientId).run();
+  await env.DB.prepare(`UPDATE patients SET notes = ? WHERE id = ? AND practice_id = ?`)
+    .bind(body.notes || null, patientId, user.practice_id).run();
 
   await logAudit(env, {
     practice_id: user.practice_id, actor_type: 'user', actor_id: user.user_id,
@@ -254,4 +264,100 @@ export async function handlePatientNotes(env, request, patientId) {
   });
 
   return jsonResponse({ ok: true, notes: body.notes }, request);
+}
+
+// ============================================================
+// GET /api/admin/patients/:id/export
+// GDPR Art. 20 — Right to data portability
+// Returns ALL patient data as a machine-readable JSON bundle,
+// ready to hand out / email to the patient upon request.
+// Audit-logged so we have proof of compliance.
+// ============================================================
+export async function handlePatientExport(env, request, patientId) {
+  // Only owner/doctor roles can export PII (staff with limited access excluded)
+  const user = await requireRole(env, request, ['owner', 'doctor']);
+
+  // Fetch patient (tenant-scoped)
+  const patient = await env.DB.prepare(`
+    SELECT * FROM patients WHERE id = ? AND practice_id = ?
+  `).bind(patientId, user.practice_id).first();
+  if (!patient) return jsonError('Patient nicht gefunden', request, 404);
+
+  // All appointments (with doctor/type names for human-readable export)
+  const appointments = await env.DB.prepare(`
+    SELECT a.id, a.booking_code, a.start_datetime, a.end_datetime, a.duration_minutes,
+           a.status, a.source, a.patient_note, a.staff_note,
+           a.confirmed_at, a.cancelled_at, a.cancelled_by, a.cancel_reason,
+           a.created_at, a.created_from_ip,
+           d.name as doctor_name, d.title as doctor_title,
+           t.name as type_name, t.code as type_code
+    FROM appointments a
+    JOIN doctors d ON d.id = a.doctor_id
+    JOIN appointment_types t ON t.id = a.appointment_type_id
+    WHERE a.patient_id = ? AND a.practice_id = ?
+    ORDER BY a.start_datetime DESC
+  `).bind(patientId, user.practice_id).all();
+
+  // Audit trail for actions ON this patient (who viewed/modified their record)
+  const audit = await env.DB.prepare(`
+    SELECT created_at, action, actor_type, actor_id, meta, ip_address
+    FROM audit_log
+    WHERE practice_id = ?
+      AND (
+        (target_type = 'patient' AND target_id = ?)
+        OR (target_type = 'appointment' AND target_id IN (
+          SELECT id FROM appointments WHERE patient_id = ? AND practice_id = ?
+        ))
+      )
+    ORDER BY created_at DESC
+    LIMIT 500
+  `).bind(user.practice_id, patientId, patientId, user.practice_id).all();
+
+  // Practice context (minimal — data controller info)
+  const practice = await env.DB.prepare(`
+    SELECT name, legal_name, street, postal_code, city, email, phone,
+           responsible_person, professional_chamber
+    FROM practices WHERE id = ?
+  `).bind(user.practice_id).first();
+
+  // Log the export itself (GDPR accountability — Art. 5(2))
+  await logAudit(env, {
+    practice_id: user.practice_id,
+    actor_type: 'user',
+    actor_id: user.user_id,
+    action: 'patient.gdpr_export',
+    target_type: 'patient',
+    target_id: patientId,
+    meta: { reason: 'right_to_portability', format: 'json' },
+    request,
+  });
+
+  const filename = `patient_${patient.last_name}_${patient.first_name}_${new Date().toISOString().slice(0,10)}.json`
+    .replace(/[^a-zA-Z0-9._-]/g, '_');
+
+  const body = {
+    export_meta: {
+      generated_at: new Date().toISOString(),
+      generated_by: user.email,
+      legal_basis: 'GDPR Art. 20 (Right to data portability)',
+      data_controller: practice,
+      patient_id: patientId,
+    },
+    patient,
+    appointments: appointments.results,
+    audit_trail: (audit.results || []).map(r => ({
+      ...r,
+      meta: (() => { try { return JSON.parse(r.meta); } catch { return r.meta; } })(),
+    })),
+  };
+
+  return new Response(JSON.stringify(body, null, 2), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Content-Disposition': `attachment; filename="${filename}"`,
+      'X-Content-Type-Options': 'nosniff',
+      ...corsHeaders(request),
+    },
+  });
 }

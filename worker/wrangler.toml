@@ -13,3 +13,4 @@ bucket_name = "hasi-elektronic"
 
 [vars]
 R2_PUBLIC_URL = "https://pub-cf131f1d711447e384202db821c79449.r2.dev"
+SUPER_ADMIN_EMAIL = "h.guencavdi@hasi-elektronic.de"

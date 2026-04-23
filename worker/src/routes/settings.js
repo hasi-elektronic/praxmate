@@ -76,14 +76,16 @@ export async function handlePracticeSettingsUpdate(env, request) {
 // ============================================================
 // SUPER-ADMIN ROUTES
 // ============================================================
-// The super admin is a special user: email === SUPER_ADMIN_EMAIL
-// This user can access cross-tenant management endpoints.
+// The super admin is a special user whose email matches env.SUPER_ADMIN_EMAIL.
+// Configured in wrangler.toml [vars] — overridable per environment.
+// Fallback kept for local/dev, but production MUST set the env var explicitly.
 // ============================================================
-const SUPER_ADMIN_EMAIL = 'h.guencavdi@hasi-elektronic.de';
+const SUPER_ADMIN_EMAIL_FALLBACK = 'h.guencavdi@hasi-elektronic.de';
 
 async function requireSuperAdmin(env, request) {
   const user = await requireAuth(env, request);
-  if (user.email !== SUPER_ADMIN_EMAIL) {
+  const superEmail = env.SUPER_ADMIN_EMAIL || SUPER_ADMIN_EMAIL_FALLBACK;
+  if (user.email !== superEmail) {
     const e = new Error('Nur Super-Admin');
     e.status = 403;
     throw e;

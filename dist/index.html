@@ -298,6 +298,220 @@ a { color: var(--ink); text-decoration: none; }
   .mockup-stats { grid-template-columns: repeat(2, 1fr); }
   .section { padding: 60px 16px; }
 }
+/* ============================================================
+   LIVE DEMO SECTION
+============================================================ */
+.live-demo-section {
+  position: relative;
+  padding-bottom: 80px;
+}
+
+/* Toggle pills */
+.demo-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 5px;
+  background: rgba(10,14,26,0.04);
+  border: 1px solid rgba(10,14,26,0.06);
+  border-radius: 100px;
+  margin: 0 auto 32px;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.demo-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  border-radius: 100px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+  white-space: nowrap;
+}
+.demo-tab:hover { color: var(--ink); }
+.demo-tab.active {
+  background: white;
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(10,14,26,0.08), 0 0 0 1px rgba(14,165,233,0.2);
+}
+.demo-tab-ico { font-size: 16px; line-height: 1; }
+
+/* Stage — holds both panes */
+.demo-stage {
+  display: grid;
+  gap: 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+  transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.demo-stage[data-mode="split"] {
+  grid-template-columns: 1.4fr 1fr;
+}
+.demo-stage[data-mode="doctor"] .demo-pane-patient { display: none; }
+.demo-stage[data-mode="patient"] .demo-pane-doctor { display: none; }
+.demo-stage[data-mode="doctor"],
+.demo-stage[data-mode="patient"] {
+  grid-template-columns: 1fr;
+  max-width: 1100px;
+}
+
+/* Each pane */
+.demo-pane {
+  background: white;
+  border-radius: 18px;
+  border: 1px solid rgba(10,14,26,0.08);
+  overflow: hidden;
+  box-shadow: 0 20px 50px -15px rgba(14,165,233,0.18), 0 8px 20px -8px rgba(20,184,166,0.12);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.demo-pane:hover {
+  box-shadow: 0 25px 60px -15px rgba(14,165,233,0.25), 0 10px 25px -8px rgba(20,184,166,0.18);
+  transform: translateY(-2px);
+}
+
+/* Pane header */
+.demo-pane-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  background: linear-gradient(180deg, rgba(248,250,252,0.6), white);
+  border-bottom: 1px solid rgba(10,14,26,0.06);
+}
+.demo-pane-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  flex-wrap: wrap;
+}
+.demo-pane-badge strong { color: var(--ink); font-weight: 700; }
+.demo-pane-badge-sub { color: var(--muted); font-weight: 400; }
+.demo-pane-badge-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.18);
+  animation: pulse 2.5s infinite;
+  flex-shrink: 0;
+}
+.demo-pane-badge-doctor .demo-pane-badge-dot { background: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,0.18); }
+.demo-pane-badge-patient .demo-pane-badge-dot { background: #14b8a6; box-shadow: 0 0 0 3px rgba(20,184,166,0.18); }
+
+.demo-pane-open {
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid rgba(10,14,26,0.08);
+  transition: all 0.18s;
+  white-space: nowrap;
+  background: white;
+}
+.demo-pane-open:hover {
+  color: var(--ink);
+  border-color: rgba(14,165,233,0.4);
+  background: rgba(14,165,233,0.04);
+}
+
+/* Iframe wrapper */
+.demo-frame-wrap {
+  position: relative;
+  background: #f8fafc;
+  height: 640px;
+  overflow: hidden;
+}
+.demo-stage[data-mode="split"] .demo-frame-wrap { height: 580px; }
+.demo-stage[data-mode="doctor"] .demo-frame-wrap,
+.demo-stage[data-mode="patient"] .demo-frame-wrap { height: 760px; }
+
+.demo-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: white;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.demo-frame.is-loaded { opacity: 1; }
+
+.demo-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  pointer-events: none;
+  background: linear-gradient(180deg, #f8fafc, #ffffff);
+}
+.demo-loading::before {
+  content: '';
+  width: 18px; height: 18px;
+  border: 2px solid rgba(14,165,233,0.2);
+  border-top-color: #0ea5e9;
+  border-radius: 50%;
+  margin-right: 10px;
+  animation: spin 0.8s linear infinite;
+}
+.demo-loading.is-hidden { opacity: 0; pointer-events: none; transition: opacity 0.4s; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Footnote */
+.demo-footnote {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 32px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.demo-footnote-item {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 460px;
+  line-height: 1.5;
+}
+.demo-footnote-item strong { color: var(--ink); font-weight: 700; }
+.demo-footnote-icon { font-size: 18px; line-height: 1.3; flex-shrink: 0; }
+
+/* Mobile: stack panes */
+@media (max-width: 900px) {
+  .demo-stage[data-mode="split"] {
+    grid-template-columns: 1fr;
+  }
+  .demo-stage[data-mode="split"] .demo-frame-wrap { height: 480px; }
+  .demo-tab span:not(.demo-tab-ico) { display: none; }
+  .demo-tab { padding: 10px 16px; }
+}
+@media (max-width: 600px) {
+  .demo-frame-wrap { height: 480px !important; }
+  .demo-pane-head { flex-wrap: wrap; }
+  .demo-footnote { flex-direction: column; align-items: center; gap: 16px; }
+}
+
 </style>
 </head>
 <body>
@@ -344,8 +558,8 @@ a { color: var(--ink); text-decoration: none; }
       <span>Kostenlos testen</span>
       <span class="btn-arrow">→</span>
     </a>
-    <a href="#testimonial" class="btn btn-ghost">
-      <span>Kunden-Stimmen</span>
+    <a href="#live-demo" class="btn btn-ghost">
+      <span>▶ Live ansehen</span>
     </a>
   </div>
 
@@ -413,6 +627,95 @@ a { color: var(--ink); text-decoration: none; }
     <span>Praxis Vayhinger</span>
     <span>Dr. Müller &amp; Kollegen</span>
     <span>Zahnarztzentrum Vaihingen</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     LIVE DEMO — Hem Arzt-Admin hem Patient view aynı sayfada
+============================================================ -->
+<section class="section live-demo-section" id="live-demo">
+  <div class="section-head">
+    <div class="section-eyebrow reveal">Live Demo</div>
+    <h2 class="section-title reveal reveal-delay-1">Beide Seiten auf <span class="grad-text">einen Blick.</span></h2>
+    <p class="section-sub reveal reveal-delay-2">Links die Praxis-Verwaltung, rechts das, was Ihre Patienten sehen. Echte Daten, echte Buchung, kein Fake-Mockup.</p>
+  </div>
+
+  <!-- Mode toggle -->
+  <div class="demo-toggle reveal reveal-delay-3" role="tablist">
+    <button class="demo-tab active" data-demo-mode="split" role="tab" aria-selected="true">
+      <span class="demo-tab-ico">⚌</span>
+      <span>Beide Ansichten</span>
+    </button>
+    <button class="demo-tab" data-demo-mode="doctor" role="tab" aria-selected="false">
+      <span class="demo-tab-ico">👨‍⚕️</span>
+      <span>Praxis-Sicht</span>
+    </button>
+    <button class="demo-tab" data-demo-mode="patient" role="tab" aria-selected="false">
+      <span class="demo-tab-ico">🙋</span>
+      <span>Patienten-Sicht</span>
+    </button>
+  </div>
+
+  <div class="demo-stage reveal reveal-delay-3" data-mode="split">
+    <!-- Doctor view -->
+    <div class="demo-pane demo-pane-doctor">
+      <div class="demo-pane-head">
+        <div class="demo-pane-badge demo-pane-badge-doctor">
+          <span class="demo-pane-badge-dot"></span>
+          <strong>Praxis-Verwaltung</strong>
+          <span class="demo-pane-badge-sub">— Dr. Juliane Hild</span>
+        </div>
+        <a href="https://praxmate.pages.dev/praxis/dashboard?practice=hild" target="_blank" rel="noopener" class="demo-pane-open" title="In neuem Tab öffnen">
+          ↗ Vollbild
+        </a>
+      </div>
+      <div class="demo-frame-wrap">
+        <div class="demo-loading" data-loading="doctor">Lade Praxis-Sicht...</div>
+        <iframe
+          class="demo-frame"
+          data-frame="doctor"
+          title="Praxis-Verwaltung Demo"
+          loading="lazy"
+          src="about:blank"
+          data-src="https://praxmate.pages.dev/praxis/dashboard?practice=hild&demo=1"></iframe>
+      </div>
+    </div>
+
+    <!-- Patient view -->
+    <div class="demo-pane demo-pane-patient">
+      <div class="demo-pane-head">
+        <div class="demo-pane-badge demo-pane-badge-patient">
+          <span class="demo-pane-badge-dot"></span>
+          <strong>Patienten-Buchung</strong>
+          <span class="demo-pane-badge-sub">— wie es Ihre Patienten sehen</span>
+        </div>
+        <a href="https://praxmate.pages.dev/book.html?practice=hild" target="_blank" rel="noopener" class="demo-pane-open" title="In neuem Tab öffnen">
+          ↗ Vollbild
+        </a>
+      </div>
+      <div class="demo-frame-wrap">
+        <div class="demo-loading" data-loading="patient">Lade Patienten-Sicht...</div>
+        <iframe
+          class="demo-frame"
+          data-frame="patient"
+          title="Patienten-Buchung Demo"
+          loading="lazy"
+          src="about:blank"
+          data-src="https://praxmate.pages.dev/book.html?practice=hild&embed=minimal"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demo footnote -->
+  <div class="demo-footnote reveal reveal-delay-4">
+    <div class="demo-footnote-item">
+      <span class="demo-footnote-icon">🔒</span>
+      <span><strong>Sichere Demo:</strong> Hild-Praxis nutzt Test-Daten — Sie können buchen, ohne echte Termine zu erzeugen.</span>
+    </div>
+    <div class="demo-footnote-item">
+      <span class="demo-footnote-icon">💡</span>
+      <span><strong>Tipp:</strong> Buchen Sie rechts einen Termin — er erscheint live im Kalender links.</span>
+    </div>
   </div>
 </section>
 
@@ -716,8 +1019,69 @@ if (mockup && mockupWrap && window.innerWidth > 960) {
   });
   mockupWrap.addEventListener('mouseleave', () => { mockup.style.transform = ''; });
 }
+
+// ============================================================
+// LIVE DEMO — Tab switching + lazy iframe loading
+// ============================================================
+(function initLiveDemo() {
+  const stage = document.querySelector('.demo-stage');
+  const tabs = document.querySelectorAll('.demo-tab');
+  if (!stage || !tabs.length) return;
+
+  // Tab switching
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => {
+        t.classList.toggle('active', t === tab);
+        t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+      });
+      const mode = tab.dataset.demoMode;
+      stage.dataset.mode = mode;
+      // Make sure target iframes are loaded when switching to a single view
+      lazyLoadVisibleFrames();
+    });
+  });
+
+  // Lazy-load iframes only when section enters viewport
+  // (avoids slowing down initial page load)
+  const lazyLoadVisibleFrames = () => {
+    document.querySelectorAll('.demo-frame[data-src]').forEach(frame => {
+      // Only load if pane is visible (not display:none in current mode)
+      const pane = frame.closest('.demo-pane');
+      if (pane && getComputedStyle(pane).display === 'none') return;
+      if (frame.src && frame.src !== 'about:blank' && frame.dataset.src === frame.src) return;
+
+      const src = frame.dataset.src;
+      const loadingEl = pane?.querySelector('.demo-loading');
+      frame.src = src;
+      frame.addEventListener('load', () => {
+        frame.classList.add('is-loaded');
+        if (loadingEl) loadingEl.classList.add('is-hidden');
+      }, { once: true });
+      // Mark as loaded so we don't reset on tab switch
+      frame.dataset.loaded = '1';
+    });
+  };
+
+  // IntersectionObserver: load when scrolled into view
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          lazyLoadVisibleFrames();
+          io.disconnect();
+        }
+      });
+    }, { rootMargin: '200px' });
+    io.observe(stage);
+  } else {
+    // Fallback: load immediately
+    lazyLoadVisibleFrames();
+  }
+})();
 </script>
 
 </body>
 </html>
 <!-- v7 bold landing -->
+<!-- v0.8.1 live demo section -->

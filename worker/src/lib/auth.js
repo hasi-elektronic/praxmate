@@ -1,13 +1,17 @@
 import { generateId, generateToken } from './crypto.js';
 import { getClientIp, getUserAgent } from './http.js';
 
-// Session duration: 8 hours default, 30 days if trust_device
+// Session duration: 8 hours default, 7 days if trust_device
+// (7d is the standard ceiling for medical/PII workflows — avoid 30d tokens)
 const SESSION_HOURS = 8;
-const TRUSTED_DEVICE_DAYS = 30;
+const TRUSTED_DEVICE_DAYS = 7;
 
-// Rate limit: 5 attempts per 15 minutes per email+ip
+// Rate limit: separate counters for email and IP in a 15-min window.
+// Per-email is strict (5) → brute-force on an account.
+// Per-IP is lenient (20) → shared IPs (family, café, praxis WLAN) must not lock out innocent users.
 const RATE_WINDOW_MS = 15 * 60 * 1000;
-const RATE_MAX_ATTEMPTS = 5;
+const RATE_MAX_EMAIL_ATTEMPTS = 5;
+const RATE_MAX_IP_ATTEMPTS = 20;
 
 export async function createSession(env, user, request, trustDevice = false) {
   const token = generateToken(32);
@@ -112,16 +116,26 @@ export async function requireRole(env, request, allowedRoles) {
 
 // ============================================================
 // RATE LIMITING
+// Two independent counters so a single noisy IP (café, praxis WLAN,
+// botnet probe) can't DOS a legitimate user's email — and vice versa.
+// Returns { limited, reason } for observability.
 // ============================================================
 export async function isRateLimited(env, email, ip) {
   const since = new Date(Date.now() - RATE_WINDOW_MS).toISOString();
   const row = await env.DB.prepare(`
-    SELECT COUNT(*) as n FROM login_attempts
-    WHERE (email = ? OR ip_address = ?)
-      AND success = 0
-      AND created_at > ?
+    SELECT
+      SUM(CASE WHEN email = ?      THEN 1 ELSE 0 END) AS email_fails,
+      SUM(CASE WHEN ip_address = ? THEN 1 ELSE 0 END) AS ip_fails
+    FROM login_attempts
+    WHERE success = 0 AND created_at > ?
   `).bind(email, ip, since).first();
-  return row.n >= RATE_MAX_ATTEMPTS;
+
+  const emailFails = row?.email_fails || 0;
+  const ipFails    = row?.ip_fails    || 0;
+
+  if (emailFails >= RATE_MAX_EMAIL_ATTEMPTS) return { limited: true, reason: 'email' };
+  if (ipFails    >= RATE_MAX_IP_ATTEMPTS)    return { limited: true, reason: 'ip' };
+  return { limited: false };
 }
 
 export async function recordLoginAttempt(env, email, practiceId, ip, success) {

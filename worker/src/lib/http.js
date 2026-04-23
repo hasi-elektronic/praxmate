@@ -10,6 +10,16 @@ const ALLOWED_ORIGINS = [
   /^http:\/\/localhost:\d+$/,
 ];
 
+// Security headers applied to every API response.
+// HSTS only gets served over HTTPS by CF, so including it always is safe.
+const SECURITY_HEADERS = {
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'X-Frame-Options': 'DENY',
+  'Permissions-Policy': 'geolocation=(), camera=(), microphone=()',
+};
+
 export function corsHeaders(request, credentials = true) {
   const origin = request.headers.get('Origin');
   const allowed = origin && ALLOWED_ORIGINS.some(re => re.test(origin));
@@ -20,6 +30,7 @@ export function corsHeaders(request, credentials = true) {
     'Access-Control-Allow-Credentials': credentials ? 'true' : 'false',
     'Access-Control-Max-Age': '3600',
     'Vary': 'Origin',
+    ...SECURITY_HEADERS,
   };
 }
 
