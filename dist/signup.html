@@ -522,6 +522,34 @@ form.addEventListener('submit', async (e) => {
     localStorage.setItem('praxmate_practice', data.slug);
 
     signupResult = data;
+
+    // If user came from a pricing card (?plan=team|klinik), skip straight to Stripe Checkout.
+    // solo = default trial, no checkout needed.
+    const paidPlan = new URLSearchParams(location.search).get('plan');
+    if (paidPlan && ['solo', 'team', 'klinik'].includes(paidPlan) && paidPlan !== 'solo') {
+      submitBtn.innerHTML = `<span class="loading"></span>${t('submit_loading')}`;
+      try {
+        const co = await fetch(`${API}/admin/billing/checkout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + data.token,
+            'X-Praxmate-Practice': data.slug,
+          },
+          body: JSON.stringify({
+            plan: paidPlan,
+            return_base: location.origin,
+          }),
+        });
+        const coData = await co.json();
+        if (co.ok && coData.url) {
+          window.location.href = coData.url;
+          return;
+        }
+        // Fallback: show success screen if checkout init fails
+      } catch { /* fall through to success screen */ }
+    }
+
     successUrl.textContent = `${data.slug}.praxmate.de`;
     formCard.style.display = 'none';
     successCard.style.display = 'block';
