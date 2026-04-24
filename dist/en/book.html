@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Termin online buchen — Praxmate</title>
+<meta name="description" content="Book an appointment online">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Hild-branded palette: clean dental blue/teal + white */
+  --ink: #1a2a3a;
+  --ink-soft: #3d5368;
+  --muted: #7a8b9c;
+  --paper: #ffffff;
+  --soft-bg: #f4f8fa;
+  --cream: #eef3f6;
+  --hild-blue: #4a8eb0;
+  --hild-blue-dark: #2d6a8e;
+  --hild-blue-soft: #dceaf3;
+  --hild-accent: #e9b949;
+  --border: #dde4e9;
+  --error: #c84545;
+  --shadow: 0 1px 2px rgba(26,42,58,.04), 0 4px 16px rgba(26,42,58,.05);
+  --shadow-lg: 0 2px 8px rgba(26,42,58,.06), 0 24px 56px rgba(26,42,58,.09);
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: linear-gradient(180deg, var(--soft-bg) 0%, var(--paper) 40%);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 60px 20px 40px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === DEMO BANNER === */
+.demo-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 20px;
+  font-size: 12px;
+  text-align: center;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.demo-banner strong { color: var(--hild-accent); letter-spacing: 0.05em; }
+.demo-banner em { color: var(--hild-blue-soft); font-style: normal; }
+.demo-banner a { color: var(--paper); text-decoration: underline; opacity: 0.7; font-size: 12px; }
+
+/* === WIDGET === */
+.widget {
+  max-width: 680px;
+  margin: 20px auto 0;
+  background: white;
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  animation: fadeIn 0.6s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === PRACTICE HEADER === */
+.practice-head {
+  padding: 32px 36px 28px;
+  border-bottom: 1px solid var(--border);
+  background: white;
+  position: relative;
+  overflow: hidden;
+}
+.practice-head::before {
+  content: '';
+  position: absolute;
+  top: 0; right: -80px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, var(--hild-blue-soft) 0%, transparent 70%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+.practice-top {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+.practice-logo {
+  height: 60px;
+  flex-shrink: 0;
+}
+.practice-logo img {
+  height: 100%;
+  width: auto;
+  display: block;
+}
+.practice-info h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.practice-info p {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.practice-info p span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.practice-info a {
+  color: var(--hild-blue);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.practice-meta {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  gap: 20px;
+  font-size: 12px;
+  color: var(--muted);
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+.practice-meta div strong {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+/* === PROGRESS === */
+.progress {
+  display: flex;
+  gap: 4px;
+  padding: 20px 36px 0;
+}
+.progress-step {
+  flex: 1;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.progress-step.active::after, .progress-step.done::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--hild-blue);
+  animation: fill 0.4s ease-out forwards;
+  transform-origin: left;
+}
+@keyframes fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.step-label {
+  padding: 18px 36px 0;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.step-content {
+  padding: 14px 36px 32px;
+  min-height: 420px;
+  animation: slideIn 0.35s ease-out;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(15px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.step-content h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.step-content > p.subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* === STEP 1: APPOINTMENT TYPE === */
+.type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.type-card {
+  padding: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  font-family: inherit;
+  width: 100%;
+}
+.type-card:hover {
+  border-color: var(--hild-blue);
+  background: var(--hild-blue-soft);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.type-card.selected {
+  border-color: var(--hild-blue);
+  background: var(--hild-blue-soft);
+  box-shadow: 0 0 0 3px rgba(74, 142, 176, 0.15);
+}
+.type-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.type-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: var(--hild-blue-soft);
+  color: var(--hild-blue-dark);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.type-card.selected .type-icon { background: var(--hild-blue); color: white; }
+.type-duration {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 700;
+  background: var(--cream);
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.03em;
+}
+.type-card.selected .type-duration { background: var(--hild-blue-dark); color: white; }
+.type-card h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+.type-card p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* === STEP 2: BEHANDLER === */
+.behandler-list { display: flex; flex-direction: column; gap: 10px; }
+.behandler-card {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+  text-align: left;
+  font-family: inherit;
+  width: 100%;
+}
+.behandler-card:hover {
+  border-color: var(--hild-blue);
+  background: var(--hild-blue-soft);
+}
+.behandler-card.selected {
+  border-color: var(--hild-blue);
+  background: var(--hild-blue-soft);
+  box-shadow: 0 0 0 3px rgba(74, 142, 176, 0.15);
+}
+.behandler-avatar {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--hild-blue) 0%, var(--hild-blue-dark) 100%);
+  color: white;
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.behandler-info h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: var(--ink);
+}
+.behandler-info .role {
+  font-size: 12px;
+  color: var(--hild-blue-dark);
+  font-weight: 600;
+  margin-bottom: 4px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.behandler-info .bio {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.behandler-check {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: transparent;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.behandler-card.selected .behandler-check {
+  background: var(--hild-blue);
+  border-color: var(--hild-blue);
+  color: white;
+}
+
+.behandler-any {
+  margin-top: 4px;
+  padding: 12px 16px;
+  background: var(--cream);
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-family: inherit;
+  width: 100%;
+  text-align: left;
+}
+.behandler-any:hover { border-color: var(--hild-blue); color: var(--hild-blue-dark); }
+.behandler-any.selected {
+  background: var(--hild-blue-soft);
+  border-color: var(--hild-blue);
+  border-style: solid;
+  color: var(--hild-blue-dark);
+  font-weight: 600;
+}
+.behandler-any .icon {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: white;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.behandler-any.selected .icon { color: var(--hild-blue); }
+
+/* === STEP 3: CALENDAR === */
+.cal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.cal-month {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.cal-nav { display: flex; gap: 6px; }
+.cal-nav button {
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--border);
+  background: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--ink-soft);
+  font-size: 14px;
+  transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.cal-nav button:hover:not(:disabled) { border-color: var(--hild-blue); color: var(--hild-blue); }
+.cal-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.cal-label {
+  text-align: center;
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 8px 0;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font-family: inherit;
+}
+.cal-day:hover:not(:disabled):not(.selected) { background: var(--cream); }
+.cal-day:disabled {
+  color: #c8d0d8;
+  cursor: not-allowed;
+}
+.cal-day.muted { color: #d4dce2; pointer-events: none; }
+.cal-day.available::after {
+  content: '';
+  position: absolute;
+  bottom: 5px; left: 50%;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--hild-blue);
+  transform: translateX(-50%);
+}
+.cal-day.selected {
+  background: var(--hild-blue-dark);
+  color: white;
+  font-weight: 600;
+}
+.cal-day.selected::after { background: var(--hild-accent); }
+.cal-day.today { font-weight: 700; box-shadow: inset 0 0 0 1.5px var(--hild-blue); }
+
+.slots-section {
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.slots-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+}
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.slot-btn {
+  padding: 12px 8px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  background: white;
+  font-family: inherit;
+  color: var(--ink);
+  transition: all 0.15s;
+}
+.slot-btn:hover:not(:disabled):not(.selected) { border-color: var(--hild-blue); color: var(--hild-blue); }
+.slot-btn:disabled {
+  opacity: 0.3;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+.slot-btn.selected {
+  background: var(--hild-blue);
+  color: white;
+  border-color: var(--hild-blue);
+}
+
+/* === STEP 4: PATIENT FORM === */
+.form-row { margin-bottom: 18px; }
+.form-row.two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+label .req { color: var(--error); }
+input[type="text"], input[type="email"], input[type="tel"], input[type="date"], textarea, select {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  background: white;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  color: var(--ink);
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--hild-blue);
+  box-shadow: 0 0 0 3px rgba(74, 142, 176, 0.15);
+}
+textarea { resize: vertical; min-height: 70px; }
+
+.radio-row { display: flex; gap: 8px; }
+.radio-card {
+  flex: 1;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.radio-card.selected {
+  border-color: var(--hild-blue);
+  background: var(--hild-blue-soft);
+  color: var(--hild-blue-dark);
+}
+.radio-card input { display: none; }
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  background: var(--cream);
+  border-radius: 10px;
+}
+.checkbox-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+.checkbox-row input { margin-top: 2px; flex-shrink: 0; }
+
+.consent {
+  display: flex;
+  gap: 10px;
+  padding: 14px;
+  background: var(--hild-blue-soft);
+  border-radius: 10px;
+  margin-top: 16px;
+  cursor: pointer;
+  align-items: flex-start;
+  border: 1px solid rgba(74, 142, 176, 0.2);
+}
+.consent input { margin-top: 3px; flex-shrink: 0; accent-color: var(--hild-blue); }
+.consent span { font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+.consent a { color: var(--hild-blue-dark); text-decoration: underline; font-weight: 600; }
+
+/* === STEP 5: CONFIRMATION === */
+.confirm-wrap { text-align: center; padding: 20px 0; }
+.confirm-check {
+  width: 80px; height: 80px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: var(--hild-blue-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--hild-blue-dark);
+  font-size: 40px;
+  animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes pop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.confirm-card {
+  background: var(--cream);
+  border-radius: 14px;
+  padding: 24px;
+  margin: 24px 0;
+  text-align: left;
+}
+.confirm-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(26,42,58,0.08);
+  font-size: 14px;
+  gap: 12px;
+}
+.confirm-row:last-child { border-bottom: none; }
+.confirm-row .key { color: var(--muted); flex-shrink: 0; }
+.confirm-row .val { font-weight: 600; text-align: right; }
+
+.confirm-info {
+  background: var(--hild-blue-soft);
+  color: var(--hild-blue-dark);
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  text-align: left;
+  display: flex;
+  gap: 10px;
+  line-height: 1.5;
+}
+.confirm-info .icon { font-size: 16px; flex-shrink: 0; }
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* === NAV === */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 36px;
+  border-top: 1px solid var(--border);
+  background: var(--soft-bg);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 24px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+.btn-primary { background: var(--hild-blue-dark); color: white; }
+.btn-primary:hover:not(:disabled) { background: var(--ink); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(45, 106, 142, 0.3); }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-ghost { background: transparent; color: var(--ink-soft); padding: 13px 18px; }
+.btn-ghost:hover { color: var(--ink); }
+.btn-outline { background: white; color: var(--ink); border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--hild-blue); color: var(--hild-blue-dark); }
+
+/* === FOOTER === */
+.widget-footer {
+  text-align: center;
+  padding: 14px;
+  font-size: 11px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  background: white;
+}
+.widget-footer a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+@media (max-width: 560px) {
+  body { padding: 50px 10px 20px; }
+  .widget { margin-top: 10px; border-radius: 16px; }
+  .practice-head { padding: 20px; }
+  .practice-top { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .practice-meta { gap: 14px; }
+  .step-content, .nav-buttons, .progress, .step-label { padding-left: 20px; padding-right: 20px; }
+  .type-grid { grid-template-columns: 1fr; }
+  .slots-grid { grid-template-columns: repeat(3, 1fr); }
+  .form-row.two { grid-template-columns: 1fr; }
+  .radio-row { flex-direction: column; }
+}
+/* ========== EMBED MODE ========== */
+html.is-embed, html.is-embed body {
+  background: transparent !important;
+}
+html.is-embed body {
+  margin: 0;
+  padding: 12px;
+}
+html.is-embed .widget {
+  max-width: 100% !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border-radius: 12px;
+}
+html.is-embed-minimal .widget {
+  border: 1px solid var(--border, #e4e7eb);
+}
+html.is-embed-minimal .practice-meta {
+  display: none !important;
+}
+
+</style>
+</head>
+<body>
+
+<div class="widget">
+  <div class="practice-head">
+    <div class="practice-top">
+      <div class="practice-logo">
+        <div id="practice-logo-fallback" style="width:60px;height:60px;border-radius:50%;background:var(--primary, #2d6a8e);color:white;display:flex;align-items:center;justify-content:center;font-family:Playfair Display,serif;font-size:28px;font-weight:600;">P</div>
+      </div>
+      <div class="practice-info">
+        <h1 id="practice-name">Book an appointment</h1>
+        <p id="practice-meta-line">
+          <span id="practice-address">📍 Loading...</span>
+          <span>·</span>
+          <span>☎ <a id="practice-phone" href="#">...</a></span>
+        </p>
+      </div>
+    </div>
+    <div class="practice-meta" id="practice-hours">
+      <div>
+        <strong>Office hours</strong>
+        Mon–Wed 08:00–12:00 · 15:00–18:00
+      </div>
+      <div>
+        <strong>Thu</strong>
+        08:00–12:00 · 13:00–17:00
+      </div>
+      <div>
+        <strong>Fri</strong>
+        08:00–15:00
+      </div>
+    </div>
+  </div>
+
+  <div class="progress">
+    <div class="progress-step" id="prog-1"></div>
+    <div class="progress-step" id="prog-2"></div>
+    <div class="progress-step" id="prog-3"></div>
+    <div class="progress-step" id="prog-4"></div>
+    <div class="progress-step" id="prog-5"></div>
+  </div>
+
+  <div class="step-label" id="step-label">Step 1 of 5</div>
+
+  <!-- STEP 1: Type -->
+  <div class="step-content" id="step-1">
+    <h2>What's it about?</h2>
+    <p class="subtitle">Pick the treatment you need.</p>
+    <div class="type-grid" id="type-grid">
+      <div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--muted);">
+        <div style="font-size:24px; margin-bottom:8px;">⏳</div>
+        Loading treatments...
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: Practitioner -->
+  <div class="step-content" id="step-2" style="display:none;">
+    <h2>Who would you like to see?</h2>
+    <p class="subtitle">Pick your preferred practitioner.</p>
+    <div class="behandler-list" id="behandler-list">
+      <div style="text-align:center; padding:40px; color:var(--muted);">
+        <div style="font-size:24px; margin-bottom:8px;">⏳</div>
+        Loading practitioners...
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Calendar -->
+  <div class="step-content" id="step-3" style="display:none;">
+    <h2>When works for you?</h2>
+    <p class="subtitle">Blue dots mark days with available slots.</p>
+    <div class="cal-head">
+      <div class="cal-month" id="cal-month">April 2026</div>
+      <div class="cal-nav">
+        <button id="cal-prev">‹</button>
+        <button id="cal-next">›</button>
+      </div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="slots-section" id="slots-section" style="display:none;">
+      <div class="slots-title" id="slots-title"></div>
+      <div class="slots-grid" id="slots-grid"></div>
+    </div>
+  </div>
+
+  <!-- STEP 4: Patient Info -->
+  <div class="step-content" id="step-4" style="display:none;">
+    <h2>Your details</h2>
+    <p class="subtitle">So we can link your booking and reach you if needed.</p>
+    <div class="form-row two">
+      <div>
+        <label>First name <span class="req">*</span></label>
+        <input type="text" id="f-firstname" placeholder="Anna">
+      </div>
+      <div>
+        <label>Last name <span class="req">*</span></label>
+        <input type="text" id="f-lastname" placeholder="Schmidt">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Date of birth <span class="req">*</span></label>
+      <input type="date" id="f-birth">
+    </div>
+    <div class="form-row two">
+      <div>
+        <label>Email <span class="req">*</span></label>
+        <input type="email" id="f-email" placeholder="anna@example.com">
+      </div>
+      <div>
+        <label>Phone <span class="req">*</span></label>
+        <input type="tel" id="f-phone" placeholder="+49 176 1234567">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Insurance type <span class="req">*</span></label>
+      <div class="radio-row">
+        <label class="radio-card selected" data-ins="gkv">
+          <input type="radio" name="insurance" value="gkv" checked>
+          Public (statutory)
+        </label>
+        <label class="radio-card" data-ins="privat">
+          <input type="radio" name="insurance" value="privat">
+          Private
+        </label>
+        <label class="radio-card" data-ins="selbst">
+          <input type="radio" name="insurance" value="selbst">
+          Self-pay
+        </label>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Patient status</label>
+      <div class="radio-row">
+        <label class="radio-card" data-pat="bestand">
+          <input type="radio" name="patient" value="bestand">
+          Existing patient
+        </label>
+        <label class="radio-card selected" data-pat="neu">
+          <input type="radio" name="patient" value="neu" checked>
+          New patient
+        </label>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Symptoms or notes <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+      <textarea id="f-note" placeholder="e.g., sensitive tooth upper left, or: pain when chewing since yesterday"></textarea>
+    </div>
+    <label class="consent">
+      <input type="checkbox" id="f-consent">
+      <span>I consent to my data being stored and processed for appointment management. I've read the practice's privacy policy. My data is stored exclusively on servers in Germany (Frankfurt).</span>
+    </label>
+  </div>
+
+  <!-- STEP 5: Confirmation -->
+  <div class="step-content" id="step-5" style="display:none;">
+    <div class="confirm-wrap">
+      <div class="confirm-check">✓</div>
+      <h2>Appointment confirmed!</h2>
+      <p class="subtitle">We've sent you a confirmation by email.</p>
+      <div class="confirm-card">
+        <div class="confirm-row">
+          <span class="key">Treatment</span>
+          <span class="val" id="cf-type">—</span>
+        </div>
+        <div class="confirm-row">
+          <span class="key">Practitioner</span>
+          <span class="val" id="cf-behandler">—</span>
+        </div>
+        <div class="confirm-row">
+          <span class="key">Date</span>
+          <span class="val" id="cf-date">—</span>
+        </div>
+        <div class="confirm-row">
+          <span class="key">Time</span>
+          <span class="val" id="cf-time">—</span>
+        </div>
+        <div class="confirm-row">
+          <span class="key">Duration</span>
+          <span class="val" id="cf-duration">—</span>
+        </div>
+        <div class="confirm-row">
+          <span class="key">Booking #</span>
+          <span class="val" id="cf-id">—</span>
+        </div>
+      </div>
+      <div class="confirm-info">
+        <span class="icon">ℹ</span>
+        <span>You'll receive an automatic reminder by email 24 hours before your appointment. If you need to cancel, please call at least 24h in advance at <strong>07042 14069</strong> or use the link in your confirmation.</span>
+      </div>
+      <div class="confirm-actions">
+        <button class="btn btn-outline" onclick="downloadICS()">📅 Add to calendar</button>
+        <button class="btn btn-outline" onclick="resetBooking()">Book another appointment</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons" id="nav-buttons">
+    <button class="btn btn-ghost" id="btn-back" onclick="prevStep()">← Back</button>
+    <button class="btn btn-primary" id="btn-next" onclick="nextStep()" disabled>Continue →</button>
+  </div>
+
+  <div class="widget-footer" id="widget-footer">
+    Secure &amp; EU-hosted · powered by <a href="/en/">Praxmate</a> · a product by <a href="https://hasi-elektronic.de" target="_blank" rel="noopener">Hasi Elektronic</a>
+  </div>
+</div>
+
+<script>
+// ========== EMBED MODE ==========
+// When loaded inside an iframe with ?embed=1 or ?embed=minimal,
+// strip outer chrome and adapt for embedding.
+(function applyEmbedMode() {
+  const _qs = new URLSearchParams(window.location.search);
+  const embed = _qs.get('embed');
+  if (!embed) return;
+  document.documentElement.classList.add('is-embed');
+  document.body.classList.add('is-embed');
+  if (embed === 'minimal') {
+    document.documentElement.classList.add('is-embed-minimal');
+    // Hide branding footer entirely
+    const f = document.getElementById('widget-footer');
+    if (f) f.style.display = 'none';
+  }
+})();
+</script>
+
+<script>
+const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
+
+// ========== MULTI-TENANT: resolve practice slug ==========
+function resolvePracticeSlug() {
+  const host = window.location.hostname;
+  const RESERVED = ['www','admin','api','app','mail','praxmate'];
+
+  // Pattern A: {slug}.praxmate.de
+  let m = host.match(/^([a-z0-9-]+)\.praxmate\.de$/);
+  if (m && !RESERVED.includes(m[1])) return m[1];
+
+  // Pattern B: {slug}.praxmate.pages.dev
+  m = host.match(/^([a-z0-9-]+)\.praxmate\.pages\.dev$/);
+  if (m && !RESERVED.includes(m[1])) {
+    // Ignore 8-char hex build hashes from Cloudflare preview URLs
+    if (!/^[a-f0-9]{8}$/.test(m[1])) return m[1];
+  }
+
+  // Fallback: ?practice=slug query param
+  const qs = new URLSearchParams(window.location.search);
+  return qs.get('practice');
+}
+const PRACTICE_SLUG = resolvePracticeSlug();
+
+const state = {
+  step: 1,
+  practice: null,
+  types: [],
+  doctors: [],
+  type: null,
+  typeName: null,
+  typeIcon: null,
+  duration: null,
+  behandler: null,
+  behandlerName: null,
+  date: null,
+  time: null,
+  availableSlots: [],
+  monthAvailableDays: [],
+  bookingResult: null,
+  loading: false
+};
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DAYS_LONG = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+const today = new Date();
+today.setHours(0,0,0,0);
+let viewYear = today.getFullYear();
+let viewMonth = today.getMonth();
+
+// =================== API HELPERS ===================
+
+async function api(path, opts = {}) {
+  const res = await fetch(API_BASE + path, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(PRACTICE_SLUG ? { 'X-Praxmate-Practice': PRACTICE_SLUG } : {}),
+      ...(opts.headers || {}),
+    },
+    ...opts,
+  });
+  const text = await res.text();
+  let data;
+  try { data = JSON.parse(text); } catch { data = { error: text }; }
+  if (!res.ok) {
+    const err = new Error(data.error || `HTTP ${res.status}`);
+    err.status = res.status;
+    err.data = data;
+    throw err;
+  }
+  return data;
+}
+
+function showError(msg) {
+  const existing = document.getElementById('live-error');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'live-error';
+  el.style.cssText = 'position:fixed; top:48px; left:50%; transform:translateX(-50%); background:#c84545; color:white; padding:10px 16px; border-radius:8px; font-size:13px; z-index:2000; box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 5000);
+}
+
+// =================== INITIAL LOAD ===================
+
+async function loadPracticeInfo() {
+  try {
+    const p = await api('/practice');
+    state.practice = p;
+    document.getElementById('practice-name').textContent = p.name;
+    // Address parts
+    const addrEl = document.getElementById('practice-address');
+    if (p.street && p.city) {
+      addrEl.textContent = `📍 ${p.street}, ${p.postal_code || ''} ${p.city}`.trim();
+    } else {
+      addrEl.style.display = 'none';
+    }
+    // Phone
+    const phoneEl = document.getElementById('practice-phone');
+    if (p.phone) {
+      phoneEl.textContent = p.phone;
+      phoneEl.href = 'tel:' + p.phone.replace(/\s/g, '');
+    } else {
+      phoneEl.parentElement.style.display = 'none';
+    }
+    document.title = `Book appointment — ${p.name}`;
+
+    // Apply brand colors
+    if (p.brand_primary) {
+      document.documentElement.style.setProperty('--primary', p.brand_primary);
+      document.documentElement.style.setProperty('--hild-blue', p.brand_primary);
+    }
+    if (p.brand_accent) {
+      document.documentElement.style.setProperty('--accent', p.brand_accent);
+      document.documentElement.style.setProperty('--hild-gold', p.brand_accent);
+    }
+
+    // Logo: if practice has logo_url, use it; else show first letter
+    if (p.logo_url) {
+      const logoBox = document.querySelector('.practice-logo');
+      logoBox.innerHTML = `<img src="${p.logo_url}" alt="${escapeHtml(p.name)}"
+        style="max-width:60px;max-height:60px;object-fit:contain;"
+        onerror="this.outerHTML='<div style=&quot;width:60px;height:60px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-family:Playfair Display,serif;font-size:28px;font-weight:600;&quot;>${p.name.charAt(0)}</div>'">`;
+    } else {
+      // First letter fallback
+      const fb = document.getElementById('practice-logo-fallback');
+      if (fb) fb.textContent = p.name.charAt(0);
+    }
+  } catch (e) {
+    showError('Could not load practice info');
+  }
+}
+
+async function loadTypes() {
+  const grid = document.getElementById('type-grid');
+  try {
+    const types = await api('/appointment-types');
+    state.types = types;
+    grid.innerHTML = '';
+    types.forEach(t => {
+      const btn = document.createElement('button');
+      btn.className = 'type-card';
+      btn.dataset.typeId = t.id;
+      btn.innerHTML = `
+        <div class="type-card-top">
+          <div class="type-icon">${t.icon || '🦷'}</div>
+          <div class="type-duration">${t.duration_minutes} Min</div>
+        </div>
+        <h3>${escapeHtml(t.name)}</h3>
+        <p>${escapeHtml(t.description || '')}</p>
+      `;
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+        btn.classList.add('selected');
+        state.type = t.id;
+        state.typeName = t.name;
+        state.typeIcon = t.icon;
+        state.duration = t.duration_minutes;
+        validateCurrentStep();
+      });
+      grid.appendChild(btn);
+    });
+  } catch (e) {
+    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:#c84545;">Could not load treatments. <a href="#" onclick="loadTypes();return false;" style="color:#2d6a8e;">Try again</a></div>';
+  }
+}
+
+async function loadDoctors() {
+  const list = document.getElementById('behandler-list');
+  try {
+    const docs = await api('/doctors');
+    state.doctors = docs;
+    list.innerHTML = '';
+    docs.forEach(d => {
+      const btn = document.createElement('button');
+      btn.className = 'behandler-card';
+      btn.dataset.doctorId = d.id;
+      btn.innerHTML = `
+        <div class="behandler-avatar">${escapeHtml(d.avatar_initials || d.name.split(' ').map(p=>p[0]).join('').slice(0,2))}</div>
+        <div class="behandler-info">
+          <div class="role">${escapeHtml([d.title, d.role].filter(Boolean).join(' · '))}</div>
+          <h4>${escapeHtml(d.name)}</h4>
+          <div class="bio">${escapeHtml(d.bio || '')}</div>
+        </div>
+        <div class="behandler-check">✓</div>
+      `;
+      btn.addEventListener('click', () => onBehandlerSelect(btn, d.id, d.name));
+      list.appendChild(btn);
+    });
+    // "any" option
+    const anyBtn = document.createElement('button');
+    anyBtn.className = 'behandler-any';
+    anyBtn.dataset.doctorId = 'any';
+    anyBtn.innerHTML = `
+      <div class="icon">✓</div>
+      <span>No preference — whoever is available first</span>
+    `;
+    anyBtn.addEventListener('click', () => onBehandlerSelect(anyBtn, 'any', 'Nächster freier Behandler'));
+    list.appendChild(anyBtn);
+  } catch (e) {
+    list.innerHTML = '<div style="text-align:center; padding:20px; color:#c84545;">Could not load practitioners.</div>';
+  }
+}
+
+function onBehandlerSelect(el, id, name) {
+  document.querySelectorAll('.behandler-card, .behandler-any').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.behandler = id;
+  state.behandlerName = name;
+  validateCurrentStep();
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// =================== INSURANCE RADIO ===================
+
+document.querySelectorAll('.radio-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const name = card.querySelector('input').name;
+    document.querySelectorAll(`.radio-card`).forEach(c => {
+      if (c.querySelector('input').name === name) c.classList.remove('selected');
+    });
+    card.classList.add('selected');
+    card.querySelector('input').checked = true;
+  });
+});
+
+// =================== CALENDAR ===================
+
+async function fetchMonthAvailability() {
+  if (!state.type) return;
+  const monthStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
+  const q = new URLSearchParams({ type_id: state.type, month: monthStr });
+  if (state.behandler && state.behandler !== 'any') q.set('doctor_id', state.behandler);
+  try {
+    const r = await api('/availability?' + q.toString());
+    state.monthAvailableDays = r.available_days || [];
+  } catch (e) {
+    state.monthAvailableDays = [];
+    showError('Could not load month availability');
+  }
+}
+
+async function renderCalendar() {
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--muted);">⏳ Lade Verfügbarkeit...</div>';
+  document.getElementById('cal-month').textContent = `${MONTHS[viewMonth]} ${viewYear}`;
+
+  await fetchMonthAvailability();
+
+  grid.innerHTML = '';
+
+  DAYS_SHORT.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-label';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const firstDay = new Date(viewYear, viewMonth, 1);
+  const lastDay = new Date(viewYear, viewMonth + 1, 0);
+  const startPad = (firstDay.getDay() + 6) % 7;
+
+  for (let i = startPad; i > 0; i--) {
+    const prev = new Date(viewYear, viewMonth, 1 - i);
+    const el = document.createElement('div');
+    el.className = 'cal-day muted';
+    el.textContent = prev.getDate();
+    grid.appendChild(el);
+  }
+
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const date = new Date(viewYear, viewMonth, d);
+    const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const btn = document.createElement('button');
+    btn.className = 'cal-day';
+    btn.textContent = d;
+
+    const isPast = date < today;
+    const isToday = date.getTime() === today.getTime();
+    const isAvailable = state.monthAvailableDays.includes(dateStr);
+
+    if (isToday) btn.classList.add('today');
+    if (isPast || !isAvailable) {
+      btn.disabled = true;
+    } else {
+      btn.classList.add('available');
+      btn.addEventListener('click', () => selectDate(dateStr, btn));
+    }
+
+    if (state.date === dateStr) btn.classList.add('selected');
+
+    grid.appendChild(btn);
+  }
+
+  const prevDisabled = (viewYear < today.getFullYear()) ||
+    (viewYear === today.getFullYear() && viewMonth <= today.getMonth());
+  document.getElementById('cal-prev').disabled = prevDisabled;
+
+  const maxDate = new Date(today.getFullYear(), today.getMonth() + 3, 1);
+  const nextDisabled = new Date(viewYear, viewMonth, 1) >= maxDate;
+  document.getElementById('cal-next').disabled = nextDisabled;
+}
+
+async function selectDate(dateStr, btn) {
+  state.date = dateStr;
+  state.time = null;
+  document.querySelectorAll('.cal-day').forEach(c => c.classList.remove('selected'));
+  btn.classList.add('selected');
+  await renderSlots(dateStr);
+  validateCurrentStep();
+}
+
+async function renderSlots(dateStr) {
+  const section = document.getElementById('slots-section');
+  const grid = document.getElementById('slots-grid');
+  const title = document.getElementById('slots-title');
+  section.style.display = 'block';
+  grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:15px; color:var(--muted); font-size:12px;">⏳ Lade Zeiten...</div>';
+
+  const date = new Date(dateStr + 'T00:00:00');
+  const weekday = DAYS_LONG[date.getDay()];
+  const dd = String(date.getDate()).padStart(2,'0');
+  const mm = MONTHS[date.getMonth()];
+  title.textContent = `Available times · ${weekday}, ${mm} ${dd}`;
+
+  const q = new URLSearchParams({ type_id: state.type, date: dateStr });
+  if (state.behandler && state.behandler !== 'any') q.set('doctor_id', state.behandler);
+
+  try {
+    const r = await api('/slots?' + q.toString());
+    // Backend returns a plain array; legacy callers used { slots: [...] }.
+    // Accept both shapes so patient booking works regardless of wrapper.
+    state.availableSlots = Array.isArray(r) ? r : (r?.slots || []);
+    grid.innerHTML = '';
+
+    if (state.availableSlots.length === 0) {
+      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--muted); font-size:13px;">Sorry, no slots available on this day. Please pick another day.</div>';
+      return;
+    }
+
+    state.availableSlots.forEach(slot => {
+      const btn = document.createElement('button');
+      btn.className = 'slot-btn';
+      btn.textContent = slot.time;
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        state.time = slot.time;
+        state.selectedSlotDoctors = slot.available_doctors;
+        validateCurrentStep();
+      });
+      if (state.time === slot.time) btn.classList.add('selected');
+      grid.appendChild(btn);
+    });
+  } catch (e) {
+    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:15px; color:#c84545; font-size:12px;">Could not load times</div>';
+  }
+}
+
+document.getElementById('cal-prev').addEventListener('click', () => {
+  viewMonth--;
+  if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  renderCalendar();
+});
+document.getElementById('cal-next').addEventListener('click', () => {
+  viewMonth++;
+  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  renderCalendar();
+});
+
+// =================== STEP NAVIGATION ===================
+
+function showStep(n) {
+  state.step = n;
+  document.querySelectorAll('.step-content').forEach(el => el.style.display = 'none');
+  const active = document.getElementById(`step-${n}`);
+  if (active) {
+    active.style.display = 'block';
+    active.style.animation = 'none';
+    active.offsetHeight;
+    active.style.animation = '';
+  }
+
+  for (let i = 1; i <= 5; i++) {
+    const p = document.getElementById(`prog-${i}`);
+    p.classList.remove('active', 'done');
+    if (i < n) p.classList.add('done');
+    if (i === n) p.classList.add('active');
+  }
+
+  document.getElementById('step-label').textContent = n < 5
+    ? `Step ${n} of 5`
+    : 'Confirmed';
+
+  const navBtns = document.getElementById('nav-buttons');
+  if (n === 5) {
+    navBtns.style.display = 'none';
+  } else {
+    navBtns.style.display = 'flex';
+    document.getElementById('btn-back').style.visibility = n === 1 ? 'hidden' : 'visible';
+    document.getElementById('btn-next').textContent = n === 4 ? 'Confirm booking ✓' : 'Continue →';
+  }
+
+  validateCurrentStep();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function validateCurrentStep() {
+  let ok = false;
+  if (state.step === 1) ok = !!state.type;
+  if (state.step === 2) ok = !!state.behandler;
+  if (state.step === 3) ok = !!state.date && !!state.time;
+  if (state.step === 4) ok = validateForm() && !state.loading;
+  document.getElementById('btn-next').disabled = !ok;
+}
+
+function validateForm() {
+  const fn = document.getElementById('f-firstname').value.trim();
+  const ln = document.getElementById('f-lastname').value.trim();
+  const birth = document.getElementById('f-birth').value;
+  const email = document.getElementById('f-email').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const consent = document.getElementById('f-consent').checked;
+  return fn && ln && birth && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && phone.length >= 6 && consent;
+}
+
+['f-firstname','f-lastname','f-birth','f-email','f-phone','f-consent'].forEach(id => {
+  document.getElementById(id).addEventListener('input', validateCurrentStep);
+  document.getElementById(id).addEventListener('change', validateCurrentStep);
+});
+
+async function nextStep() {
+  if (state.step === 4) {
+    await confirmBooking();
+    return;
+  }
+  if (state.step === 2) await renderCalendar();
+  showStep(state.step + 1);
+}
+
+function prevStep() {
+  if (state.step > 1) showStep(state.step - 1);
+}
+
+// =================== BOOKING SUBMISSION ===================
+
+async function confirmBooking() {
+  const btn = document.getElementById('btn-next');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ Buchung läuft...';
+  state.loading = true;
+
+  // If user picked "any" behandler, use the first available doctor from the selected slot
+  let doctorId = state.behandler;
+  if (doctorId === 'any' && state.selectedSlotDoctors && state.selectedSlotDoctors.length > 0) {
+    doctorId = state.selectedSlotDoctors[0];
+  }
+
+  const payload = {
+    appointment_type_id: state.type,
+    doctor_id: doctorId,
+    start_datetime: `${state.date}T${state.time}:00`,
+    patient: {
+      first_name: document.getElementById('f-firstname').value.trim(),
+      last_name: document.getElementById('f-lastname').value.trim(),
+      birth_date: document.getElementById('f-birth').value,
+      email: document.getElementById('f-email').value.trim(),
+      phone: document.getElementById('f-phone').value.trim(),
+      insurance_type: document.querySelector('input[name="insurance"]:checked').value,
+      is_new_patient: document.querySelector('input[name="patient"]:checked').value === 'neu',
+      note: document.getElementById('f-note').value.trim() || null
+    },
+    consent: true
+  };
+
+  try {
+    const result = await api('/appointments', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    state.bookingResult = result;
+
+    // Render confirmation
+    document.getElementById('cf-type').textContent = result.type_name;
+    document.getElementById('cf-behandler').textContent = result.doctor_name || 'Wird zugeteilt';
+    const d = new Date(result.start_datetime);
+    document.getElementById('cf-date').textContent = d.toLocaleDateString('de-DE', {
+      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+    });
+    document.getElementById('cf-time').textContent = state.time;
+    document.getElementById('cf-duration').textContent = result.duration_minutes + ' Minuten';
+    document.getElementById('cf-id').textContent = result.booking_code;
+
+    btn.textContent = originalText;
+    state.loading = false;
+    showStep(5);
+  } catch (e) {
+    state.loading = false;
+    btn.disabled = false;
+    btn.textContent = originalText;
+
+    if (e.status === 409) {
+      showError('This slot has just been taken. Please choose another one.');
+      // Go back to calendar
+      state.time = null;
+      showStep(3);
+      if (state.date) await renderSlots(state.date);
+    } else {
+      showError('Buchung fehlgeschlagen: ' + e.message);
+    }
+  }
+}
+
+function resetBooking() {
+  state.step = 1;
+  state.type = null;
+  state.typeName = null;
+  state.typeIcon = null;
+  state.duration = null;
+  state.behandler = null;
+  state.behandlerName = null;
+  state.date = null;
+  state.time = null;
+  state.selectedSlotDoctors = null;
+  state.bookingResult = null;
+
+  document.querySelectorAll('.type-card, .behandler-card, .behandler-any, .slot-btn').forEach(c => c.classList.remove('selected'));
+  document.getElementById('slots-section').style.display = 'none';
+  ['f-firstname','f-lastname','f-birth','f-email','f-phone','f-note'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-consent').checked = false;
+  showStep(1);
+}
+
+function downloadICS() {
+  if (!state.bookingResult) return;
+  const r = state.bookingResult;
+  const start = new Date(r.start_datetime);
+  const end = new Date(r.end_datetime);
+  const fmt = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Praxmate//DE
+BEGIN:VEVENT
+UID:${r.booking_code}@praxmate.de
+DTSTAMP:${fmt(new Date())}
+DTSTART:${fmt(start)}
+DTEND:${fmt(end)}
+SUMMARY:${r.type_name} - ${r.doctor_name || ''}
+LOCATION:${state.practice ? state.practice.name + ', ' + state.practice.address + ', ' + state.practice.postal_code + ' ' + state.practice.city : ''}
+DESCRIPTION:Buchungs-Nr. ${r.booking_code} | Tel. ${state.practice ? state.practice.phone : ''}
+END:VEVENT
+END:VCALENDAR`;
+  const blob = new Blob([ics], { type: 'text/calendar' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `termin-${r.booking_code}.ics`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// =================== INIT ===================
+
+(async function init() {
+  await loadPracticeInfo();
+  await Promise.all([loadTypes(), loadDoctors()]);
+  showStep(1);
+})();
+</script>
+</body>
+</html>
+<!-- v0.7.2 embed -->
+<!-- v0.7.3 force 1776769070 -->
