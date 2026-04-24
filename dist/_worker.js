@@ -40,6 +40,7 @@ export default {
       p.startsWith('/praxis/') ||
       p.startsWith('/admin/') ||
       p.startsWith('/api/') ||
+      p === '/signup.html' ||    // single-file trilingual signup (locale auto-detected)
       p === '/widget.js' ||
       p === '/_headers' ||
       p === '/_redirects';

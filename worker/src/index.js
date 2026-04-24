@@ -95,6 +95,12 @@ import {
   handleClosuresDelete,
 } from './routes/closures.js';
 
+// Public self-service signup
+import {
+  handlePublicSignup,
+  handleSlugCheck,
+} from './routes/signup.js';
+
 // Scheduled jobs
 import { runReminders } from './routes/reminders.js';
 import { runBackup }    from './routes/backup.js';
@@ -136,6 +142,32 @@ export default {
       }
       if (path === '/api/appointments' && method === 'POST') {
         return await handleAppointmentCreate(env, request);
+      }
+
+      // ============================================================
+      // PUBLIC — self-service practice signup
+      // ============================================================
+      if (path === '/api/public/signup' && method === 'POST') {
+        return await handlePublicSignup(env, request);
+      }
+      if (path === '/api/public/signup/check-slug' && method === 'GET') {
+        return await handleSlugCheck(env, request);
+      }
+
+      // One-time migration for signup_rate_limit (remove after first run)
+      if (path === '/api/internal/migrate-signup-rl' && method === 'POST') {
+        const key = request.headers.get('X-Migrate-Key');
+        if (key !== 'praxmate-rl-init-2026') {
+          return jsonError('Forbidden', request, 403);
+        }
+        await env.DB.batch([
+          env.DB.prepare(`CREATE TABLE IF NOT EXISTS signup_rate_limit (
+            ip TEXT NOT NULL, created_at INTEGER NOT NULL,
+            PRIMARY KEY (ip, created_at)
+          )`),
+          env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_signup_rl_time ON signup_rate_limit(created_at)`),
+        ]);
+        return jsonResponse({ ok: true, table: 'signup_rate_limit' }, request);
       }
 
       // Patient self-service by magic_token

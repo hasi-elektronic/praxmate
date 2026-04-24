@@ -320,6 +320,19 @@ CREATE INDEX idx_login_attempts_email_time ON login_attempts(email, created_at D
 CREATE INDEX idx_login_attempts_ip_time ON login_attempts(ip_address, created_at DESC);
 
 -- ============================================================
+-- SIGNUP RATE LIMIT (self-service signup anti-abuse)
+-- Hold one row per successful signup per IP, pruned every call.
+-- 3/IP/24h is enough to deter botnets without blocking legitimate staff
+-- (e.g. same office opening practices for 2 clinics on the same IP).
+-- ============================================================
+CREATE TABLE IF NOT EXISTS signup_rate_limit (
+  ip         TEXT NOT NULL,
+  created_at INTEGER NOT NULL,           -- unix seconds
+  PRIMARY KEY (ip, created_at)
+);
+CREATE INDEX IF NOT EXISTS idx_signup_rl_time ON signup_rate_limit(created_at);
+
+-- ============================================================
 -- DOMAINS (custom domains per practice)
 -- ============================================================
 CREATE TABLE practice_domains (
