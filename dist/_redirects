@@ -1,0 +1,8 @@
+# ============================================================
+# Praxmate — _redirects (used for www-normalization only)
+# ============================================================
+# Hostname-based language routing is handled by _worker.js.
+# ============================================================
+
+https://www.praxmate.com/*   https://praxmate.com/:splat   301!
+https://www.praxmate.de/*    https://praxmate.de/:splat    301!
