@@ -97,6 +97,7 @@ import {
 
 // Scheduled jobs
 import { runReminders } from './routes/reminders.js';
+import { runBackup }    from './routes/backup.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -369,7 +370,14 @@ export default {
   // Scheduled jobs (wrangler.toml [triggers] crons)
   // ============================================================
   async scheduled(event, env, ctx) {
-    // The only cron we have: hourly reminder sweep.
-    ctx.waitUntil(runReminders(env));
+    // Multiple crons share this single handler — branch on cron expression.
+    const cron = event.cron;
+    if (cron === '0 3 * * *') {
+      // 03:00 UTC daily — full DB backup → R2
+      ctx.waitUntil(runBackup(env));
+    } else {
+      // All other crons (currently the hourly "0 * * * *") = reminder sweep
+      ctx.waitUntil(runReminders(env));
+    }
   },
 };

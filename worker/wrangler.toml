@@ -16,6 +16,8 @@ R2_PUBLIC_URL = "https://pub-cf131f1d711447e384202db821c79449.r2.dev"
 SUPER_ADMIN_EMAIL = "h.guencavdi@hasi-elektronic.de"
 RESEND_FROM_EMAIL = "Praxmate <noreply@machbar24.com>"
 
-# Hourly sweep for 24-hour reminder emails
+# Schedules:
+#   "0 * * * *"   — hourly: 24h reminder sweep
+#   "0 3 * * *"   — daily 03:00 UTC: full DB snapshot to R2 (30d retention)
 [triggers]
-crons = ["0 * * * *"]
+crons = ["0 * * * *", "0 3 * * *"]
