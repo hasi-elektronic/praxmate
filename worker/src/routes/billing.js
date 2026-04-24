@@ -79,6 +79,9 @@ export async function handleCheckoutStart(env, request) {
   }
 
   // ===== Create Checkout Session =====
+  // Use automatic_payment_methods so Checkout shows whatever the merchant has
+  // enabled in Stripe Dashboard (card, SEPA Direct Debit, PayPal, etc.) and
+  // Stripe filters to only those compatible with subscriptions.
   const session = await stripeRequest(env, 'POST', '/checkout/sessions', {
     customer: customerId,
     mode: 'subscription',
@@ -87,6 +90,9 @@ export async function handleCheckoutStart(env, request) {
     success_url: `${returnBase}/praxis/billing.html?status=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url:  `${returnBase}/praxis/billing.html?status=cancelled`,
     locale: practice.locale?.slice(0, 2) || 'de',
+    // Show all subscription-eligible payment methods the account has enabled.
+    // As SEPA/PayPal/etc. get turned on in Dashboard, they appear here automatically.
+    'automatic_payment_methods[enabled]': 'true',
     // Only pass trial_period_days if > 0 (Stripe rejects 0 as invalid)
     ...(trialDays > 0 ? { 'subscription_data[trial_period_days]': trialDays } : {}),
     'subscription_data[metadata][practice_id]': practice.id,
