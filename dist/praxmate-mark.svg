@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+      <defs>
+        <linearGradient id="gradient-main" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"  stop-color="#0ea5e9"/>
+          <stop offset="50%" stop-color="#06b6d4"/>
+          <stop offset="100%" stop-color="#14b8a6"/>
+        </linearGradient>
+      </defs>
+      
+
+      <!-- The ring: clock dial, attentive eye, calendar aperture -->
+      <circle cx="512.0" cy="512.0" r="312.0"
+              fill="none" stroke="url(#gradient-main)" stroke-width="96.0"/>
+
+      <!-- The kept moment: a single filled disc at 2 o'clock -->
+      <circle cx="573.2" cy="405.9984905767847" r="79.2" fill="#0f172a"/>
+    </svg>
