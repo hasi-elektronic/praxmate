@@ -51,6 +51,10 @@ CREATE TABLE practices (
   stripe_price_id        TEXT,       -- price_... (current subscription price)
   current_period_end     TEXT,       -- ISO8601, set by webhook on invoice.payment_succeeded
 
+  -- Trial expiry reminder idempotency (one of: 7, 3, 1, 0 — highest threshold already emailed).
+  -- Prevents duplicate reminders when the hourly cron re-evaluates the same tenant.
+  trial_reminder_sent_at INTEGER,
+
   -- Timestamps
   created_at TEXT DEFAULT (datetime('now')),
   activated_at TEXT,

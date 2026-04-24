@@ -110,8 +110,9 @@ import {
 } from './routes/billing.js';
 
 // Scheduled jobs
-import { runReminders } from './routes/reminders.js';
-import { runBackup }    from './routes/backup.js';
+import { runReminders }      from './routes/reminders.js';
+import { runBackup }         from './routes/backup.js';
+import { runTrialReminders } from './routes/trial-reminders.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -167,6 +168,42 @@ export default {
 
       // (Removed: one-time /api/internal/migrate-stripe + /reset-rl endpoints.
       //  Migrations applied; test cleanup done. Deleted for security.)
+
+      // One-time: add trial_reminder_sent_at column for trial reminder idempotency
+      if (path === '/api/internal/migrate-trial-reminder' && method === 'POST') {
+        if (request.headers.get('X-Migrate-Key') !== 'praxmate-trial-init-2026') {
+          return jsonError('Forbidden', request, 403);
+        }
+        try {
+          await env.DB.prepare(
+            `ALTER TABLE practices ADD COLUMN trial_reminder_sent_at INTEGER`
+          ).run();
+          return jsonResponse({ ok: true, applied: true }, request);
+        } catch (e) {
+          if (/duplicate column name/i.test(String(e.message))) {
+            return jsonResponse({ ok: true, applied: false, note: 'already applied' }, request);
+          }
+          throw e;
+        }
+      }
+
+      // On-demand backup trigger (key-gated) — same code path as the daily cron.
+      if (path === '/api/internal/backup-now' && method === 'POST') {
+        if (request.headers.get('X-Migrate-Key') !== 'praxmate-backup-2026') {
+          return jsonError('Forbidden', request, 403);
+        }
+        const result = await runBackup(env);
+        return jsonResponse(result, request);
+      }
+
+      // On-demand trial reminder sweep (for testing outside the hourly cron)
+      if (path === '/api/internal/trial-reminders-now' && method === 'POST') {
+        if (request.headers.get('X-Migrate-Key') !== 'praxmate-trial-init-2026') {
+          return jsonError('Forbidden', request, 403);
+        }
+        const result = await runTrialReminders(env);
+        return jsonResponse(result, request);
+      }
 
       // ============================================================
       // PUBLIC — Stripe webhook (signed, no user auth)
@@ -426,8 +463,9 @@ export default {
       // 03:00 UTC daily — full DB backup → R2
       ctx.waitUntil(runBackup(env));
     } else {
-      // All other crons (currently the hourly "0 * * * *") = reminder sweep
+      // Hourly "0 * * * *" — run both appointment reminders and trial expiry sweep
       ctx.waitUntil(runReminders(env));
+      ctx.waitUntil(runTrialReminders(env));
     }
   },
 };
