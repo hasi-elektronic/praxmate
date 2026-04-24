@@ -553,10 +553,10 @@ body {
         @click="setFilter('today')"
         type="button"
       >
-        <div class="stat-label">Heute</div>
+        <div class="stat-label">{{ t('dash.stat_today') }}</div>
         <div class="stat-value">{{ stats?.today ?? '—' }}</div>
-        <div class="stat-sub">Termine geplant</div>
-        <div class="stat-hint">Tippen für Details</div>
+        <div class="stat-sub">{{ t('dash.stat_today_sub') }}</div>
+        <div class="stat-hint">{{ t('dash.stat_hint') }}</div>
       </button>
       <button
         class="stat-card"
@@ -564,10 +564,10 @@ body {
         @click="setFilter('week')"
         type="button"
       >
-        <div class="stat-label">Diese Woche</div>
+        <div class="stat-label">{{ t('dash.stat_week') }}</div>
         <div class="stat-value">{{ stats?.this_week ?? '—' }}</div>
-        <div class="stat-sub">Termine gesamt</div>
-        <div class="stat-hint">Tippen für Details</div>
+        <div class="stat-sub">{{ t('dash.stat_week_sub') }}</div>
+        <div class="stat-hint">{{ t('dash.stat_hint') }}</div>
       </button>
       <button
         class="stat-card"
@@ -575,10 +575,10 @@ body {
         @click="setFilter('noshows')"
         type="button"
       >
-        <div class="stat-label">No-Shows</div>
+        <div class="stat-label">{{ t('dash.stat_noshows') }}</div>
         <div class="stat-value">{{ stats?.noshows_week ?? '—' }}</div>
-        <div class="stat-sub">diese Woche</div>
-        <div class="stat-hint">Tippen für Details</div>
+        <div class="stat-sub">{{ t('dash.stat_noshows_sub') }}</div>
+        <div class="stat-hint">{{ t('dash.stat_hint') }}</div>
       </button>
       <button
         class="stat-card"
@@ -586,10 +586,10 @@ body {
         @click="setFilter('new_patients')"
         type="button"
       >
-        <div class="stat-label">Neupatienten</div>
+        <div class="stat-label">{{ t('dash.stat_new_patients') }}</div>
         <div class="stat-value">{{ stats?.new_patients_month ?? '—' }}</div>
-        <div class="stat-sub">diesen Monat</div>
-        <div class="stat-hint">Tippen für Details</div>
+        <div class="stat-sub">{{ t('dash.stat_new_patients_sub') }}</div>
+        <div class="stat-hint">{{ t('dash.stat_hint') }}</div>
       </button>
     </div>
 
@@ -600,7 +600,7 @@ body {
             <div class="panel-title">{{ panelTitle }}</div>
             <div class="panel-sub" v-if="panelSub">{{ panelSub }}</div>
           </div>
-          <a class="panel-action" href="/praxis/new-appointment.html">+ Termin hinzufügen</a>
+          <a class="panel-action" href="/praxis/new-appointment.html">{{ t('dash.quick_add_appt') }}</a>
         </div>
         <div v-if="loadingFilter" class="empty">
           <div class="spinner-big" style="margin: 10px auto; width: 24px; height: 24px; border-width: 2px;"></div>
@@ -619,12 +619,12 @@ body {
             <div class="appt-body">
               <div class="appt-name">
                 {{ appt.first_name }} {{ appt.last_name }}
-                <span v-if="appt.is_new_patient" class="new-badge">Neu</span>
-                <span v-if="appt.status === 'noshow'" class="new-badge" style="background:#d68a1f;color:white;">No-Show</span>
+                <span v-if="appt.is_new_patient" class="new-badge">{{ t('appt.new_patient') }}</span>
+                <span v-if="appt.status === 'noshow'" class="new-badge" style="background:#d68a1f;color:white;">{{ t('appt.status_noshow') }}</span>
               </div>
               <div class="appt-meta">
                 <span class="appt-type-pill">{{ appt.type_icon }} {{ appt.type_name }}</span>
-                <span>{{ appt.duration_minutes }} Min</span>
+                <span>{{ appt.duration_minutes }} {{ minutesUnit }}</span>
                 <span>· {{ insuranceLabel(appt.insurance_type) }}</span>
               </div>
             </div>
@@ -639,31 +639,31 @@ body {
       <div style="display: flex; flex-direction: column; gap: 20px;">
         <div class="panel">
           <div class="panel-head">
-            <div class="panel-title">Schnellaktionen</div>
+            <div class="panel-title">{{ t('dash.quick_title') }}</div>
           </div>
           <div class="quick-actions">
             <a href="/praxis/new-appointment.html" class="quick-btn primary">
               <span class="quick-btn-icon">+</span>
-              <span>Termin für Anrufer erstellen</span>
+              <span>{{ t('dash.quick_new_appt') }}</span>
             </a>
             <a href="/praxis/patients.html" class="quick-btn">
               <span class="quick-btn-icon">🔍</span>
-              <span>Patient suchen</span>
+              <span>{{ t('dash.quick_search') }}</span>
             </a>
             <a href="/demo-hild-live" target="_blank" class="quick-btn">
               <span class="quick-btn-icon">🌐</span>
-              <span>Online-Widget öffnen</span>
+              <span>{{ t('dash.quick_widget') }}</span>
             </a>
             <button class="quick-btn" @click="refresh">
               <span class="quick-btn-icon">↻</span>
-              <span>Aktualisieren</span>
+              <span>{{ t('dash.quick_refresh') }}</span>
             </button>
           </div>
         </div>
 
         <div class="panel" v-if="activity.length > 0">
           <div class="panel-head">
-            <div class="panel-title">Letzte Aktivität</div>
+            <div class="panel-title">{{ t('dash.activity_title') }}</div>
           </div>
           <div class="activity-list">
             <div v-for="(a, i) in activity.slice(0, 8)" :key="i" class="activity-row">
@@ -840,25 +840,30 @@ createApp({
       return {};
     }
 
+    // i18n — reactive language ref + t() helper
+    const lang = ref(window.i18n ? window.i18n.getLang() : 'de');
+    if (window.i18n) window.i18n.onChange(l => { lang.value = l; });
+    const t = (key) => { void lang.value; return window.i18n ? window.i18n.t(key) : key; };
+    const dateLocale = computed(() => ({ de: 'de-DE', en: 'en-GB', tr: 'tr-TR' }[lang.value] || 'de-DE'));
+    const minutesUnit = computed(() => ({ de: 'Min', en: 'min', tr: 'dk' }[lang.value] || 'Min'));
+
     const firstName = computed(() => user.value?.name.split(' ')[0] || '');
     const userInitials = computed(() => {
       if (!user.value) return '';
       return user.value.name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
     });
-    const roleLabel = computed(() => {
-      const r = user.value?.role;
-      return r === 'owner' ? 'Inhaberin' : r === 'doctor' ? 'Behandler' : 'Rezeption';
-    });
+    const roleLabel = computed(() => t('role.' + (user.value?.role || 'staff')));
 
     const greeting = computed(() => {
       const h = new Date().getHours();
-      if (h < 11) return 'Guten Morgen';
-      if (h < 17) return 'Guten Tag';
-      return 'Guten Abend';
+      if (h < 11) return t('dash.greet_morning');
+      if (h < 17) return t('dash.greet_day');
+      return t('dash.greet_evening');
     });
 
     const todayFormatted = computed(() => {
-      return new Date().toLocaleDateString('de-DE', {
+      void lang.value;
+      return new Date().toLocaleDateString(dateLocale.value, {
         weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
       });
     });
@@ -873,31 +878,33 @@ createApp({
     // ==================== FILTER LOGIC ====================
     const panelTitle = computed(() => {
       switch (activeFilter.value) {
-        case 'today': return 'Heutige Termine';
-        case 'week': return 'Termine diese Woche';
-        case 'noshows': return 'No-Shows diese Woche';
-        case 'new_patients': return 'Neupatienten diesen Monat';
-        default: return 'Termine';
+        case 'today': return t('dash.panel_today');
+        case 'week': return t('dash.panel_week');
+        case 'noshows': return t('dash.panel_noshows');
+        case 'new_patients': return t('dash.panel_new_patients');
+        default: return t('dash.stat_today');
       }
     });
 
     const panelSub = computed(() => {
       const n = filteredList.value.length;
+      if (n === 0) return '';
+      const unit = t(n === 1 ? 'dash.appt_count_one' : 'dash.appt_count_many');
       switch (activeFilter.value) {
-        case 'today': return n === 0 ? '' : `${n} Termin${n === 1 ? '' : 'e'}`;
-        case 'week': return n === 0 ? '' : `${n} Termin${n === 1 ? '' : 'e'} · Mo–So`;
-        case 'noshows': return n === 0 ? '' : `${n} ausgefallen`;
-        case 'new_patients': return n === 0 ? '' : `${n} neue Patient${n === 1 ? '' : 'en'}`;
+        case 'today': return `${n} ${unit}`;
+        case 'week': return `${n} ${unit}`;
+        case 'noshows': return `${n} ${t('appt.status_noshow').toLowerCase()}`;
+        case 'new_patients': return `${n} ${t('appt.new_patient').toLowerCase()}`;
         default: return '';
       }
     });
 
     const emptyMessage = computed(() => {
       switch (activeFilter.value) {
-        case 'today': return 'Heute keine Termine geplant.';
-        case 'week': return 'Diese Woche keine Termine.';
-        case 'noshows': return '🎉 Keine No-Shows diese Woche!';
-        case 'new_patients': return 'Keine Neupatienten diesen Monat.';
+        case 'today': return t('dash.empty_today');
+        case 'week': return t('dash.empty_week');
+        case 'noshows': return t('dash.empty_noshows');
+        case 'new_patients': return t('dash.empty_new_patients');
         default: return 'Keine Einträge.';
       }
     });
@@ -958,44 +965,39 @@ createApp({
 
     function formatTime(iso) {
       const d = new Date(iso);
-      return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+      return d.toLocaleTimeString(dateLocale.value, { hour: '2-digit', minute: '2-digit' });
     }
 
     function formatDateShort(iso) {
       const d = new Date(iso);
-      const days = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+      const daysByLang = {
+        de: ['So','Mo','Di','Mi','Do','Fr','Sa'],
+        en: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+        tr: ['Paz','Pzt','Sal','Çrş','Prş','Cum','Cmt'],
+      };
+      const days = daysByLang[lang.value] || daysByLang.de;
       return `${days[d.getDay()]} ${d.getDate()}.${d.getMonth() + 1}.`;
     }
 
     function formatFullDate(iso) {
       if (!iso) return '';
       const d = new Date(iso);
-      return d.toLocaleDateString('de-DE', {
+      return d.toLocaleDateString(dateLocale.value, {
         weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
       });
     }
 
     function formatBirthDate(iso) {
       if (!iso) return '—';
-      return new Date(iso + 'T00:00:00').toLocaleDateString('de-DE');
+      return new Date(iso + 'T00:00:00').toLocaleDateString(dateLocale.value);
     }
 
     function statusLabel(s) {
-      return {
-        confirmed: 'Bestätigt',
-        cancelled: 'Abgesagt',
-        completed: 'Erledigt',
-        noshow: 'Nicht erschienen',
-      }[s] || s;
+      return t('appt.status_' + s) || s;
     }
 
     function sourceLabel(s) {
-      return {
-        online: '🌐 Online vom Patienten',
-        staff: '👤 Durch Team erfasst',
-        phone: '☎ Telefonisch',
-        walkin: '🚶 Walk-in',
-      }[s] || s;
+      return t('appt.source_' + s) || s;
     }
 
     function openAppointment(appt) {
@@ -1010,47 +1012,83 @@ createApp({
       if (!selectedAppt.value) return;
       const name = `${selectedAppt.value.first_name} ${selectedAppt.value.last_name}`;
       const time = formatTime(selectedAppt.value.start_datetime);
-      if (!confirm(`Termin von ${name} um ${time} Uhr wirklich absagen?`)) return;
+      if (!confirm(t('appt.confirm_cancel'))) return;
 
       cancelling.value = true;
       try {
         await api('/admin/appointments/' + selectedAppt.value.id, {
           method: 'DELETE',
-          body: JSON.stringify({ reason: 'Abgesagt durch Team' })
+          body: JSON.stringify({ reason: t('appt.cancelled') })
         });
-        showToast('Termin abgesagt', 'success');
+        showToast(t('appt.cancelled'), 'success');
         closeAppointment();
         await refresh();
       } catch (e) {
-        showToast('Fehler: ' + e.message, 'error');
+        showToast((t('g.error_load') || 'Error') + ': ' + e.message, 'error');
       } finally {
         cancelling.value = false;
       }
     }
 
-    function insuranceLabel(t) {
-      return t === 'gkv' ? 'GKV' : t === 'privat' ? 'Privat' : 'Selbstzahler';
+    function insuranceLabel(ins) {
+      return t('appt.ins_' + (ins || 'gkv')) || ins;
     }
 
     function formatAction(a) {
-      const map = {
-        'appointment.created': '📅 Termin erstellt',
-        'appointment.cancelled': '❌ Termin storniert',
-        'user.login': '🔐 Anmeldung',
-        'user.password_changed': '🔑 Passwort geändert',
+      // Emoji + localized action strings — keeps audit log readable across languages
+      const ICONS = {
+        'appointment.created': '📅',
+        'appointment.cancelled': '❌',
+        'user.login': '🔐',
+        'user.password_changed': '🔑',
+        'email.confirmation_sent': '✉️',
+        'email.reminder_sent': '🔔',
       };
-      return map[a] || a;
+      const LABELS_DE = {
+        'appointment.created': 'Termin erstellt',
+        'appointment.cancelled': 'Termin storniert',
+        'user.login': 'Anmeldung',
+        'user.password_changed': 'Passwort geändert',
+        'email.confirmation_sent': 'Bestätigungs-Mail gesendet',
+        'email.reminder_sent': 'Erinnerung gesendet',
+      };
+      const LABELS_EN = {
+        'appointment.created': 'Appointment created',
+        'appointment.cancelled': 'Appointment cancelled',
+        'user.login': 'Sign-in',
+        'user.password_changed': 'Password changed',
+        'email.confirmation_sent': 'Confirmation sent',
+        'email.reminder_sent': 'Reminder sent',
+      };
+      const LABELS_TR = {
+        'appointment.created': 'Randevu oluşturuldu',
+        'appointment.cancelled': 'Randevu iptal edildi',
+        'user.login': 'Giriş',
+        'user.password_changed': 'Şifre değişti',
+        'email.confirmation_sent': 'Onay e-postası gönderildi',
+        'email.reminder_sent': 'Hatırlatma gönderildi',
+      };
+      const set = lang.value === 'en' ? LABELS_EN : lang.value === 'tr' ? LABELS_TR : LABELS_DE;
+      const label = set[a] || a;
+      const icon = ICONS[a] || '';
+      return (icon ? icon + ' ' : '') + label;
     }
 
     function formatRelative(iso) {
       const d = new Date(iso);
       const diff = Date.now() - d.getTime();
       const mins = Math.floor(diff / 60000);
-      if (mins < 1) return 'gerade eben';
-      if (mins < 60) return `vor ${mins} Min`;
+      const l = lang.value;
+      const unitMin = { de: 'Min', en: 'min', tr: 'dk' }[l] || 'Min';
+      const unitHr  = { de: 'Std', en: 'h',   tr: 'sa' }[l] || 'Std';
+      const nowLabel = { de: 'gerade eben', en: 'just now', tr: 'az önce' }[l] || 'just now';
+      const agoPrefix = { de: 'vor ', en: '', tr: '' }[l] ?? '';
+      const agoSuffix = { de: '', en: ' ago', tr: ' önce' }[l] ?? '';
+      if (mins < 1) return nowLabel;
+      if (mins < 60) return `${agoPrefix}${mins} ${unitMin}${agoSuffix}`;
       const hours = Math.floor(mins / 60);
-      if (hours < 24) return `vor ${hours} Std`;
-      return d.toLocaleDateString('de-DE');
+      if (hours < 24) return `${agoPrefix}${hours} ${unitHr}${agoSuffix}`;
+      return d.toLocaleDateString(dateLocale.value);
     }
 
     async function api(path, opts = {}) {
@@ -1104,7 +1142,7 @@ createApp({
         activity.value = dashData.recent_activity || [];
         // Re-apply current filter
         await setFilter(activeFilter.value);
-        showToast('Aktualisiert', 'success');
+        showToast(t('dash.refreshed'), 'success');
       } catch (e) {
         showToast('Fehler: ' + e.message, 'error');
       }
@@ -1134,6 +1172,8 @@ createApp({
       activeFilter, filteredList, loadingFilter,
       panelTitle, panelSub, emptyMessage, setFilter,
       refresh, logout,
+      // i18n
+      t, lang, minutesUnit,
     };
   }
 }).mount('#app');
