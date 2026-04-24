@@ -118,6 +118,40 @@
       'g.no':  'Nein',
       'g.save': 'Speichern',
       'g.cancel': 'Abbrechen',
+      'g.search': 'Suchen',
+      'g.back': 'Zurück',
+      'g.new': 'Neu',
+      // Page titles
+      'page.dashboard':      'Dashboard',
+      'page.new_appointment':'Neuer Termin',
+      'page.calendar':       'Kalender',
+      'page.patients':       'Patienten',
+      'page.settings':       'Einstellungen',
+      'page.patient':        'Patient',
+      // Calendar
+      'cal.view_day':        'Tag',
+      'cal.view_week':       'Woche',
+      'cal.view_month':      'Monat',
+      'cal.today':           'Heute',
+      'cal.no_events':       'Keine Termine.',
+      // Patients
+      'pat.search_placeholder': 'Name, E-Mail, Telefon suchen...',
+      'pat.count_one':       'Patient',
+      'pat.count_many':      'Patienten',
+      'pat.empty':           'Keine Patienten gefunden.',
+      'pat.sort_recent':     'Letzter Besuch',
+      'pat.sort_name':       'Name (A–Z)',
+      'pat.sort_appts':      'Meiste Termine',
+      'pat.add':             '+ Patient anlegen',
+      // Settings sections
+      'set.section_practice':   'Praxis',
+      'set.section_doctors':    'Behandler',
+      'set.section_types':      'Behandlungen',
+      'set.section_hours':      'Öffnungszeiten',
+      'set.section_users':      'Team',
+      'set.section_closures':   'Urlaub / Schließungen',
+      'set.section_branding':   'Logo & Farben',
+      'set.save_changes':       'Änderungen speichern',
     },
 
     en: {
@@ -218,6 +252,36 @@
       'g.no':  'No',
       'g.save': 'Save',
       'g.cancel': 'Cancel',
+      'g.search': 'Search',
+      'g.back': 'Back',
+      'g.new': 'New',
+      'page.dashboard':      'Dashboard',
+      'page.new_appointment':'New appointment',
+      'page.calendar':       'Calendar',
+      'page.patients':       'Patients',
+      'page.settings':       'Settings',
+      'page.patient':        'Patient',
+      'cal.view_day':        'Day',
+      'cal.view_week':       'Week',
+      'cal.view_month':      'Month',
+      'cal.today':           'Today',
+      'cal.no_events':       'No appointments.',
+      'pat.search_placeholder': 'Search name, email, phone...',
+      'pat.count_one':       'patient',
+      'pat.count_many':      'patients',
+      'pat.empty':           'No patients found.',
+      'pat.sort_recent':     'Last visit',
+      'pat.sort_name':       'Name (A–Z)',
+      'pat.sort_appts':      'Most appointments',
+      'pat.add':             '+ Add patient',
+      'set.section_practice':   'Practice',
+      'set.section_doctors':    'Practitioners',
+      'set.section_types':      'Treatments',
+      'set.section_hours':      'Office hours',
+      'set.section_users':      'Team',
+      'set.section_closures':   'Time off / closures',
+      'set.section_branding':   'Logo & colors',
+      'set.save_changes':       'Save changes',
     },
 
     tr: {
@@ -318,6 +382,36 @@
       'g.no':  'Hayır',
       'g.save': 'Kaydet',
       'g.cancel': 'Vazgeç',
+      'g.search': 'Ara',
+      'g.back': 'Geri',
+      'g.new': 'Yeni',
+      'page.dashboard':      'Panel',
+      'page.new_appointment':'Yeni Randevu',
+      'page.calendar':       'Takvim',
+      'page.patients':       'Hastalar',
+      'page.settings':       'Ayarlar',
+      'page.patient':        'Hasta',
+      'cal.view_day':        'Gün',
+      'cal.view_week':       'Hafta',
+      'cal.view_month':      'Ay',
+      'cal.today':           'Bugün',
+      'cal.no_events':       'Randevu yok.',
+      'pat.search_placeholder': 'İsim, e-posta, telefon ara...',
+      'pat.count_one':       'hasta',
+      'pat.count_many':      'hasta',
+      'pat.empty':           'Hasta bulunamadı.',
+      'pat.sort_recent':     'Son ziyaret',
+      'pat.sort_name':       'İsim (A–Z)',
+      'pat.sort_appts':      'En çok randevu',
+      'pat.add':             '+ Hasta ekle',
+      'set.section_practice':   'Klinik',
+      'set.section_doctors':    'Hekimler',
+      'set.section_types':      'Tedaviler',
+      'set.section_hours':      'Çalışma saatleri',
+      'set.section_users':      'Ekip',
+      'set.section_closures':   'İzin / Kapalı günler',
+      'set.section_branding':   'Logo ve renkler',
+      'set.save_changes':       'Değişiklikleri kaydet',
     },
   };
 
@@ -363,8 +457,30 @@
     supported: () => SUPPORTED.slice(),
   };
 
-  // Auto-dispatch on page load so Vue components can bind to a reactive flag
+  // ========================================================
+  // DOM auto-translation for non-Vue pages:
+  // Any element with `data-i18n="key"` has its textContent replaced.
+  // Any element with `data-i18n-attr="attr:key"` gets that attribute set.
+  // ========================================================
+  function applyDomI18n(root = document) {
+    root.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (key) el.textContent = t(key);
+    });
+    root.querySelectorAll('[data-i18n-attr]').forEach(el => {
+      const spec = el.getAttribute('data-i18n-attr');
+      // spec: "placeholder:pat.search_placeholder,title:g.search"
+      (spec || '').split(',').forEach(pair => {
+        const [attr, key] = pair.split(':').map(s => s && s.trim());
+        if (attr && key) el.setAttribute(attr, t(key));
+      });
+    });
+  }
+
+  onChange(() => applyDomI18n());
+
   document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.dataset.lang = current;
+    applyDomI18n();
   });
 })();
