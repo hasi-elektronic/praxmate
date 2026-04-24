@@ -576,6 +576,7 @@ form.addEventListener('submit', async (e) => {
       && (paidPlan !== 'solo' || mode === 'direct' || mode === 'trial7');
     if (needsCheckout) {
       submitBtn.innerHTML = `<span class="loading"></span>${t('submit_loading')}`;
+      let coErr = null;
       try {
         const co = await fetch(`${API}/admin/billing/checkout`, {
           method: 'POST',
@@ -595,8 +596,16 @@ form.addEventListener('submit', async (e) => {
           window.location.href = coData.url;
           return;
         }
-        // Fallback: show success screen if checkout init fails
-      } catch { /* fall through to success screen */ }
+        coErr = coData?.error || `HTTP ${co.status}`;
+      } catch (e) {
+        coErr = e?.message || 'network error';
+      }
+      // Show the error so the user can retry rather than silently landing on success screen
+      console.error('[signup] checkout failed:', coErr);
+      errBox.textContent = 'Zahlungsseite konnte nicht geöffnet werden: ' + coErr
+        + ' · Ihre Praxis wurde angelegt — Sie können später über "Abo" im Admin-Bereich bezahlen.';
+      errBox.classList.add('visible');
+      // Fall through to success screen so the user still sees their login URL
     }
 
     // Show the working URL (path-based until wildcard DNS is set up)

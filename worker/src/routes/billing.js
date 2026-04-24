@@ -103,7 +103,7 @@ export async function handleCheckoutStart(env, request) {
     actor_type: 'user',
     actor_id: user.user_id,
     action: 'billing.checkout_started',
-    meta: { plan, price_id: priceId, session_id: session.id, trial_days: daysLeft },
+    meta: { plan, price_id: priceId, session_id: session.id, trial_days: trialDays, mode: mode || null },
     request,
   });
 
