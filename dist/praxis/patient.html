@@ -391,7 +391,7 @@ async function init() {
       document.getElementById('brandSub')?.replaceChildren(document.createTextNode(me.practice.name));
       if (me.practice.brand_primary) document.documentElement.style.setProperty('--primary', me.practice.brand_primary);
       const detail = await api('/admin/practice/settings');
-      if (detail?.logo_url) { const _m = document.getElementById('brandMark'); if (_m) _m.innerHTML = `<img src="${detail.logo_url}" alt="">`; }
+      if (detail?.logo_url) { const _m = document.getElementById('brandMark'); if (_m) { const __img = document.createElement('img'); __img.src = detail.logo_url; __img.alt = ''; _m.replaceChildren(__img); } }
     }
 
     await loadPatient();

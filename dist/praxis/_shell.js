@@ -160,7 +160,7 @@
           if (detailRes.ok) {
             const detail = await detailRes.json();
             if (detail?.logo_url) {
-              markEl.innerHTML = `<img src="${detail.logo_url}" alt="">`;
+              { const __img = document.createElement('img'); __img.src = detail.logo_url; __img.alt = ''; markEl.replaceChildren(__img); }
             }
           }
         } catch {}

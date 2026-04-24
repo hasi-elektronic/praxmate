@@ -1088,11 +1088,20 @@ async function loadPracticeInfo() {
     }
 
     // Logo: if practice has logo_url, use it; else show first letter
+    // Use createElement (NOT innerHTML) to neutralize any injection in logo_url.
     if (p.logo_url) {
       const logoBox = document.querySelector('.practice-logo');
-      logoBox.innerHTML = `<img src="${p.logo_url}" alt="${escapeHtml(p.name)}"
-        style="max-width:60px;max-height:60px;object-fit:contain;"
-        onerror="this.outerHTML='<div style=&quot;width:60px;height:60px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-family:Playfair Display,serif;font-size:28px;font-weight:600;&quot;>${p.name.charAt(0)}</div>'">`;
+      const img = document.createElement('img');
+      img.src = p.logo_url;
+      img.alt = p.name || '';
+      img.style.cssText = 'max-width:60px;max-height:60px;object-fit:contain;';
+      img.onerror = () => {
+        const fb = document.createElement('div');
+        fb.style.cssText = 'width:60px;height:60px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-family:Playfair Display,serif;font-size:28px;font-weight:600;';
+        fb.textContent = (p.name || '?').charAt(0);
+        img.replaceWith(fb);
+      };
+      logoBox.replaceChildren(img);
     } else {
       // First letter fallback
       const fb = document.getElementById('practice-logo-fallback');

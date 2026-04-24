@@ -328,18 +328,29 @@ export async function handleAppointmentCreate(env, request) {
   const bookingCode = generateBookingCode();
   const magicToken = generateToken(24);
 
-  await env.DB.prepare(`
-    INSERT INTO appointments
-      (id, booking_code, magic_token, practice_id, patient_id, doctor_id, appointment_type_id,
-       start_datetime, end_datetime, duration_minutes, status, source,
-       patient_note, confirmed_at, created_from_ip)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', 'online', ?, datetime('now'), ?)
-  `).bind(
-    apptId, bookingCode, magicToken, practice.id, patientId, doctor_id, appointment_type_id,
-    start_datetime, end_datetime, type.duration_minutes,
-    patient_note || null,
-    getClientIp(request)
-  ).run();
+  // INSERT — guarded against double-booking by the partial UNIQUE index
+  // idx_appt_no_double on (doctor_id, start_datetime). If two patients race
+  // for the same slot, the loser hits a constraint violation here.
+  try {
+    await env.DB.prepare(`
+      INSERT INTO appointments
+        (id, booking_code, magic_token, practice_id, patient_id, doctor_id, appointment_type_id,
+         start_datetime, end_datetime, duration_minutes, status, source,
+         patient_note, confirmed_at, created_from_ip)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', 'online', ?, datetime('now'), ?)
+    `).bind(
+      apptId, bookingCode, magicToken, practice.id, patientId, doctor_id, appointment_type_id,
+      start_datetime, end_datetime, type.duration_minutes,
+      patient_note || null,
+      getClientIp(request)
+    ).run();
+  } catch (e) {
+    // SQLite UNIQUE constraint failure surfaces as "UNIQUE constraint failed"
+    if (/UNIQUE/i.test(e.message || '')) {
+      return jsonError('Zeitraum inzwischen belegt', request, 409);
+    }
+    throw e;
+  }
 
   await logAudit(env, {
     practice_id: practice.id,

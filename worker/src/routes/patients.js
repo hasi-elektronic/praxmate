@@ -16,7 +16,7 @@ export async function handlePatientsList(env, request) {
   const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') || '50')));
   const offset = (page - 1) * limit;
 
-  let where = 'p.practice_id = ?';
+  let where = 'p.practice_id = ? AND p.deleted_at IS NULL';
   const binds = [user.practice_id];
 
   if (q.length >= 2) {
@@ -70,7 +70,7 @@ export async function handlePatientDetailFull(env, request, patientId) {
       (SELECT COUNT(*) FROM appointments a WHERE a.patient_id = p.id AND a.status = 'cancelled') as cancelled_count,
       (SELECT COUNT(*) FROM appointments a WHERE a.patient_id = p.id AND a.status = 'noshow') as noshow_count
     FROM patients p
-    WHERE p.id = ? AND p.practice_id = ?
+    WHERE p.id = ? AND p.practice_id = ? AND p.deleted_at IS NULL
   `).bind(patientId, user.practice_id).first();
   if (!patient) return jsonError('Patient nicht gefunden', request, 404);
 
@@ -211,35 +211,45 @@ export async function handlePatientUpdate(env, request, patientId) {
 
 // ============================================================
 // DELETE /api/admin/patients/:id (owner only)
-// Only if no appointments exist — otherwise soft-hide
+// SOFT DELETE — sets deleted_at timestamp.
+// The row stays so audit log + appointment history remain intact.
+// Use ?hard=1 + anonymize=1 for full GDPR Art. 17 (right to erasure).
 // ============================================================
 export async function handlePatientDelete(env, request, patientId) {
   const user = await requireRole(env, request, ['owner']);
+  const url = new URL(request.url);
+  const hard = url.searchParams.get('hard') === '1';
+  const anonymize = url.searchParams.get('anonymize') === '1';
 
   const patient = await env.DB.prepare(`
     SELECT first_name, last_name,
       (SELECT COUNT(*) FROM appointments WHERE patient_id = ?) as appt_count
-    FROM patients WHERE id = ? AND practice_id = ?
+    FROM patients WHERE id = ? AND practice_id = ? AND deleted_at IS NULL
   `).bind(patientId, patientId, user.practice_id).first();
   if (!patient) return jsonError('Patient nicht gefunden', request, 404);
 
-  if (patient.appt_count > 0) {
-    return jsonError(
-      `Patient hat ${patient.appt_count} Termin(e). Löschen nicht möglich. Bitte nur Daten anonymisieren.`,
-      request, 409
-    );
+  if (anonymize) {
+    // GDPR Art. 17: NULL out PII, mark anonymized_at + deleted_at, keep audit trail
+    await env.DB.prepare(`UPDATE patients SET
+      first_name = 'Anonymisiert', last_name = '',
+      birth_date = NULL, email = NULL, phone = NULL, insurance_number = NULL,
+      notes = NULL, marketing_consent = 0,
+      anonymized_at = datetime('now'), deleted_at = datetime('now')
+      WHERE id = ? AND practice_id = ?`).bind(patientId, user.practice_id).run();
+  } else {
+    // Soft delete: restore-able for 30 days; cron job purges after that
+    await env.DB.prepare(`UPDATE patients SET deleted_at = datetime('now')
+      WHERE id = ? AND practice_id = ?`).bind(patientId, user.practice_id).run();
   }
-
-  await env.DB.prepare(`DELETE FROM patients WHERE id = ? AND practice_id = ?`)
-    .bind(patientId, user.practice_id).run();
 
   await logAudit(env, {
     practice_id: user.practice_id, actor_type: 'user', actor_id: user.user_id,
-    action: 'patient.deleted', target_type: 'patient', target_id: patientId,
-    meta: { name: `${patient.first_name} ${patient.last_name}` }, request,
+    action: anonymize ? 'patient.anonymized' : 'patient.soft_deleted',
+    target_type: 'patient', target_id: patientId,
+    meta: { name: `${patient.first_name} ${patient.last_name}`, appt_count: patient.appt_count }, request,
   });
 
-  return jsonResponse({ ok: true }, request);
+  return jsonResponse({ ok: true, mode: anonymize ? 'anonymized' : 'soft_deleted' }, request);
 }
 
 // ============================================================

@@ -1037,7 +1037,7 @@ function applyBrand() {
   if (practice.brand_primary) document.documentElement.style.setProperty('--primary', practice.brand_primary);
   if (practice.logo_url) {
     const oldMark = document.getElementById('brandMark');
-    if (oldMark) oldMark.innerHTML = `<img src="${practice.logo_url}" alt="">`;
+    if (oldMark) { const __img = document.createElement('img'); __img.src = practice.logo_url; __img.alt = ''; oldMark.replaceChildren(__img); }
     // Sidebar shell handles its own logo via sbBrandMark
   }
 }
@@ -1054,7 +1054,7 @@ function updateLogoPreview() {
   const preview = document.getElementById('logoPreview');
   const removeBtn = document.getElementById('logoRemoveBtn');
   if (practice?.logo_url) {
-    preview.innerHTML = `<img src="${practice.logo_url}" alt="Logo">`;
+    { const __img = document.createElement('img'); __img.src = practice.logo_url; __img.alt = 'Logo'; preview.replaceChildren(__img); }
     removeBtn.style.display = '';
   } else {
     const color = practice?.brand_primary || '#2d6a8e';

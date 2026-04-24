@@ -193,12 +193,16 @@ CREATE TABLE patients (
   marketing_consent INTEGER DEFAULT 0,
   created_at TEXT DEFAULT (datetime('now')),
   created_by_user_id TEXT,           -- NULL = created via online booking
-  last_visit_at TEXT
+  last_visit_at TEXT,
+  -- Soft-delete + GDPR
+  deleted_at TEXT,                   -- soft-delete (restore-able for 30 days)
+  anonymized_at TEXT                 -- GDPR Art. 17: PII NULL'd, audit kept
 );
 
 CREATE INDEX idx_patients_practice ON patients(practice_id);
 CREATE INDEX idx_patients_name ON patients(practice_id, last_name, first_name);
 CREATE INDEX idx_patients_email ON patients(practice_id, email);
+CREATE INDEX idx_patients_deleted_at ON patients(deleted_at) WHERE deleted_at IS NOT NULL;
 
 -- ============================================================
 -- APPOINTMENTS
@@ -232,13 +236,20 @@ CREATE TABLE appointments (
   last_modified_at TEXT,
 
   created_at TEXT DEFAULT (datetime('now')),
-  created_from_ip TEXT
+  created_from_ip TEXT,
+  deleted_at TEXT                    -- soft-delete
 );
 
 CREATE INDEX idx_appt_practice_date ON appointments(practice_id, start_datetime);
 CREATE INDEX idx_appt_doctor_date ON appointments(doctor_id, start_datetime);
 CREATE INDEX idx_appt_patient ON appointments(patient_id);
 CREATE INDEX idx_appt_status ON appointments(practice_id, status);
+CREATE INDEX idx_appointments_deleted_at ON appointments(deleted_at) WHERE deleted_at IS NOT NULL;
+-- Race-condition-proof double-booking prevention at the DB level.
+-- The app's pre-check (SELECT before INSERT) is no longer the only line of defense.
+CREATE UNIQUE INDEX idx_appt_no_double
+  ON appointments(doctor_id, start_datetime)
+  WHERE status NOT IN ('cancelled','noshow') AND deleted_at IS NULL;
 
 -- ============================================================
 -- SESSIONS (admin login)

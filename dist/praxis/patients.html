@@ -466,7 +466,7 @@ async function init() {
       // Logo
       const practiceDetail = await api('/admin/practice/settings');
       if (practiceDetail?.logo_url) {
-        { const _m = document.getElementById('brandMark'); if (_m) _m.innerHTML = `<img src="${practiceDetail.logo_url}" alt="">`; }
+        { const _m = document.getElementById('brandMark'); if (_m) { const __img = document.createElement('img'); __img.src = practiceDetail.logo_url; __img.alt = ''; _m.replaceChildren(__img); } }
       }
     }
     await loadPatients();

@@ -1406,7 +1406,7 @@ async function openEditModal(practiceId) {
         if (!res.ok) throw new Error(data.error || 'Upload fehlgeschlagen');
 
         // Update preview
-        logoPreview.innerHTML = `<img src="${data.logo_url}" alt="Logo">`;
+        { const __img = document.createElement('img'); __img.src = data.logo_url; __img.alt = 'Logo'; logoPreview.replaceChildren(__img); }
         edLogoField.value = data.logo_url;
         logoRemoveBtn.style.display = '';
 
