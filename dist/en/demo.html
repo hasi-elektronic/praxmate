@@ -241,7 +241,7 @@ a { color: inherit; text-decoration: none; }
       <li>No confirmation email — this is just a demo</li>
       <li>Mobile-optimized, GDPR-compliant</li>
     </ul>
-    <a class="tile-cta" href="/book.html?practice=demo&amp;lang=en" target="_blank" rel="noopener">
+    <a class="tile-cta" href="/en/book.html?practice=demo-en" target="_blank" rel="noopener">
       <span class="tile-cta-label">Open as patient</span>
       <span>→</span>
     </a>
@@ -267,7 +267,7 @@ a { color: inherit; text-decoration: none; }
       <span class="tile-cta-spin"></span>
     </button>
     <div class="tile-creds">
-      Or sign in yourself: email <code>demo@praxmate.de</code> · password <code>DemoPraxmate2026</code>
+      Or sign in yourself: email <code>demo-en@praxmate.de</code> · password <code>DemoPraxmate2026</code>
     </div>
     <div class="tile-err" id="admin-err"></div>
   </div>
@@ -327,10 +327,10 @@ a { color: inherit; text-decoration: none; }
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Praxmate-Practice': 'demo',
+          'X-Praxmate-Practice': 'demo-en',
         },
         body: JSON.stringify({
-          email: 'demo@praxmate.de',
+          email: 'demo-en@praxmate.de',
           password: 'DemoPraxmate2026',
         }),
       });
@@ -339,10 +339,10 @@ a { color: inherit; text-decoration: none; }
 
       // Persist session for the praxis shell (same origin)
       localStorage.setItem('praxmate_token', d.token);
-      localStorage.setItem('praxmate_practice', 'demo');
+      localStorage.setItem('praxmate_practice', 'demo-en');
 
       // Open dashboard in new tab
-      window.open('/praxis/dashboard.html?practice=demo', '_blank', 'noopener');
+      window.open('/praxis/dashboard.html?practice=demo-en', '_blank', 'noopener');
     } catch (e) {
       err.textContent = 'Oops — ' + (e.message || 'unknown error') + '. Please sign in manually.';
       err.classList.add('is-on');

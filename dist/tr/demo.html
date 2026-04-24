@@ -241,7 +241,7 @@ a { color: inherit; text-decoration: none; }
       <li>Onay e-postası yok — bu sadece demo</li>
       <li>Mobil uyumlu, KVKK & GDPR uyumlu</li>
     </ul>
-    <a class="tile-cta" href="/tr/book.html?practice=demo" target="_blank" rel="noopener">
+    <a class="tile-cta" href="/tr/book.html?practice=demo-tr" target="_blank" rel="noopener">
       <span class="tile-cta-label">Hasta olarak aç</span>
       <span>→</span>
     </a>
@@ -267,7 +267,7 @@ a { color: inherit; text-decoration: none; }
       <span class="tile-cta-spin"></span>
     </button>
     <div class="tile-creds">
-      Ya da kendiniz giriş yapın: e-posta <code>demo@praxmate.de</code> · şifre <code>DemoPraxmate2026</code>
+      Ya da kendiniz giriş yapın: e-posta <code>demo-tr@praxmate.de</code> · şifre <code>DemoPraxmate2026</code>
     </div>
     <div class="tile-err" id="admin-err"></div>
   </div>
@@ -327,10 +327,10 @@ a { color: inherit; text-decoration: none; }
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Praxmate-Practice': 'demo',
+          'X-Praxmate-Practice': 'demo-tr',
         },
         body: JSON.stringify({
-          email: 'demo@praxmate.de',
+          email: 'demo-tr@praxmate.de',
           password: 'DemoPraxmate2026',
         }),
       });
@@ -339,10 +339,10 @@ a { color: inherit; text-decoration: none; }
 
       // Persist session for the praxis shell (same origin)
       localStorage.setItem('praxmate_token', d.token);
-      localStorage.setItem('praxmate_practice', 'demo');
+      localStorage.setItem('praxmate_practice', 'demo-tr');
 
       // Open dashboard in new tab
-      window.open('/praxis/dashboard.html?practice=demo', '_blank', 'noopener');
+      window.open('/praxis/dashboard.html?practice=demo-tr', '_blank', 'noopener');
     } catch (e) {
       err.textContent = 'Hata — ' + (e.message || 'bilinmeyen hata') + '. Lütfen manuel giriş yapın.';
       err.classList.add('is-on');

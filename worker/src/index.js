@@ -95,6 +95,8 @@ import {
   handleClosuresDelete,
 } from './routes/closures.js';
 
+// (seed endpoint removed after use — demo-tr + demo-en are live)
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
