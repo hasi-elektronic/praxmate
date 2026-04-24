@@ -188,6 +188,54 @@ export async function handleBillingStatus(env, request) {
 }
 
 // ============================================================
+// GET /api/admin/billing/invoices?limit=12
+// List recent Stripe invoices for the practice's customer.
+// Any authenticated team member can view; PDF + hosted URLs come straight from Stripe.
+// ============================================================
+export async function handleInvoicesList(env, request) {
+  const user = await requireRole(env, request, ['owner', 'doctor', 'staff']);
+  const practice = await getPracticeById(env, user.practice_id);
+  if (!practice) return jsonError('Praxis nicht gefunden', request, 404);
+
+  const ctx = stripeContextFor(env, practice);
+  const customerId = ctx.mode === 'test'
+    ? practice.stripe_test_customer_id
+    : practice.stripe_customer_id;
+  if (!customerId) return jsonResponse({ invoices: [], stripe_mode: ctx.mode }, request);
+
+  const limit = Math.max(1, Math.min(50, parseInt(new URL(request.url).searchParams.get('limit') || '12', 10)));
+
+  let data;
+  try {
+    data = await stripeRequest(ctx, 'GET', `/invoices?customer=${encodeURIComponent(customerId)}&limit=${limit}`);
+  } catch (e) {
+    return jsonError('Stripe-Aufruf fehlgeschlagen: ' + (e?.message || 'unknown'), request, 502);
+  }
+
+  const invoices = (data.data || []).map(inv => ({
+    id: inv.id,
+    number: inv.number,                              // "PRX-2026-001" (Stripe-issued sequential)
+    status: inv.status,                              // draft / open / paid / void / uncollectible
+    amount_paid_cents: inv.amount_paid,
+    amount_due_cents:  inv.amount_due,
+    currency: (inv.currency || 'eur').toUpperCase(),
+    created: inv.created,                            // unix seconds
+    period_start: inv.period_start,
+    period_end:   inv.period_end,
+    paid_at: inv.status_transitions?.paid_at || null,
+    pdf_url: inv.invoice_pdf,                        // direct PDF download (signed)
+    hosted_url: inv.hosted_invoice_url,              // Stripe-hosted HTML invoice page
+    description: inv.lines?.data?.[0]?.description || null,
+  }));
+
+  return jsonResponse({
+    invoices,
+    stripe_mode: ctx.mode,
+    has_more: data.has_more || false,
+  }, request);
+}
+
+// ============================================================
 // POST /api/public/stripe-webhook
 // Verify Stripe signature, update practice state, return 200 fast.
 // ============================================================

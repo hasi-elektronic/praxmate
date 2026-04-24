@@ -101,11 +101,12 @@ import {
   handleSlugCheck,
 } from './routes/signup.js';
 
-// Stripe billing (checkout, portal, webhook)
+// Stripe billing (checkout, portal, webhook, invoices)
 import {
   handleCheckoutStart,
   handleCustomerPortal,
   handleBillingStatus,
+  handleInvoicesList,
   handleStripeWebhook,
 } from './routes/billing.js';
 
@@ -226,6 +227,9 @@ export default {
       }
       if (path === '/api/admin/billing/status' && method === 'GET') {
         return await handleBillingStatus(env, request);
+      }
+      if (path === '/api/admin/billing/invoices' && method === 'GET') {
+        return await handleInvoicesList(env, request);
       }
 
       // Patient self-service by magic_token
