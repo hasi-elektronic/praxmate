@@ -154,21 +154,8 @@ export default {
         return await handleSlugCheck(env, request);
       }
 
-      // One-time migration for signup_rate_limit (remove after first run)
-      if (path === '/api/internal/migrate-signup-rl' && method === 'POST') {
-        const key = request.headers.get('X-Migrate-Key');
-        if (key !== 'praxmate-rl-init-2026') {
-          return jsonError('Forbidden', request, 403);
-        }
-        await env.DB.batch([
-          env.DB.prepare(`CREATE TABLE IF NOT EXISTS signup_rate_limit (
-            ip TEXT NOT NULL, created_at INTEGER NOT NULL,
-            PRIMARY KEY (ip, created_at)
-          )`),
-          env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_signup_rl_time ON signup_rate_limit(created_at)`),
-        ]);
-        return jsonResponse({ ok: true, table: 'signup_rate_limit' }, request);
-      }
+      // (Removed: one-time /api/internal/migrate-signup-rl and /cleanup-tenant.
+      //  Both migrations already applied to production D1 — deleted for security.)
 
       // Patient self-service by magic_token
       const publicApptMatch = path.match(/^\/api\/appointments\/([a-f0-9]{48})$/);

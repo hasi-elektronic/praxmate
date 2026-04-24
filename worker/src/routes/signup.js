@@ -180,78 +180,74 @@ export async function handlePublicSignup(env, request) {
   ).bind(owner_email).first();
   if (existingEmail) return jsonError('This email is already registered', request, 409);
 
-  // ===== Create practice =====
+  // ===== Create practice + user + defaults atomically via batch =====
+  // All IDs pre-generated so the batch needs no cross-statement reads.
   const practiceId = generateId('prc');
-  const timezone = 'Europe/Berlin'; // default; can change later
-
-  await env.DB.prepare(`
-    INSERT INTO practices (
-      id, slug, name, specialty, city, country, phone,
-      locale, timezone,
-      brand_primary, brand_accent, brand_ink,
-      plan, plan_status, trial_ends_at, max_doctors
-    ) VALUES (?, ?, ?, ?, ?, 'DE', ?, ?, ?, '#0ea5e9', '#14b8a6', '#0f172a',
-              'solo', 'trial', ?, 1)
-  `).bind(
-    practiceId, slug, practice_name, specialty, city || null, phone || null,
-    locale, timezone,
-    new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10), // 90 days trial
-  ).run();
-
-  // Register subdomain
-  await env.DB.prepare(`
-    INSERT INTO practice_domains (id, practice_id, hostname, type, verified, is_primary)
-    VALUES (?, ?, ?, 'subdomain', 1, 1)
-  `).bind(generateId('dom'), practiceId, `${slug}.praxmate.de`).run();
-
-  // ===== Create owner user =====
-  const { hash, salt } = await hashPassword(password);
   const userId = generateId('usr');
+  const docId = generateId('doc');
+  const typeId = generateId('apt');
+  const domId = generateId('dom');
+  const timezone = 'Europe/Berlin';
+  const typeNames = { de: 'Beratung', en: 'Consultation', tr: 'Muayene' };
+  const typeName = typeNames[locale] || typeNames.de;
+  const trialEndsAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+  const { hash, salt } = await hashPassword(password);
   const initials = owner_name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
 
-  await env.DB.prepare(`
-    INSERT INTO users (
-      id, practice_id, email, name, role, avatar_initials,
-      password_hash, password_salt, password_updated_at, status
-    ) VALUES (?, ?, ?, ?, 'owner', ?, ?, ?, datetime('now'), 'active')
-  `).bind(userId, practiceId, owner_email, owner_name, initials, hash, salt).run();
+  const stmts = [
+    env.DB.prepare(`
+      INSERT INTO practices (
+        id, slug, name, specialty, city, country, phone,
+        locale, timezone,
+        brand_primary, brand_accent, brand_ink,
+        plan, plan_status, trial_ends_at, max_doctors
+      ) VALUES (?, ?, ?, ?, ?, 'DE', ?, ?, ?, '#0ea5e9', '#14b8a6', '#0f172a',
+                'solo', 'trial', ?, 1)
+    `).bind(practiceId, slug, practice_name, specialty, city || null, phone || null, locale, timezone, trialEndsAt),
 
-  // ===== Create sensible defaults =====
-  // Default doctor = owner
-  const docId = generateId('doc');
-  await env.DB.prepare(`
-    INSERT INTO doctors (id, practice_id, name, is_active, created_at)
-    VALUES (?, ?, ?, 1, datetime('now'))
-  `).bind(docId, practiceId, owner_name).run();
+    env.DB.prepare(`
+      INSERT INTO practice_domains (id, practice_id, hostname, type, verified, is_primary)
+      VALUES (?, ?, ?, 'subdomain', 1, 1)
+    `).bind(domId, practiceId, `${slug}.praxmate.de`),
 
-  // Default appointment type: Beratung / Consultation / Muayene
-  const typeNames = {
-    de: 'Beratung',
-    en: 'Consultation',
-    tr: 'Muayene',
-  };
-  const typeId = generateId('apt');
-  await env.DB.prepare(`
-    INSERT INTO appointment_types (
-      id, practice_id, name, duration_minutes, color, sort_order, is_active, created_at
-    ) VALUES (?, ?, ?, 30, '#0ea5e9', 1, 1, datetime('now'))
-  `).bind(typeId, practiceId, typeNames[locale] || typeNames.de).run();
+    env.DB.prepare(`
+      INSERT INTO users (
+        id, practice_id, email, name, role, avatar_initials,
+        password_hash, password_salt, password_updated_at, status
+      ) VALUES (?, ?, ?, ?, 'owner', ?, ?, ?, datetime('now'), 'active')
+    `).bind(userId, practiceId, owner_email, owner_name, initials, hash, salt),
 
-  // Link doctor to type
-  await env.DB.prepare(`
-    INSERT INTO doctor_appointment_types (doctor_id, appointment_type_id)
-    VALUES (?, ?)
-  `).bind(docId, typeId).run();
+    env.DB.prepare(`
+      INSERT INTO doctors (id, practice_id, name, is_active, created_at)
+      VALUES (?, ?, ?, 1, datetime('now'))
+    `).bind(docId, practiceId, owner_name),
 
-  // Default working hours: Mon-Fri 09:00-12:00 + 14:00-18:00
+    env.DB.prepare(`
+      INSERT INTO appointment_types (
+        id, practice_id, code, name, duration_minutes, icon, color,
+        online_bookable, sort_order, is_active, created_at
+      ) VALUES (?, ?, 'beratung', ?, 30, '💬', '#0ea5e9', 1, 1, 1, datetime('now'))
+    `).bind(typeId, practiceId, typeName),
+
+    env.DB.prepare(`
+      INSERT INTO doctor_appointment_types (doctor_id, appointment_type_id, practice_id)
+      VALUES (?, ?, ?)
+    `).bind(docId, typeId, practiceId),
+  ];
+
+  // Default working hours: Mon-Fri 09:00-12:00 + 14:00-18:00 (10 rows)
   for (let dow = 1; dow <= 5; dow++) {
     for (const [start, end] of [['09:00', '12:00'], ['14:00', '18:00']]) {
-      await env.DB.prepare(`
+      stmts.push(env.DB.prepare(`
         INSERT INTO working_hours (id, practice_id, doctor_id, day_of_week, start_time, end_time)
         VALUES (?, ?, ?, ?, ?, ?)
-      `).bind(generateId('whr'), practiceId, docId, dow, start, end).run();
+      `).bind(generateId('whr'), practiceId, docId, dow, start, end));
     }
   }
+
+  // Atomic: all 16 INSERTs succeed or none do.
+  await env.DB.batch(stmts);
 
   // ===== Create session so user is auto-logged-in =====
   // createSession signature: (env, user, request, trustDevice)
