@@ -1304,7 +1304,9 @@ async function renderSlots(dateStr) {
 
   try {
     const r = await api('/slots?' + q.toString());
-    state.availableSlots = r.slots || [];
+    // Backend returns a plain array; legacy callers used { slots: [...] }.
+    // Accept both shapes so patient booking works regardless of wrapper.
+    state.availableSlots = Array.isArray(r) ? r : (r?.slots || []);
     grid.innerHTML = '';
 
     if (state.availableSlots.length === 0) {
