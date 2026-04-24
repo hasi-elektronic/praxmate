@@ -32,6 +32,11 @@ export async function handleCheckoutStart(env, request) {
   const plan = body?.plan;
   const returnBase = String(body?.return_base || 'https://praxmate.de').replace(/\/+$/, '');
 
+  // mode: 'trial7' (7-day trial), 'direct' (no trial, charge now), or omitted (preserve tenant's remaining trial).
+  // Explicit integer `trial_days` also accepted (0-90). Takes precedence over mode.
+  const mode = body?.mode;
+  const explicitDays = typeof body?.trial_days === 'number' ? body.trial_days : null;
+
   const priceId = priceIdForPlan(env, plan);
   if (!priceId) return jsonError('Unbekannter Plan', request, 400);
 
@@ -55,15 +60,25 @@ export async function handleCheckoutStart(env, request) {
     ).bind(customerId, practice.id).run();
   }
 
-  // ===== Create Checkout Session =====
-  // Use the trial_period_days ONLY if the practice is still in trial.
-  // If the trial already converted or expired, skip the trial on upgrade.
-  const stillInTrial = practice.plan_status === 'trial' && practice.trial_ends_at
-    && new Date(practice.trial_ends_at).getTime() > Date.now();
-  const daysLeft = stillInTrial
-    ? Math.max(0, Math.ceil((new Date(practice.trial_ends_at).getTime() - Date.now()) / 86400000))
-    : 0;
+  // ===== Resolve trial days =====
+  // Precedence: explicit trial_days > mode > tenant's remaining trial (default).
+  let trialDays;
+  if (explicitDays !== null) {
+    trialDays = Math.max(0, Math.min(90, Math.floor(explicitDays)));
+  } else if (mode === 'trial7') {
+    trialDays = 7;
+  } else if (mode === 'direct') {
+    trialDays = 0;
+  } else {
+    // Fallback: preserve tenant's remaining trial if still in trial
+    const stillInTrial = practice.plan_status === 'trial' && practice.trial_ends_at
+      && new Date(practice.trial_ends_at).getTime() > Date.now();
+    trialDays = stillInTrial
+      ? Math.max(0, Math.ceil((new Date(practice.trial_ends_at).getTime() - Date.now()) / 86400000))
+      : 0;
+  }
 
+  // ===== Create Checkout Session =====
   const session = await stripeRequest(env, 'POST', '/checkout/sessions', {
     customer: customerId,
     mode: 'subscription',
@@ -72,10 +87,11 @@ export async function handleCheckoutStart(env, request) {
     success_url: `${returnBase}/praxis/billing.html?status=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url:  `${returnBase}/praxis/billing.html?status=cancelled`,
     locale: practice.locale?.slice(0, 2) || 'de',
-    // Keep the pre-paid trial the practice already has, if any.
-    ...(daysLeft > 0 ? { 'subscription_data[trial_period_days]': daysLeft } : {}),
+    // Only pass trial_period_days if > 0 (Stripe rejects 0 as invalid)
+    ...(trialDays > 0 ? { 'subscription_data[trial_period_days]': trialDays } : {}),
     'subscription_data[metadata][practice_id]': practice.id,
     'subscription_data[metadata][practice_slug]': practice.slug,
+    'subscription_data[metadata][trial_mode]': mode || (explicitDays !== null ? `explicit:${trialDays}` : 'default'),
     allow_promotion_codes: 'true',
     billing_address_collection: 'auto',
     'metadata[practice_id]': practice.id,

@@ -282,6 +282,15 @@ a { color: var(--ink); text-decoration: none; }
 .price-card:hover .price-cta { background: var(--grad); }
 .price-card.featured .price-cta { background: var(--grad); }
 .price-card.featured:hover .price-cta { filter: brightness(1.1); }
+.price-cta-group { margin-bottom: 22px; }
+.price-cta { display: block; width: 100%; padding: 12px; background: var(--ink); color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+.price-card:hover .price-cta { background: var(--grad); }
+.price-card.featured .price-cta { background: var(--grad); }
+.price-card.featured:hover .price-cta { filter: brightness(1.1); }
+.price-cta-alt { display: block; width: 100%; margin-top: 8px; padding: 10px; background: transparent; color: var(--ink-soft); border: none; font-family: inherit; font-size: 13px; font-weight: 500; text-align: center; cursor: pointer; text-decoration: none; opacity: 0.72; transition: opacity 0.15s; }
+.price-cta-alt:hover { opacity: 1; text-decoration: underline; }
+.price-card.featured .price-cta-alt { color: rgba(255,255,255,0.72); }
+.price-card.featured .price-cta-alt:hover { color: white; }
 .price-features { list-style: none; padding: 0; border-top: 1px solid var(--border); padding-top: 20px; }
 .price-card.featured .price-features { border-top-color: rgba(255,255,255,0.1); }
 .price-features li { font-size: 14px; display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; }
@@ -1134,7 +1143,10 @@ a { color: var(--ink); text-decoration: none; }
         <span class="price-number">39</span>
         <span class="price-period">/ ay</span>
       </div>
-      <a href="/signup.html?lang=tr&amp;plan=solo" class="price-cta">Başla</a>
+      <div class="price-cta-group">
+        <a href="/signup.html?lang=tr&amp;plan=solo&amp;mode=trial7" class="price-cta">7 gün ücretsiz dene</a>
+        <a href="/signup.html?lang=tr&amp;plan=solo&amp;mode=direct" class="price-cta-alt">veya direkt satın al →</a>
+      </div>
       <ul class="price-features">
         <li>Hastalar için online randevu</li>
         <li>Otomatik hatırlatmalar</li>
@@ -1153,7 +1165,10 @@ a { color: var(--ink); text-decoration: none; }
         <span class="price-number">69</span>
         <span class="price-period">/ ay</span>
       </div>
-      <a href="/signup.html?lang=tr&amp;plan=team" class="price-cta">Başla</a>
+      <div class="price-cta-group">
+        <a href="/signup.html?lang=tr&amp;plan=team&amp;mode=trial7" class="price-cta">7 gün ücretsiz dene</a>
+        <a href="/signup.html?lang=tr&amp;plan=team&amp;mode=direct" class="price-cta-alt">veya direkt satın al →</a>
+      </div>
       <ul class="price-features">
         <li>Solo'daki her şey</li>
         <li>3 hekim, ayrı takvimlerle</li>
@@ -1172,7 +1187,10 @@ a { color: var(--ink); text-decoration: none; }
         <span class="price-number">119</span>
         <span class="price-period">/ ay</span>
       </div>
-      <a href="/signup.html?lang=tr&amp;plan=klinik" class="price-cta">Başla</a>
+      <div class="price-cta-group">
+        <a href="/signup.html?lang=tr&amp;plan=klinik&amp;mode=trial7" class="price-cta">7 gün ücretsiz dene</a>
+        <a href="/signup.html?lang=tr&amp;plan=klinik&amp;mode=direct" class="price-cta-alt">veya direkt satın al →</a>
+      </div>
       <ul class="price-features">
         <li>Team'deki her şey</li>
         <li>10 hekime kadar</li>

@@ -282,6 +282,15 @@ a { color: var(--ink); text-decoration: none; }
 .price-card:hover .price-cta { background: var(--grad); }
 .price-card.featured .price-cta { background: var(--grad); }
 .price-card.featured:hover .price-cta { filter: brightness(1.1); }
+.price-cta-group { margin-bottom: 22px; }
+.price-cta { display: block; width: 100%; padding: 12px; background: var(--ink); color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+.price-card:hover .price-cta { background: var(--grad); }
+.price-card.featured .price-cta { background: var(--grad); }
+.price-card.featured:hover .price-cta { filter: brightness(1.1); }
+.price-cta-alt { display: block; width: 100%; margin-top: 8px; padding: 10px; background: transparent; color: var(--ink-soft); border: none; font-family: inherit; font-size: 13px; font-weight: 500; text-align: center; cursor: pointer; text-decoration: none; opacity: 0.72; transition: opacity 0.15s; }
+.price-cta-alt:hover { opacity: 1; text-decoration: underline; }
+.price-card.featured .price-cta-alt { color: rgba(255,255,255,0.72); }
+.price-card.featured .price-cta-alt:hover { color: white; }
 .price-features { list-style: none; padding: 0; border-top: 1px solid var(--border); padding-top: 20px; }
 .price-card.featured .price-features { border-top-color: rgba(255,255,255,0.1); }
 .price-features li { font-size: 14px; display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; }
@@ -1135,7 +1144,10 @@ a { color: var(--ink); text-decoration: none; }
         <span class="price-number">39</span>
         <span class="price-period">/ month</span>
       </div>
-      <a href="/signup.html?lang=en&amp;plan=solo" class="price-cta">Get started</a>
+      <div class="price-cta-group">
+        <a href="/signup.html?lang=en&amp;plan=solo&amp;mode=trial7" class="price-cta">7 days free trial</a>
+        <a href="/signup.html?lang=en&amp;plan=solo&amp;mode=direct" class="price-cta-alt">or buy directly →</a>
+      </div>
       <ul class="price-features">
         <li>Online booking for patients</li>
         <li>Automatic reminders</li>
@@ -1154,7 +1166,10 @@ a { color: var(--ink); text-decoration: none; }
         <span class="price-number">69</span>
         <span class="price-period">/ month</span>
       </div>
-      <a href="/signup.html?lang=en&amp;plan=team" class="price-cta">Get started</a>
+      <div class="price-cta-group">
+        <a href="/signup.html?lang=en&amp;plan=team&amp;mode=trial7" class="price-cta">7 days free trial</a>
+        <a href="/signup.html?lang=en&amp;plan=team&amp;mode=direct" class="price-cta-alt">or buy directly →</a>
+      </div>
       <ul class="price-features">
         <li>Everything in Solo</li>
         <li>3 practitioners with own schedules</li>
@@ -1173,7 +1188,10 @@ a { color: var(--ink); text-decoration: none; }
         <span class="price-number">119</span>
         <span class="price-period">/ month</span>
       </div>
-      <a href="/signup.html?lang=en&amp;plan=klinik" class="price-cta">Get started</a>
+      <div class="price-cta-group">
+        <a href="/signup.html?lang=en&amp;plan=klinik&amp;mode=trial7" class="price-cta">7 days free trial</a>
+        <a href="/signup.html?lang=en&amp;plan=klinik&amp;mode=direct" class="price-cta-alt">or buy directly →</a>
+      </div>
       <ul class="price-features">
         <li>Everything in Team</li>
         <li>Up to 10 practitioners</li>

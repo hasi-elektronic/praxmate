@@ -524,10 +524,17 @@ form.addEventListener('submit', async (e) => {
 
     signupResult = data;
 
-    // If user came from a pricing card (?plan=team|klinik), skip straight to Stripe Checkout.
-    // solo = default trial, no checkout needed.
-    const paidPlan = new URLSearchParams(location.search).get('plan');
-    if (paidPlan && ['solo', 'team', 'klinik'].includes(paidPlan) && paidPlan !== 'solo') {
+    // If user came from a pricing card (?plan=...&mode=...), skip straight to Stripe Checkout.
+    //   mode=trial7  → 7-day free trial, then auto-charge
+    //   mode=direct  → no trial, charge immediately
+    //   mode absent  → preserve tenant's default trial (skipped for 'solo')
+    const qs2 = new URLSearchParams(location.search);
+    const paidPlan = qs2.get('plan');
+    const mode     = qs2.get('mode');  // 'trial7' | 'direct' | null
+    const needsCheckout = paidPlan
+      && ['solo', 'team', 'klinik'].includes(paidPlan)
+      && (paidPlan !== 'solo' || mode === 'direct' || mode === 'trial7');
+    if (needsCheckout) {
       submitBtn.innerHTML = `<span class="loading"></span>${t('submit_loading')}`;
       try {
         const co = await fetch(`${API}/admin/billing/checkout`, {
@@ -539,6 +546,7 @@ form.addEventListener('submit', async (e) => {
           },
           body: JSON.stringify({
             plan: paidPlan,
+            mode: mode || undefined,
             return_base: location.origin,
           }),
         });
