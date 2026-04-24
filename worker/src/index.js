@@ -95,7 +95,8 @@ import {
   handleClosuresDelete,
 } from './routes/closures.js';
 
-// (seed endpoint removed after use — demo-tr + demo-en are live)
+// Scheduled jobs
+import { runReminders } from './routes/reminders.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -362,5 +363,13 @@ export default {
       const status = e.status || 500;
       return jsonError(e.message || 'Interner Fehler', request, status);
     }
+  },
+
+  // ============================================================
+  // Scheduled jobs (wrangler.toml [triggers] crons)
+  // ============================================================
+  async scheduled(event, env, ctx) {
+    // The only cron we have: hourly reminder sweep.
+    ctx.waitUntil(runReminders(env));
   },
 };

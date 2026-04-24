@@ -2,6 +2,8 @@ import { jsonResponse, jsonError, getClientIp } from '../lib/http.js';
 import { requirePractice } from '../lib/tenant.js';
 import { generateId, generateToken, generateBookingCode } from '../lib/crypto.js';
 import { logAudit } from '../lib/audit.js';
+import { sendEmail, isDemoTenant, tenantLocale } from '../lib/email.js';
+import { confirmationEmail } from '../lib/email-templates.js';
 
 // ============================================================
 // GET /api/practice — info for the resolved practice
@@ -349,6 +351,46 @@ export async function handleAppointmentCreate(env, request) {
     meta: { booking_code: bookingCode, is_new_patient: isNewPatient },
     request,
   });
+
+  // ===== Confirmation email =====
+  // Skipped for demo tenants (avoid spamming prospects who test bookings).
+  // Failures are logged but do NOT block the booking — response still 201.
+  if (!isDemoTenant(practice.slug) && email) {
+    try {
+      const locale = tenantLocale(practice);
+      const mail = confirmationEmail({
+        practice,
+        patient: { first_name, last_name, email },
+        appointment: {
+          start_datetime,
+          duration_minutes: type.duration_minutes,
+          booking_code: bookingCode,
+          magic_token: magicToken,
+        },
+        doctor: { name: doctor.name },
+        type: { name: type.name, icon: type.icon || '' },
+      }, locale);
+
+      const sendResult = await sendEmail(env, {
+        to: email,
+        subject: mail.subject,
+        html: mail.html,
+        text: mail.text,
+        replyTo: practice.email || undefined,
+        tags: [{ name: 'kind', value: 'confirmation' }, { name: 'tenant', value: practice.slug }],
+      });
+
+      if (sendResult.ok) {
+        await logAudit(env, {
+          practice_id: practice.id, actor_type: 'system',
+          action: 'email.confirmation_sent', target_type: 'appointment', target_id: apptId,
+          meta: { resend_id: sendResult.id, to: email }, request,
+        });
+      }
+    } catch (e) {
+      console.error('[email] confirmation failed:', e.message);
+    }
+  }
 
   return jsonResponse({
     booking_code: bookingCode,
