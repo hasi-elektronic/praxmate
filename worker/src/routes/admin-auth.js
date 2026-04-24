@@ -142,6 +142,7 @@ export async function handleMe(env, request) {
     practice: practice ? {
       id: practice.id, name: practice.name, slug: practice.slug,
       brand_primary: practice.brand_primary, brand_accent: practice.brand_accent,
+      locale: practice.locale, timezone: practice.timezone,
     } : null,
   }, request);
 }

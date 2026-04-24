@@ -27,6 +27,33 @@
     });
   }
 
+  // ===== i18n: translate sidebar labels (reactive to language changes) =====
+  const SB_LABELS = {
+    'dashboard':      'sb.dashboard',
+    'new-appointment':'sb.new_appt',
+    'calendar':       'sb.calendar',
+    'patients':       'sb.patients',
+    'settings':       'sb.settings',
+  };
+  function applyI18n() {
+    if (!window.i18n) return;
+    document.querySelectorAll('.sb-nav-item[data-page]').forEach(a => {
+      const key = SB_LABELS[a.dataset.page];
+      const textSpan = a.querySelector('span:last-child');
+      if (key && textSpan) textSpan.textContent = window.i18n.t(key);
+    });
+    // role label under user name
+    const roleEl = document.getElementById('sbUserRole');
+    if (roleEl && roleEl.dataset.role) {
+      roleEl.textContent = window.i18n.t('role.' + roleEl.dataset.role);
+    }
+    // logout tooltip
+    const userBox = document.getElementById('sbUser');
+    if (userBox) userBox.title = window.i18n.t('sb.logout');
+  }
+  applyI18n();
+  if (window.i18n) window.i18n.onChange(applyI18n);
+
   // Preserve ?practice= in nav links if we're using query-param routing
   if (slug && window.location.search.includes('practice=')) {
     document.querySelectorAll('.sb-nav-item').forEach(a => {
@@ -70,7 +97,7 @@
   const userBox = document.getElementById('sbUser');
   if (userBox) {
     userBox.addEventListener('click', async () => {
-      if (!confirm('Abmelden?')) return;
+      if (!confirm((window.i18n && window.i18n.t('sb.confirm_logout')) || 'Abmelden?')) return;
       try {
         await fetch(API_BASE + '/admin/auth/logout', {
           method: 'POST',
@@ -113,7 +140,11 @@
       const markEl = document.getElementById('sbBrandMark');
 
       if (nameEl) nameEl.textContent = u.name || '';
-      if (roleEl) roleEl.textContent = roleLabels[u.role] || u.role || '';
+      if (roleEl) {
+        // Store raw role for later re-translation on lang change
+        if (u.role) roleEl.dataset.role = u.role;
+        roleEl.textContent = (window.i18n && u.role) ? window.i18n.t('role.' + u.role) : (roleLabels[u.role] || u.role || '');
+      }
       if (avaEl) avaEl.textContent = (u.name || '?').split(/\s+/).slice(0,2).map(w => w[0]).join('').toUpperCase();
       if (subEl && p.name) subEl.textContent = p.name;
 
@@ -138,6 +169,12 @@
       // Brand color override
       if (p.brand_primary) {
         document.documentElement.style.setProperty('--primary', p.brand_primary);
+      }
+
+      // i18n: if user hasn't explicitly chosen a language, follow tenant locale.
+      // practice.locale looks like 'tr-TR' / 'en-GB' / 'de-DE'.
+      if (window.i18n && p.locale && !localStorage.getItem('praxmate_lang')) {
+        window.i18n.setLang(p.locale);
       }
     } catch (e) {
       console.warn('Sidebar fill failed:', e);

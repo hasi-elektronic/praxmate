@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#2d6a8e">
 <meta name="robots" content="noindex, nofollow">
-<title>Praxmate — Praxis-Login</title>
+<title>Praxmate — Login</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232d6a8e'/%3E%3Ctext x='50' y='68' font-family='Georgia' font-size='50' font-weight='700' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+<script src="/praxis/_i18n.js"></script>
 <style>
 :root {
   --primary: #2d6a8e;
@@ -261,29 +262,35 @@ body {
         <div class="brand-mark">P</div>
         <div class="brand-name">Praxmate</div>
       </div>
-      <div class="brand-sub">Praxis-Login{{ practiceName ? ' · ' + practiceName : '' }}</div>
+      <div class="brand-sub">{{ t('login.header') }}{{ practiceName ? ' · ' + practiceName : '' }}</div>
+      <!-- Language pill selector -->
+      <div class="lang-pills" style="margin-top:14px;display:inline-flex;gap:4px;padding:4px;background:rgba(0,0,0,0.04);border-radius:100px;">
+        <button type="button" v-for="l in ['de','en','tr']" :key="l" @click="switchLang(l)"
+          :style="{ padding:'5px 12px', fontSize:'11px', fontWeight:700, letterSpacing:'0.08em', borderRadius:'100px', border:'none', cursor:'pointer', background: lang === l ? 'white' : 'transparent', color: lang === l ? 'var(--ink)' : 'var(--muted)', boxShadow: lang === l ? '0 1px 3px rgba(0,0,0,0.08)' : 'none' }">
+          {{ l.toUpperCase() }}
+        </button>
+      </div>
     </div>
 
     <div class="card">
-      <h1 class="card-title">Anmelden</h1>
-      <p class="card-sub">{{ practiceName ? 'Für ' + practiceName : 'Bitte geben Sie Ihre Zugangsdaten ein.' }}</p>
+      <h1 class="card-title">{{ t('login.title') }}</h1>
+      <p class="card-sub">{{ practiceName ? t('login.subtitle_for') + ' ' + practiceName : t('login.subtitle_default') }}</p>
 
       <div v-if="!PRACTICE_SLUG" class="error-box" style="background:#fff4e0;color:#5c4a0e;border-left:3px solid #e9b949;">
-        <strong>Keine Praxis erkannt.</strong><br>
-        Bitte über Ihre Praxis-URL zugreifen (z. B. <code>hild.praxmate.de/admin/</code>)<br>
-        oder mit <code>?practice=SLUG</code> in der URL.
+        <strong>{{ t('login.no_practice_title') }}</strong><br>
+        {{ t('login.no_practice_body') }} <code>?practice=SLUG</code> {{ t('login.no_practice_body2') }}
       </div>
 
       <div v-if="error" class="error-box">{{ error }}</div>
 
       <form @submit.prevent="login">
         <div class="field">
-          <label for="email">E-Mail</label>
+          <label for="email">{{ t('login.email') }}</label>
           <input
             id="email"
             v-model="email"
             type="email"
-            placeholder="name@zahnarzthild.de"
+            :placeholder="t('login.email_placeholder')"
             autocomplete="username"
             required
             :disabled="loading"
@@ -291,7 +298,7 @@ body {
         </div>
 
         <div class="field">
-          <label for="password">Passwort</label>
+          <label for="password">{{ t('login.password') }}</label>
           <input
             id="password"
             v-model="password"
@@ -304,17 +311,17 @@ body {
 
         <label class="checkbox-row">
           <input type="checkbox" v-model="trustDevice">
-          <span>Dieses Gerät für 30 Tage vertrauen</span>
+          <span>{{ t('login.trust_device') }}</span>
         </label>
 
         <button type="submit" class="btn-primary" :disabled="loading || !email || !password">
           <span v-if="loading" class="spinner"></span>
-          <span>{{ loading ? 'Anmelden...' : 'Anmelden' }}</span>
+          <span>{{ loading ? t('login.submit_loading') : t('login.submit') }}</span>
         </button>
       </form>
 
       <div class="security-badge">
-        DSGVO-konform · Server in Frankfurt
+        {{ t('login.security_badge') }}
       </div>
 
       <div v-if="PRACTICE_SLUG === 'hild'" class="demo-hint">
@@ -332,7 +339,7 @@ body {
     </div>
 
     <div class="footer-note">
-      © 2026 Hasi Elektronic · <a href="/">Zurück zur Startseite</a>
+      © 2026 Hasi Elektronic · <a href="/">{{ t('login.back_home') }}</a>
     </div>
   </div>
 </div>
@@ -378,7 +385,7 @@ const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
     const PRACTICE_SLUG = resolvePracticeSlug();
 
 
-const { createApp, ref, onMounted } = Vue;
+const { createApp, ref, computed, onMounted } = Vue;
 
 createApp({
   setup() {
@@ -388,6 +395,16 @@ createApp({
     const loading = ref(false);
     const error = ref('');
     const practiceName = ref('');
+
+    // i18n — reactive translation helper
+    const lang = ref(window.i18n ? window.i18n.getLang() : 'de');
+    if (window.i18n) window.i18n.onChange(l => { lang.value = l; });
+    const t = (key) => {
+      // read lang.value so Vue re-renders on language change
+      void lang.value;
+      return window.i18n ? window.i18n.t(key) : key;
+    };
+    const switchLang = (l) => window.i18n && window.i18n.setLang(l);
 
     // Default email by practice (for demo convenience)
     if (PRACTICE_SLUG === 'hild') email.value = 'juliane@zahnarzthild.de';
@@ -448,13 +465,13 @@ createApp({
         const data = await response.json();
 
         if (!response.ok) {
-          error.value = data.error || 'Anmeldung fehlgeschlagen';
+          error.value = data.error || t('login.err_generic');
           loading.value = false;
           return;
         }
 
         if (data.requires_2fa) {
-          error.value = '2FA erforderlich (noch nicht implementiert).';
+          error.value = t('login.err_2fa_needed');
           loading.value = false;
           return;
         }
@@ -469,12 +486,12 @@ createApp({
         const qs = PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '';
         window.location.href = '/praxis/dashboard.html' + qs;
       } catch (e) {
-        error.value = 'Netzwerkfehler: ' + e.message;
+        error.value = t('login.err_generic') + ': ' + e.message;
         loading.value = false;
       }
     }
 
-    return { email, password, trustDevice, loading, error, login, practiceName, PRACTICE_SLUG };
+    return { email, password, trustDevice, loading, error, login, practiceName, PRACTICE_SLUG, t, lang, switchLang };
   }
 }).mount('#app');
 </script>
