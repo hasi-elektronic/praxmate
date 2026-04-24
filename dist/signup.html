@@ -227,6 +227,8 @@
 const API = 'https://praxmate-api.hguencavdi.workers.dev/api';
 
 // ----- i18n dictionary -----
+// Copy blocks marked _default / _trial7 / _direct are selected by the `mode` URL param.
+// For keys without mode suffix (kicker, title_*, b2, b3, …) the same text is used in all modes.
 const I18N = {
   de: {
     title_doc: 'Praxmate — Praxis anlegen in 60 Sekunden',
@@ -235,8 +237,12 @@ const I18N = {
     title_1: 'Ihre eigene',
     title_2: 'Terminseite',
     title_3: 'in einer Minute.',
-    sub: 'Keine Installation, keine Kreditkarte. Patienten buchen ab Minute Null online Termine.',
-    b1: '3 Monate kostenlos',
+    sub_default: 'Keine Installation, keine Kreditkarte. Patienten buchen ab Minute Null online Termine.',
+    sub_trial7:  '7 Tage kostenlos testen. Danach regulärer Monatsbeitrag. Jederzeit kündbar.',
+    sub_direct:  'Direkt loslegen — ohne Testphase. Abrechnung startet sofort.',
+    b1_default: '3 Monate kostenlos',
+    b1_trial7:  '7 Tage kostenlos',
+    b1_direct:  'Sofort-Zugang',
     b2: 'DSGVO · Server Frankfurt',
     b3: 'Jederzeit kündbar',
     lbl_practice: 'Name Ihrer Praxis',
@@ -249,7 +255,9 @@ const I18N = {
     pw_mid: 'OK — geht auch besser',
     pw_strong: 'Stark!',
     consent: 'Ich stimme zu, dass Praxmate meine Daten gemäß DSGVO verarbeitet. <a href="#" target="_blank">Datenschutz</a> · <a href="#" target="_blank">AGB</a>.',
-    submit: 'Jetzt kostenlos starten →',
+    submit_default: 'Jetzt kostenlos starten →',
+    submit_trial7:  '7 Tage kostenlos testen →',
+    submit_direct:  'Jetzt kostenpflichtig bestellen →',
     submit_loading: 'Wird angelegt...',
     foot: 'Sie haben bereits eine Praxis? <a href="/praxis/">Anmelden</a>',
     slug_checking: 'Prüfe Verfügbarkeit...',
@@ -271,8 +279,12 @@ const I18N = {
     title_1: 'Your own',
     title_2: 'booking page',
     title_3: 'in a minute.',
-    sub: 'No install, no credit card. Patients start booking from minute one.',
-    b1: '3 months free',
+    sub_default: 'No install, no credit card. Patients start booking from minute one.',
+    sub_trial7:  '7 days free trial. Regular monthly fee after. Cancel anytime.',
+    sub_direct:  'Start right away — no trial. Billing begins immediately.',
+    b1_default: '3 months free',
+    b1_trial7:  '7 days free',
+    b1_direct:  'Instant access',
     b2: 'GDPR · EU servers',
     b3: 'Cancel anytime',
     lbl_practice: 'Your practice name',
@@ -285,7 +297,9 @@ const I18N = {
     pw_mid: 'OK — could be stronger',
     pw_strong: 'Strong!',
     consent: 'I agree that Praxmate processes my data under GDPR. <a href="#" target="_blank">Privacy</a> · <a href="#" target="_blank">Terms</a>.',
-    submit: 'Start free now →',
+    submit_default: 'Start free now →',
+    submit_trial7:  'Start 7-day free trial →',
+    submit_direct:  'Buy now (paid) →',
     submit_loading: 'Creating...',
     foot: 'Already have a practice? <a href="/praxis/">Sign in</a>',
     slug_checking: 'Checking availability...',
@@ -307,8 +321,12 @@ const I18N = {
     title_1: 'Kendi',
     title_2: 'randevu sayfanız',
     title_3: 'bir dakikada.',
-    sub: 'Kurulum yok, kredi kartı gerekmez. Hastalar ilk dakikadan itibaren randevu alır.',
-    b1: '3 ay ücretsiz',
+    sub_default: 'Kurulum yok, kredi kartı gerekmez. Hastalar ilk dakikadan itibaren randevu alır.',
+    sub_trial7:  '7 gün ücretsiz deneme. Sonra aylık abonelik başlar. İstediğin zaman iptal.',
+    sub_direct:  'Hemen başla — deneme yok. Ücret anında tahsil edilir.',
+    b1_default: '3 ay ücretsiz',
+    b1_trial7:  '7 gün ücretsiz',
+    b1_direct:  'Anında erişim',
     b2: 'KVKK & GDPR uyumlu',
     b3: 'İstediğin zaman iptal',
     lbl_practice: 'Klinik adınız',
@@ -321,7 +339,9 @@ const I18N = {
     pw_mid: 'Kabul edilir — daha güçlü olabilir',
     pw_strong: 'Güçlü!',
     consent: 'Praxmate\'in verilerimi KVKK/GDPR kapsamında işlemesini kabul ediyorum. <a href="#" target="_blank">Gizlilik</a> · <a href="#" target="_blank">Şartlar</a>.',
-    submit: 'Ücretsiz başla →',
+    submit_default: 'Ücretsiz başla →',
+    submit_trial7:  '7 gün ücretsiz dene →',
+    submit_direct:  'Ücretli olarak hemen al →',
     submit_loading: 'Oluşturuluyor...',
     foot: 'Kliniğiniz var mı? <a href="/praxis/">Giriş yap</a>',
     slug_checking: 'Müsaitlik kontrol ediliyor...',
@@ -356,7 +376,25 @@ function detectLang() {
 
 let lang = detectLang();
 
-function t(key) { return (I18N[lang] || I18N.de)[key] || I18N.de[key] || key; }
+// Mode drives copy variants (sub_*, b1_*, submit_*). URL param sticks for the whole page.
+const URL_MODE = new URLSearchParams(location.search).get('mode');  // 'trial7' | 'direct' | null
+const MODE = (URL_MODE === 'trial7' || URL_MODE === 'direct') ? URL_MODE : 'default';
+
+/**
+ * Lookup a key; for keys ending in _MODE placeholders (sub, b1, submit) we automatically
+ * resolve `<key>_<MODE>` with fallback to `<key>_default`.
+ */
+function t(key) {
+  const dict = I18N[lang] || I18N.de;
+  const fb   = I18N.de;
+  // Mode-aware keys
+  if (['sub', 'b1', 'submit'].includes(key)) {
+    return dict[`${key}_${MODE}`] ?? fb[`${key}_${MODE}`]
+        ?? dict[`${key}_default`] ?? fb[`${key}_default`]
+        ?? key;
+  }
+  return dict[key] ?? fb[key] ?? key;
+}
 
 function applyLang() {
   document.documentElement.lang = lang;
@@ -366,8 +404,10 @@ function applyLang() {
     const key = el.getAttribute('data-i');
     el.textContent = t(key);
   });
-  // Inner HTML nodes (with links)
+  // Inner HTML nodes (with links — use innerHTML so <a> tags render)
   document.getElementById('consentText').innerHTML = t('consent');
+  const footEl = document.querySelector('.foot[data-i="foot"]');
+  if (footEl) footEl.innerHTML = t('foot');  // override textContent set by querySelectorAll above
   document.getElementById('successTitle').textContent = t('success_title');
   document.getElementById('successText').textContent = t('success_text');
   // Placeholder examples stay as-is (Dr. Maria Müller works in all langs)
