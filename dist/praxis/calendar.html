@@ -1381,7 +1381,7 @@ textarea.edit-input { resize: vertical; min-height: 70px; }
   <main v-if="!initialLoading" class="main">
     <div class="toolbar">
       <div class="toolbar-left">
-        <button class="tb-btn tb-today" @click="goToday">Heute</button>
+        <button class="tb-btn tb-today" @click="goToday" data-i18n="cal.today">Heute</button>
         <button class="tb-btn" @click="navigate(-1)" aria-label="Vorheriger Zeitraum">‹</button>
         <button class="tb-btn" @click="navigate(1)" aria-label="Nächster Zeitraum">›</button>
       </div>
@@ -1392,9 +1392,9 @@ textarea.edit-input { resize: vertical; min-height: 70px; }
 
       <div class="toolbar-right">
         <div class="view-switcher">
-          <button class="view-btn" :class="{ active: view === 'day' }" @click="setView('day')">Tag</button>
-          <button class="view-btn" :class="{ active: view === 'week' }" @click="setView('week')">Woche</button>
-          <button class="view-btn" :class="{ active: view === 'month' }" @click="setView('month')">Monat</button>
+          <button class="view-btn" :class="{ active: view === 'day' }" @click="setView('day')" data-i18n="cal.view_day">Tag</button>
+          <button class="view-btn" :class="{ active: view === 'week' }" @click="setView('week')" data-i18n="cal.view_week">Woche</button>
+          <button class="view-btn" :class="{ active: view === 'month' }" @click="setView('month')" data-i18n="cal.view_month">Monat</button>
         </div>
         <a href="/praxis/new-appointment.html" class="btn-add">
           <span class="plus">+</span><span> Termin</span>
