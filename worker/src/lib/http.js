@@ -3,7 +3,8 @@
 // Public endpoints can use '*'
 
 const ALLOWED_ORIGINS = [
-  /^https:\/\/[a-z0-9-]+\.praxmate\.de$/,
+  /^https:\/\/praxmate\.de$/,                         // root domain (landing, /demo page)
+  /^https:\/\/[a-z0-9-]+\.praxmate\.de$/,             // tenant subdomains (hild.praxmate.de ...)
   /^https:\/\/praxmate\.pages\.dev$/,
   /^https:\/\/[a-z0-9-]+\.praxmate\.pages\.dev$/,
   /^https:\/\/[a-f0-9]{8}\.praxmate\.pages\.dev$/,

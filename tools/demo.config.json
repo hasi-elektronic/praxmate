@@ -1,0 +1,110 @@
+{
+  "practice": {
+    "slug": "demo",
+    "name": "Musterpraxis Praxmate (Demo)",
+    "specialty": "dentist",
+    "street": "Marktplatz 1",
+    "postal_code": "71665",
+    "city": "Vaihingen an der Enz",
+    "country": "DE",
+    "phone": "07042 000000",
+    "email": "demo@praxmate.de",
+    "website": "https://praxmate.de",
+    "brand_primary": "#0ea5e9",
+    "brand_accent": "#14b8a6",
+    "brand_ink": "#0f172a",
+    "legal_name": "Praxmate Demo — keine echte Praxis",
+    "responsible_person": "Praxmate Team",
+    "professional_chamber": "— (Demo)",
+    "plan": "team",
+    "plan_status": "active",
+    "trial_ends_at": "2099-12-31",
+    "max_doctors": 3
+  },
+
+  "doctors": [
+    {
+      "key": "mueller",
+      "name": "Dr. Lena Müller",
+      "title": "Zahnärztin",
+      "role": "Praxisinhaberin",
+      "specialty": "Allgemeine Zahnheilkunde",
+      "avatar_initials": "LM",
+      "sort_order": 0,
+      "accepts_new_patients": true
+    },
+    {
+      "key": "schmidt",
+      "name": "Dr. Tobias Schmidt",
+      "title": "Zahnarzt",
+      "role": "Angestellter Zahnarzt",
+      "specialty": "Parodontologie",
+      "avatar_initials": "TS",
+      "sort_order": 1,
+      "accepts_new_patients": true
+    }
+  ],
+
+  "appointment_types": [
+    {
+      "code": "kontrolle",
+      "name": "Kontrolle",
+      "description": "Routineuntersuchung — alle 6 Monate",
+      "duration_minutes": 30,
+      "icon": "🩺",
+      "color": "#0ea5e9",
+      "online_bookable": true,
+      "sort_order": 0
+    },
+    {
+      "code": "pzr",
+      "name": "Professionelle Zahnreinigung",
+      "description": "Gründliche Reinigung mit Ultraschall",
+      "duration_minutes": 45,
+      "icon": "✨",
+      "color": "#06b6d4",
+      "online_bookable": true,
+      "sort_order": 1
+    },
+    {
+      "code": "beratung",
+      "name": "Erstberatung",
+      "description": "Für neue Patienten — 20 Minuten kostenlos",
+      "duration_minutes": 20,
+      "icon": "💬",
+      "color": "#14b8a6",
+      "online_bookable": true,
+      "new_patient_only": true,
+      "sort_order": 2
+    },
+    {
+      "code": "fuellung",
+      "name": "Füllung / Behandlung",
+      "description": "Karies-Behandlung mit Komposit",
+      "duration_minutes": 45,
+      "icon": "🦷",
+      "color": "#0369a1",
+      "online_bookable": true,
+      "sort_order": 3
+    }
+  ],
+
+  "working_hours": [
+    { "day_of_week": 1, "shifts": [{ "start": "08:00", "end": "12:00" }, { "start": "14:00", "end": "18:00" }] },
+    { "day_of_week": 2, "shifts": [{ "start": "08:00", "end": "12:00" }, { "start": "14:00", "end": "18:00" }] },
+    { "day_of_week": 3, "shifts": [{ "start": "08:00", "end": "12:00" }, { "start": "14:00", "end": "18:00" }] },
+    { "day_of_week": 4, "shifts": [{ "start": "08:00", "end": "12:00" }, { "start": "14:00", "end": "18:00" }] },
+    { "day_of_week": 5, "shifts": [{ "start": "08:00", "end": "14:00" }] }
+  ],
+
+  "users": [
+    {
+      "email": "demo@praxmate.de",
+      "name": "Demo Zugang",
+      "role": "owner",
+      "password": "DemoPraxmate2026",
+      "doctor_key": "mueller",
+      "avatar_initials": "D"
+    }
+  ]
+}

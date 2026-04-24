@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo — Praxmate selbst ausprobieren</title>
+<meta name="description" content="Testen Sie Praxmate live — Patienten-Buchung und Praxis-Verwaltung. Keine Anmeldung nötig, alle Daten sind Demo-Daten.">
+<meta name="robots" content="noindex">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #f8fafc;
+  --ink: #0f172a;
+  --ink-soft: #334155;
+  --muted: #64748b;
+  --sky:  #0ea5e9;
+  --cyan: #06b6d4;
+  --teal: #14b8a6;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+a { color: inherit; text-decoration: none; }
+
+/* Header */
+.nav-outer { position: sticky; top: 0; z-index: 20; padding: 16px 24px; background: rgba(248,250,252,0.85); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(10,14,26,0.05); }
+.nav { display: flex; align-items: center; gap: 24px; max-width: 1200px; margin: 0 auto; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+.brand-ico { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, var(--sky), var(--teal)); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 14px; }
+.nav-spacer { flex: 1; }
+.nav-back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-soft); padding: 7px 14px; border-radius: 100px; transition: all 0.15s; }
+.nav-back:hover { background: white; color: var(--ink); }
+
+/* Hero */
+.hero {
+  padding: 80px 24px 40px;
+  text-align: center;
+  max-width: 820px;
+  margin: 0 auto;
+}
+.hero-eyebrow {
+  display: inline-block;
+  padding: 6px 14px;
+  background: rgba(14,165,233,0.08);
+  color: #0369a1;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.hero-title {
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0 0 16px;
+}
+.hero-title .grad { background: linear-gradient(135deg, var(--sky), var(--teal)); -webkit-background-clip: text; background-clip: text; color: transparent; font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; }
+.hero-sub { font-size: 17px; color: var(--ink-soft); margin: 0 auto; max-width: 600px; }
+
+/* Tiles */
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 1100px;
+  margin: 40px auto 60px;
+  padding: 0 24px;
+}
+.tile {
+  background: #fff;
+  border-radius: 22px;
+  border: 1px solid rgba(10,14,26,0.08);
+  padding: 32px;
+  box-shadow: 0 24px 50px -18px rgba(14,165,233,0.15);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s;
+  display: flex; flex-direction: column;
+}
+.tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 30px 60px -20px rgba(14,165,233,0.25);
+}
+.tile-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 11px; border-radius: 100px;
+  margin-bottom: 14px;
+  width: fit-content;
+}
+.tile-badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+.tile--patient .tile-badge { background: rgba(14,165,233,0.10); color: #0369a1; }
+.tile--patient .tile-badge-dot { background: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,0.2); }
+.tile--admin   .tile-badge { background: rgba(20,184,166,0.10); color: #0f766e; }
+.tile--admin   .tile-badge-dot { background: #14b8a6; box-shadow: 0 0 0 3px rgba(20,184,166,0.2); }
+
+.tile-ico { font-size: 42px; margin-bottom: 8px; line-height: 1; }
+.tile-title { font-size: 26px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.01em; }
+.tile-lead  { color: var(--ink-soft); margin: 0 0 20px; font-size: 15px; }
+
+.tile-list { list-style: none; padding: 0; margin: 0 0 24px; display: flex; flex-direction: column; gap: 8px; }
+.tile-list li { font-size: 14px; color: var(--ink-soft); display: flex; gap: 8px; align-items: flex-start; }
+.tile-list li::before { content: '✓'; color: var(--teal); font-weight: 700; flex-shrink: 0; }
+
+.tile-cta {
+  margin-top: auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 22px;
+  border: none; cursor: pointer;
+  font-family: inherit; font-size: 15px; font-weight: 700;
+  background: linear-gradient(135deg, var(--sky), var(--teal));
+  color: #fff;
+  border-radius: 14px;
+  box-shadow: 0 12px 28px -10px rgba(14,165,233,0.5);
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+}
+.tile-cta:hover { transform: translateY(-1px); box-shadow: 0 16px 32px -10px rgba(14,165,233,0.6); }
+.tile-cta:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.tile-cta-spin {
+  display: none;
+  width: 16px; height: 16px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.tile-cta[data-loading="1"] .tile-cta-spin { display: inline-block; }
+.tile-cta[data-loading="1"] .tile-cta-label { opacity: 0.7; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.tile-creds {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 14px;
+  line-height: 1.5;
+}
+.tile-creds code {
+  background: rgba(10,14,26,0.05);
+  padding: 2px 6px; border-radius: 4px;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.tile-err {
+  display: none;
+  background: rgba(220,38,38,0.08);
+  color: #991b1b;
+  border: 1px solid rgba(220,38,38,0.2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  margin-top: 12px;
+}
+.tile-err.is-on { display: block; }
+
+/* FAQ */
+.faq {
+  max-width: 820px;
+  margin: 0 auto 80px;
+  padding: 40px 24px 0;
+  border-top: 1px solid rgba(10,14,26,0.06);
+}
+.faq-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0 0 20px;
+  letter-spacing: -0.01em;
+}
+.faq-item {
+  border-bottom: 1px solid rgba(10,14,26,0.06);
+  padding: 16px 0;
+}
+.faq-q { font-size: 15px; font-weight: 700; color: var(--ink); margin: 0 0 6px; }
+.faq-a { font-size: 14.5px; color: var(--ink-soft); margin: 0; line-height: 1.55; }
+
+/* Footer */
+.foot {
+  text-align: center;
+  padding: 24px;
+  font-size: 12.5px;
+  color: var(--muted);
+  border-top: 1px solid rgba(10,14,26,0.05);
+}
+.foot a { color: var(--ink-soft); margin: 0 8px; }
+
+@media (max-width: 800px) {
+  .tiles { grid-template-columns: 1fr; }
+  .hero { padding: 40px 20px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="nav-outer">
+  <nav class="nav">
+    <a href="/" class="brand">
+      <span class="brand-ico">P</span>
+      <span>Praxmate</span>
+    </a>
+    <div class="nav-spacer"></div>
+    <a href="/" class="nav-back">← Zurück zur Startseite</a>
+  </nav>
+</div>
+
+<section class="hero">
+  <span class="hero-eyebrow">Live Demo · keine Anmeldung nötig</span>
+  <h1 class="hero-title">Praxmate einfach <span class="grad">ausprobieren.</span></h1>
+  <p class="hero-sub">Zwei Seiten, eine Buchung. Links sehen Sie, wie Patienten einen Termin online buchen. Rechts erleben Sie, wie die Praxis genau diesen Termin sofort bekommt und verwaltet.</p>
+</section>
+
+<div class="tiles">
+
+  <!-- Patient tile -->
+  <div class="tile tile--patient">
+    <div class="tile-badge"><span class="tile-badge-dot"></span>Patient-Ansicht</div>
+    <div class="tile-ico">🙋</div>
+    <h2 class="tile-title">So bucht der Patient</h2>
+    <p class="tile-lead">Öffnet einfach den Link, wählt eine Behandlung, einen freien Termin, gibt die Kontaktdaten ein — fertig.</p>
+    <ul class="tile-list">
+      <li>Echte Buchungsoberfläche der Demo-Praxis</li>
+      <li>Termine landen im Demo-Kalender (nicht bei einer echten Praxis)</li>
+      <li>Keine Bestätigungs-Mail — ist nur Demo</li>
+      <li>Mobil optimiert, DSGVO-konform</li>
+    </ul>
+    <a class="tile-cta" href="/book.html?practice=demo" target="_blank" rel="noopener">
+      <span class="tile-cta-label">Als Patient öffnen</span>
+      <span>→</span>
+    </a>
+    <div class="tile-creds">
+      Tipp: Buchen Sie einen Termin und öffnen Sie danach die Admin-Ansicht rechts — der Termin erscheint dort sofort im Kalender.
+    </div>
+  </div>
+
+  <!-- Admin tile -->
+  <div class="tile tile--admin">
+    <div class="tile-badge"><span class="tile-badge-dot"></span>Praxis-Ansicht</div>
+    <div class="tile-ico">🩺</div>
+    <h2 class="tile-title">So verwaltet die Praxis</h2>
+    <p class="tile-lead">Dashboard, Kalender, Patientenverwaltung, Einstellungen. Klicken Sie rein — keine Anmeldung nötig, wir loggen Sie automatisch ein.</p>
+    <ul class="tile-list">
+      <li>2 Behandler, 4 Behandlungsarten, 10 Demo-Patienten</li>
+      <li>~60 Beispiel-Termine (rückwirkend &amp; zukünftig)</li>
+      <li>Voller Zugang: Termine, Patienten, Einstellungen</li>
+      <li>Alles ist Demo — Sie können nichts kaputt machen</li>
+    </ul>
+    <button class="tile-cta" id="btn-admin" type="button">
+      <span class="tile-cta-label">Als Admin öffnen</span>
+      <span class="tile-cta-spin"></span>
+    </button>
+    <div class="tile-creds">
+      Oder selbst anmelden: E-Mail <code>demo@praxmate.de</code> · Passwort <code>DemoPraxmate2026</code>
+    </div>
+    <div class="tile-err" id="admin-err"></div>
+  </div>
+
+</div>
+
+<section class="faq">
+  <h2 class="faq-title">Häufig gestellte Fragen</h2>
+
+  <div class="faq-item">
+    <p class="faq-q">Sind das echte Patientendaten?</p>
+    <p class="faq-a">Nein. Die Demo-Praxis "Musterpraxis Praxmate" ist komplett fiktiv — Doktoren, Patienten und Termine sind frei erfunden.</p>
+  </div>
+
+  <div class="faq-item">
+    <p class="faq-q">Kann ich etwas kaputt machen?</p>
+    <p class="faq-a">Nein. Die Demo ist isoliert von allen echten Kunden. Wird die Demo mit der Zeit "unordentlich", setzen wir sie einfach zurück.</p>
+  </div>
+
+  <div class="faq-item">
+    <p class="faq-q">Bekommen Patienten, die im Demo buchen, wirklich Mails?</p>
+    <p class="faq-a">Nein — der E-Mail-Versand ist in der Demo deaktiviert. Sie können also gefahrlos Testbuchungen mit beliebigen Adressen machen.</p>
+  </div>
+
+  <div class="faq-item">
+    <p class="faq-q">Kann ich eine Demo für meine eigene Praxis bekommen?</p>
+    <p class="faq-a">Ja — gerne richten wir eine persönliche Demo-Praxis mit Ihrem Logo und Ihren Behandlungsarten ein. Schreiben Sie eine Mail an <a href="mailto:h.guencavdi@hasi-elektronic.de">h.guencavdi@hasi-elektronic.de</a>.</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <div>
+    © 2026 Praxmate · <a href="/">Startseite</a> · <a href="/#pricing">Preise</a> · <a href="mailto:h.guencavdi@hasi-elektronic.de">Kontakt</a>
+  </div>
+</footer>
+
+<script>
+// ==================================================================
+// AUTO-LOGIN for admin demo
+// POST /api/admin/auth/login with demo credentials → save token to
+// localStorage (same origin = shared) → open /praxis/dashboard in new tab.
+// ==================================================================
+(function() {
+  const API = 'https://praxmate-api.hguencavdi.workers.dev';
+  const btn = document.getElementById('btn-admin');
+  const err = document.getElementById('admin-err');
+  if (!btn) return;
+
+  btn.addEventListener('click', async () => {
+    btn.dataset.loading = '1';
+    btn.disabled = true;
+    err.classList.remove('is-on');
+    err.textContent = '';
+
+    try {
+      const r = await fetch(API + '/api/admin/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Praxmate-Practice': 'demo',
+        },
+        body: JSON.stringify({
+          email: 'demo@praxmate.de',
+          password: 'DemoPraxmate2026',
+        }),
+      });
+      const d = await r.json();
+      if (!d.token) throw new Error(d.error || 'Login fehlgeschlagen');
+
+      // Persist session for the praxis shell (same origin)
+      localStorage.setItem('praxmate_token', d.token);
+      localStorage.setItem('praxmate_practice', 'demo');
+
+      // Open dashboard in new tab
+      window.open('/praxis/dashboard.html?practice=demo', '_blank', 'noopener');
+    } catch (e) {
+      err.textContent = 'Ups — ' + (e.message || 'unbekannter Fehler') + '. Bitte melden Sie sich manuell an.';
+      err.classList.add('is-on');
+    } finally {
+      btn.dataset.loading = '0';
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
