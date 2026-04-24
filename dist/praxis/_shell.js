@@ -34,6 +34,7 @@
     'calendar':       'sb.calendar',
     'patients':       'sb.patients',
     'settings':       'sb.settings',
+    'billing':        'sb.billing',
   };
   function applyI18n() {
     if (!window.i18n) return;

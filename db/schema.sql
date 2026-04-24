@@ -40,10 +40,16 @@ CREATE TABLE practices (
   locale TEXT DEFAULT 'de-DE',
 
   -- Billing plan
-  plan TEXT DEFAULT 'solo',          -- 'solo', 'team', 'praxis'
-  plan_status TEXT DEFAULT 'trial',  -- 'trial', 'active', 'cancelled', 'suspended'
+  plan TEXT DEFAULT 'solo',          -- 'solo', 'team', 'klinik'
+  plan_status TEXT DEFAULT 'trial',  -- 'trial', 'active', 'past_due', 'cancelled', 'suspended'
   trial_ends_at TEXT,
   max_doctors INTEGER DEFAULT 3,
+
+  -- Stripe billing (nullable until owner subscribes)
+  stripe_customer_id     TEXT,       -- cus_...
+  stripe_subscription_id TEXT,       -- sub_...
+  stripe_price_id        TEXT,       -- price_... (current subscription price)
+  current_period_end     TEXT,       -- ISO8601, set by webhook on invoice.payment_succeeded
 
   -- Timestamps
   created_at TEXT DEFAULT (datetime('now')),

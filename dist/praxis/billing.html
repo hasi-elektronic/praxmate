@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Praxmate — Abonnement</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230ea5e9'/%3E%3Ctext x='50' y='68' font-family='Georgia' font-size='50' font-weight='700' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/praxis/_shell.css">
+<script src="/praxis/_i18n.js"></script>
+<style>
+  :root {
+    --primary: #0ea5e9;
+    --teal: #14b8a6;
+    --ink: #0f172a;
+    --ink-soft: #475569;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --bg: #f8fafc;
+    --success: #059669;
+    --warn: #d97706;
+    --danger: #dc2626;
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+  .page-title { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .page-sub { color: var(--muted); margin-bottom: 28px; }
+
+  .status-card {
+    background: linear-gradient(135deg, #ecfeff, #f0f9ff);
+    border: 1px solid #bae6fd;
+    padding: 22px 26px;
+    border-radius: 16px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: white;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .status-badge.trial { color: var(--primary); }
+  .status-badge.active { color: var(--success); }
+  .status-badge.past_due { color: var(--warn); }
+  .status-badge.cancelled { color: var(--danger); }
+  .status-badge::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .status-main { flex: 1; min-width: 240px; }
+  .status-main h3 { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .status-main p { color: var(--ink-soft); font-size: 13px; }
+
+  .tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .tier {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    transition: all 0.15s;
+    display: flex;
+    flex-direction: column;
+  }
+  .tier.current { border-color: var(--primary); box-shadow: 0 8px 24px rgba(14,165,233,0.12); }
+  .tier.featured { border-color: var(--teal); }
+  .tier.featured::before {
+    content: '⭐ Beliebt';
+    display: block;
+    background: var(--teal);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 12px;
+    width: fit-content;
+    margin-bottom: 12px;
+  }
+  .tier h4 { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .tier-price { font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 2px; }
+  .tier-price small { font-size: 14px; color: var(--muted); font-weight: 500; }
+  .tier-sub { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+  .tier-features { list-style: none; padding: 0; margin-bottom: 20px; flex: 1; }
+  .tier-features li { padding: 5px 0; font-size: 13px; }
+  .tier-features li::before { content: '✓'; color: var(--success); font-weight: 800; margin-right: 6px; }
+  .tier-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: var(--primary);
+    color: white;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .tier-btn:hover { background: #0284c7; }
+  .tier-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .tier-btn.current-btn { background: var(--success); }
+
+  .portal-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .portal-card-text { flex: 1; min-width: 240px; }
+  .portal-btn {
+    padding: 10px 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .portal-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+  .err-box { padding: 12px 16px; background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+  .err-box.visible { display: block; }
+  .success-box { padding: 14px 16px; background: #ecfdf5; border: 1px solid #a7f3d0; color: var(--success); border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+  .success-box.visible { display: block; }
+
+  .loading { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 6px; vertical-align: -2px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body data-page="billing">
+
+<button class="sb-toggle" id="sbToggle" aria-label="Menü" data-i18n-attr="aria-label:sb.menu">☰</button>
+
+<div class="app-shell">
+  <aside class="app-sidebar">
+    <div class="sb-brand">
+      <div class="sb-brand-mark" id="sbBrandMark">P</div>
+      <div class="sb-brand-text">
+        <div class="sb-brand-name">Praxmate</div>
+        <div class="sb-brand-sub" id="sbBrandSub">Lade...</div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <a href="/praxis/dashboard.html" class="sb-nav-item" data-page="dashboard"><span class="sb-nav-icon">▦</span><span data-i18n="sb.dashboard">Dashboard</span></a>
+      <a href="/praxis/new-appointment.html" class="sb-nav-item" data-page="new-appointment"><span class="sb-nav-icon">+</span><span data-i18n="sb.new_appt">Neuer Termin</span></a>
+      <a href="/praxis/calendar.html" class="sb-nav-item" data-page="calendar"><span class="sb-nav-icon">▤</span><span data-i18n="sb.calendar">Kalender</span></a>
+      <a href="/praxis/patients.html" class="sb-nav-item" data-page="patients"><span class="sb-nav-icon">◉</span><span data-i18n="sb.patients">Patienten</span></a>
+      <a href="/praxis/settings.html" class="sb-nav-item" data-page="settings"><span class="sb-nav-icon">⚙</span><span data-i18n="sb.settings">Einstellungen</span></a>
+      <a href="/praxis/billing.html" class="sb-nav-item" data-page="billing"><span class="sb-nav-icon">💳</span><span data-i18n="sb.billing">Abo</span></a>
+    </nav>
+    <div class="sb-user" id="sbUser" title="Abmelden">
+      <div class="sb-user-avatar" id="sbUserAvatar">?</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
+      </div>
+      <span class="sb-logout">↪</span>
+    </div>
+  </aside>
+
+  <main class="app-main">
+
+<div class="wrap">
+  <div class="page-title" data-i18n="bill.title">Abonnement</div>
+  <div class="page-sub" data-i18n="bill.sub">Verwalten Sie Ihren Plan, Zahlungsmethode und Rechnungen.</div>
+
+  <div class="err-box" id="errBox"></div>
+  <div class="success-box" id="successBox"></div>
+
+  <!-- Current plan card -->
+  <div class="status-card" id="statusCard" style="display:none;">
+    <div class="status-main">
+      <h3 id="statusTitle">Solo Plan</h3>
+      <p id="statusSub">Kostenloser Testzeitraum bis ...</p>
+    </div>
+    <div class="status-badge trial" id="statusBadge">Trial</div>
+  </div>
+
+  <!-- Tier selection -->
+  <div class="tiers" id="tiersGrid"></div>
+
+  <!-- Customer portal (only when subscription exists) -->
+  <div class="portal-card" id="portalCard" style="display:none;">
+    <div class="portal-card-text">
+      <strong data-i18n="bill.portal_title">Rechnungen & Zahlungsmethode</strong>
+      <div style="color:var(--muted); font-size:13px; margin-top:2px;" data-i18n="bill.portal_sub">Im Stripe-Portal kündigen, Plan wechseln oder Rechnungen herunterladen.</div>
+    </div>
+    <button class="portal-btn" id="portalBtn" data-i18n="bill.portal_open">Stripe-Portal öffnen →</button>
+  </div>
+</div>
+
+  </main>
+</div>
+
+<script>
+const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
+
+function resolvePracticeSlug() {
+  const host = window.location.hostname;
+  const RESERVED = ['www','admin','api','app','mail','praxmate'];
+  let m = host.match(/^([a-z0-9-]+)\.praxmate\.de$/);
+  if (m && !RESERVED.includes(m[1])) return m[1];
+  m = host.match(/^([a-z0-9-]+)\.praxmate\.pages\.dev$/);
+  if (m && !RESERVED.includes(m[1]) && !/^[a-f0-9]{8}$/.test(m[1])) return m[1];
+  const qs = new URLSearchParams(window.location.search);
+  const qp = qs.get('practice');
+  if (qp) { localStorage.setItem('praxmate_practice', qp); return qp; }
+  return localStorage.getItem('praxmate_practice');
+}
+const PRACTICE_SLUG = resolvePracticeSlug();
+const token = localStorage.getItem('praxmate_token');
+if (!token) window.location.href = '/praxis/' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+
+async function api(path, opts = {}) {
+  const res = await fetch(API_BASE + path, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      ...(PRACTICE_SLUG ? { 'X-Praxmate-Practice': PRACTICE_SLUG } : {}),
+      ...(opts.headers || {}),
+    },
+  });
+  if (res.status === 401) {
+    localStorage.removeItem('praxmate_token');
+    window.location.href = '/praxis/' + (PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '');
+    return null;
+  }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+// ----- i18n extras for billing page -----
+const EXTRA = {
+  de: {
+    'sb.billing': 'Abo',
+    'bill.title': 'Abonnement',
+    'bill.sub': 'Verwalten Sie Ihren Plan, Zahlungsmethode und Rechnungen.',
+    'bill.trial_until': 'Kostenlos testen bis',
+    'bill.trial_days': '{n} Tage übrig',
+    'bill.renews': 'Nächste Rechnung am',
+    'bill.plan_solo': 'Solo',
+    'bill.plan_team': 'Team',
+    'bill.plan_klinik': 'Klinik',
+    'bill.per_month': '/Monat',
+    'bill.solo_sub': 'Einzelpraxis, bis zu 1 Behandler',
+    'bill.team_sub': 'Kleine Praxis, bis zu 3 Behandler',
+    'bill.klinik_sub': 'Große Praxis, bis zu 10 Behandler',
+    'bill.current_plan': '✓ Aktueller Plan',
+    'bill.upgrade': 'Jetzt upgraden',
+    'bill.downgrade': 'Auf diesen Plan wechseln',
+    'bill.start': 'Plan aktivieren',
+    'bill.status_trial': 'Testzeitraum',
+    'bill.status_active': 'Aktiv',
+    'bill.status_past_due': 'Zahlung fällig',
+    'bill.status_cancelled': 'Gekündigt',
+    'bill.portal_title': 'Rechnungen & Zahlungsmethode',
+    'bill.portal_sub': 'Im Stripe-Portal kündigen, Plan wechseln oder Rechnungen herunterladen.',
+    'bill.portal_open': 'Stripe-Portal öffnen →',
+    'bill.success_msg': '✓ Abonnement aktiviert! Die Zahlung wird in wenigen Sekunden verarbeitet.',
+    'bill.cancelled_msg': 'Abgebrochen — kein Problem. Sie können es jederzeit erneut versuchen.',
+    'bill.err_no_owner': 'Nur der Inhaber kann das Abonnement verwalten.',
+    'bill.feat_solo_1': 'Eigene Buchungs-URL',
+    'bill.feat_solo_2': 'Automatische 24h-Erinnerungen',
+    'bill.feat_solo_3': 'DSGVO-konform',
+    'bill.feat_solo_4': 'E-Mail-Support',
+    'bill.feat_team_1': 'Alles aus Solo',
+    'bill.feat_team_2': 'Eigene Domain (xxx.praxmate.de)',
+    'bill.feat_team_3': 'Bis zu 3 Behandler',
+    'bill.feat_team_4': 'Team-Login-Konten',
+    'bill.feat_klinik_1': 'Alles aus Team',
+    'bill.feat_klinik_2': 'Website-Widget',
+    'bill.feat_klinik_3': 'Bis zu 10 Behandler',
+    'bill.feat_klinik_4': 'Erweiterte Statistik',
+    'bill.feat_klinik_5': 'Dedizierter Ansprechpartner',
+  },
+  en: {
+    'sb.billing': 'Billing',
+    'bill.title': 'Subscription',
+    'bill.sub': 'Manage your plan, payment method and invoices.',
+    'bill.trial_until': 'Free trial until',
+    'bill.trial_days': '{n} days left',
+    'bill.renews': 'Next invoice on',
+    'bill.plan_solo': 'Solo',
+    'bill.plan_team': 'Team',
+    'bill.plan_klinik': 'Clinic',
+    'bill.per_month': '/month',
+    'bill.solo_sub': 'Single practice, up to 1 practitioner',
+    'bill.team_sub': 'Small practice, up to 3 practitioners',
+    'bill.klinik_sub': 'Large practice, up to 10 practitioners',
+    'bill.current_plan': '✓ Current plan',
+    'bill.upgrade': 'Upgrade now',
+    'bill.downgrade': 'Switch to this plan',
+    'bill.start': 'Activate plan',
+    'bill.status_trial': 'Trial',
+    'bill.status_active': 'Active',
+    'bill.status_past_due': 'Payment due',
+    'bill.status_cancelled': 'Cancelled',
+    'bill.portal_title': 'Invoices & payment method',
+    'bill.portal_sub': 'Cancel, switch plans or download invoices in the Stripe portal.',
+    'bill.portal_open': 'Open Stripe portal →',
+    'bill.success_msg': '✓ Subscription active! Payment processes in a few seconds.',
+    'bill.cancelled_msg': 'Cancelled — no worries. Try again anytime.',
+    'bill.err_no_owner': 'Only the owner can manage the subscription.',
+    'bill.feat_solo_1': 'Your own booking URL',
+    'bill.feat_solo_2': 'Automatic 24h reminders',
+    'bill.feat_solo_3': 'GDPR-compliant',
+    'bill.feat_solo_4': 'Email support',
+    'bill.feat_team_1': 'Everything in Solo',
+    'bill.feat_team_2': 'Custom domain (xxx.praxmate.de)',
+    'bill.feat_team_3': 'Up to 3 practitioners',
+    'bill.feat_team_4': 'Team login accounts',
+    'bill.feat_klinik_1': 'Everything in Team',
+    'bill.feat_klinik_2': 'Website widget',
+    'bill.feat_klinik_3': 'Up to 10 practitioners',
+    'bill.feat_klinik_4': 'Advanced statistics',
+    'bill.feat_klinik_5': 'Dedicated account manager',
+  },
+  tr: {
+    'sb.billing': 'Abonelik',
+    'bill.title': 'Abonelik',
+    'bill.sub': 'Planınızı, ödeme yönteminizi ve faturalarınızı yönetin.',
+    'bill.trial_until': 'Ücretsiz deneme süresi',
+    'bill.trial_days': '{n} gün kaldı',
+    'bill.renews': 'Sonraki fatura tarihi',
+    'bill.plan_solo': 'Solo',
+    'bill.plan_team': 'Team',
+    'bill.plan_klinik': 'Klinik',
+    'bill.per_month': '/ay',
+    'bill.solo_sub': 'Tek hekim, tek klinik',
+    'bill.team_sub': 'Küçük klinik, 3 hekime kadar',
+    'bill.klinik_sub': 'Büyük klinik, 10 hekime kadar',
+    'bill.current_plan': '✓ Mevcut plan',
+    'bill.upgrade': 'Şimdi yükselt',
+    'bill.downgrade': 'Bu plana geç',
+    'bill.start': 'Planı etkinleştir',
+    'bill.status_trial': 'Deneme',
+    'bill.status_active': 'Aktif',
+    'bill.status_past_due': 'Ödeme vadesi',
+    'bill.status_cancelled': 'İptal edildi',
+    'bill.portal_title': 'Faturalar ve ödeme yöntemi',
+    'bill.portal_sub': 'Stripe portalından iptal edin, plan değiştirin veya fatura indirin.',
+    'bill.portal_open': 'Stripe portalını aç →',
+    'bill.success_msg': '✓ Abonelik aktif! Ödeme birkaç saniye içinde işlenecek.',
+    'bill.cancelled_msg': 'İptal edildi — sorun değil. İstediğiniz zaman tekrar deneyebilirsiniz.',
+    'bill.err_no_owner': 'Sadece sahip aboneliği yönetebilir.',
+    'bill.feat_solo_1': 'Kendi randevu URL\'iniz',
+    'bill.feat_solo_2': 'Otomatik 24 saat hatırlatma',
+    'bill.feat_solo_3': 'KVKK & GDPR uyumlu',
+    'bill.feat_solo_4': 'E-posta desteği',
+    'bill.feat_team_1': 'Solo\'nun her şeyi',
+    'bill.feat_team_2': 'Özel alan adı (xxx.praxmate.de)',
+    'bill.feat_team_3': '3 hekime kadar',
+    'bill.feat_team_4': 'Ekip giriş hesapları',
+    'bill.feat_klinik_1': 'Team\'in her şeyi',
+    'bill.feat_klinik_2': 'Web sitesi widget\'ı',
+    'bill.feat_klinik_3': '10 hekime kadar',
+    'bill.feat_klinik_4': 'Gelişmiş istatistik',
+    'bill.feat_klinik_5': 'Özel hesap yöneticisi',
+  },
+};
+const bt = (k, p) => {
+  const lang = (window.i18n && window.i18n.getLang()) || 'de';
+  let s = EXTRA[lang]?.[k] ?? EXTRA.de[k] ?? k;
+  if (p) for (const [x,v] of Object.entries(p)) s = s.replace(`{${x}}`, v);
+  return s;
+};
+
+// ----- Render helpers -----
+const PLANS = [
+  { id: 'solo',   amount: 39,  featured: false,
+    features: ['feat_solo_1','feat_solo_2','feat_solo_3','feat_solo_4'] },
+  { id: 'team',   amount: 69,  featured: true,
+    features: ['feat_team_1','feat_team_2','feat_team_3','feat_team_4'] },
+  { id: 'klinik', amount: 119, featured: false,
+    features: ['feat_klinik_1','feat_klinik_2','feat_klinik_3','feat_klinik_4','feat_klinik_5'] },
+];
+
+function renderTiers(currentPlan, planStatus) {
+  const grid = document.getElementById('tiersGrid');
+  const isSubscribed = planStatus === 'active' || planStatus === 'past_due';
+  grid.innerHTML = PLANS.map(p => {
+    const isCurrent = p.id === currentPlan && isSubscribed;
+    const feats = p.features.map(f => `<li>${bt('bill.' + f)}</li>`).join('');
+    const label = isCurrent ? 'bill.current_plan'
+      : planStatus === 'trial' ? 'bill.start'
+      : (PLANS.findIndex(x => x.id === currentPlan) < PLANS.findIndex(x => x.id === p.id) ? 'bill.upgrade' : 'bill.downgrade');
+    return `
+      <div class="tier ${isCurrent ? 'current' : ''} ${p.featured ? 'featured' : ''}">
+        <h4>${bt('bill.plan_' + p.id)}</h4>
+        <div class="tier-price">€${p.amount}<small>${bt('bill.per_month')}</small></div>
+        <div class="tier-sub">${bt('bill.' + p.id + '_sub')}</div>
+        <ul class="tier-features">${feats}</ul>
+        <button class="tier-btn ${isCurrent ? 'current-btn' : ''}" data-plan="${p.id}" ${isCurrent ? 'disabled' : ''}>
+          ${bt(label)}
+        </button>
+      </div>
+    `;
+  }).join('');
+  grid.querySelectorAll('.tier-btn:not(:disabled)').forEach(btn => {
+    btn.addEventListener('click', () => startCheckout(btn.dataset.plan, btn));
+  });
+}
+
+function renderStatus(s) {
+  const card = document.getElementById('statusCard');
+  const title = document.getElementById('statusTitle');
+  const sub = document.getElementById('statusSub');
+  const badge = document.getElementById('statusBadge');
+  card.style.display = 'flex';
+
+  const planName = bt('bill.plan_' + (s.plan || 'solo'));
+  title.textContent = planName + ' Plan';
+
+  let subText = '';
+  if (s.plan_status === 'trial' && s.trial_ends_at) {
+    const end = new Date(s.trial_ends_at);
+    const days = Math.ceil((end.getTime() - Date.now()) / 86400000);
+    const dateStr = end.toLocaleDateString(window.i18n?.getLang() || 'de');
+    subText = `${bt('bill.trial_until')} ${dateStr} · ${bt('bill.trial_days', {n: days})}`;
+  } else if (s.plan_status === 'active' && s.current_period_end) {
+    const end = new Date(s.current_period_end);
+    subText = `${bt('bill.renews')} ${end.toLocaleDateString(window.i18n?.getLang() || 'de')}`;
+  }
+  sub.textContent = subText;
+
+  badge.className = 'status-badge ' + s.plan_status;
+  badge.textContent = bt('bill.status_' + s.plan_status);
+
+  // Portal visible only when subscription exists
+  document.getElementById('portalCard').style.display = s.has_subscription ? 'flex' : 'none';
+}
+
+// ----- API calls -----
+async function loadStatus() {
+  try {
+    const s = await api('/admin/billing/status');
+    renderStatus(s);
+    renderTiers(s.plan, s.plan_status);
+  } catch (e) {
+    showErr(e.message);
+  }
+}
+
+async function startCheckout(plan, btn) {
+  try {
+    btn.disabled = true;
+    btn.innerHTML = `<span class="loading"></span>`;
+    const data = await api('/admin/billing/checkout', {
+      method: 'POST',
+      body: JSON.stringify({
+        plan,
+        return_base: window.location.origin,
+      }),
+    });
+    if (data?.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error('Kein Checkout-Link');
+    }
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = bt('bill.upgrade');
+    showErr(e.message);
+  }
+}
+
+async function openPortal() {
+  const btn = document.getElementById('portalBtn');
+  const orig = btn.textContent;
+  try {
+    btn.disabled = true;
+    btn.innerHTML = `<span class="loading"></span>`;
+    const data = await api('/admin/billing/portal', {
+      method: 'POST',
+      body: JSON.stringify({ return_base: window.location.origin }),
+    });
+    if (data?.url) window.location.href = data.url;
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = orig;
+    showErr(e.message);
+  }
+}
+
+function showErr(msg) {
+  const box = document.getElementById('errBox');
+  box.textContent = msg;
+  box.classList.add('visible');
+  setTimeout(() => box.classList.remove('visible'), 5000);
+}
+function showSuccess(msg) {
+  const box = document.getElementById('successBox');
+  box.textContent = msg;
+  box.classList.add('visible');
+  setTimeout(() => box.classList.remove('visible'), 8000);
+}
+
+// ----- init -----
+document.getElementById('portalBtn').addEventListener('click', openPortal);
+window.addEventListener('DOMContentLoaded', () => {
+  // Status message from URL (after Stripe redirect)
+  const qs = new URLSearchParams(location.search);
+  const s = qs.get('status');
+  if (s === 'success') showSuccess(bt('bill.success_msg'));
+  if (s === 'cancelled') showErr(bt('bill.cancelled_msg'));
+  // Remove query params from the URL
+  if (s) history.replaceState({}, '', location.pathname);
+
+  loadStatus();
+  if (window.i18n) window.i18n.onChange(loadStatus);
+});
+</script>
+<script src="/praxis/_shell.js"></script>
+</body>
+</html>

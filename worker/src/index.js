@@ -101,6 +101,14 @@ import {
   handleSlugCheck,
 } from './routes/signup.js';
 
+// Stripe billing (checkout, portal, webhook)
+import {
+  handleCheckoutStart,
+  handleCustomerPortal,
+  handleBillingStatus,
+  handleStripeWebhook,
+} from './routes/billing.js';
+
 // Scheduled jobs
 import { runReminders } from './routes/reminders.js';
 import { runBackup }    from './routes/backup.js';
@@ -156,6 +164,29 @@ export default {
 
       // (Removed: one-time /api/internal/migrate-signup-rl and /cleanup-tenant.
       //  Both migrations already applied to production D1 — deleted for security.)
+
+      // (Removed: one-time /api/internal/migrate-stripe + /reset-rl endpoints.
+      //  Migrations applied; test cleanup done. Deleted for security.)
+
+      // ============================================================
+      // PUBLIC — Stripe webhook (signed, no user auth)
+      // ============================================================
+      if (path === '/api/public/stripe-webhook' && method === 'POST') {
+        return await handleStripeWebhook(env, request);
+      }
+
+      // ============================================================
+      // ADMIN — billing (owner only for mutations)
+      // ============================================================
+      if (path === '/api/admin/billing/checkout' && method === 'POST') {
+        return await handleCheckoutStart(env, request);
+      }
+      if (path === '/api/admin/billing/portal' && method === 'POST') {
+        return await handleCustomerPortal(env, request);
+      }
+      if (path === '/api/admin/billing/status' && method === 'GET') {
+        return await handleBillingStatus(env, request);
+      }
 
       // Patient self-service by magic_token
       const publicApptMatch = path.match(/^\/api\/appointments\/([a-f0-9]{48})$/);
