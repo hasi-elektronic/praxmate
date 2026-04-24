@@ -35,6 +35,8 @@ export default {
     const passthrough =
       p.startsWith('/en/') ||
       p === '/en' ||
+      p.startsWith('/tr/') ||
+      p === '/tr' ||
       p.startsWith('/praxis/') ||
       p.startsWith('/admin/') ||
       p.startsWith('/api/') ||
