@@ -74,7 +74,11 @@ export async function getPracticeBySlug(env, slug) {
     SELECT id, slug, name, specialty, street, postal_code, city, country,
            phone, email, website, brand_primary, brand_accent, brand_ink,
            logo_url, legal_name, tax_id, responsible_person,
-           professional_chamber, timezone, locale, plan, plan_status
+           professional_chamber, timezone, locale, plan, plan_status,
+           trial_ends_at,
+           stripe_customer_id, stripe_subscription_id, stripe_price_id,
+           stripe_test_customer_id, stripe_test_subscription_id, stripe_test_price_id,
+           is_test_mode
     FROM practices
     WHERE slug = ? AND plan_status != 'suspended'
     LIMIT 1
@@ -86,7 +90,11 @@ export async function getPracticeById(env, id) {
     SELECT id, slug, name, specialty, street, postal_code, city, country,
            phone, email, website, brand_primary, brand_accent, brand_ink,
            logo_url, legal_name, tax_id, responsible_person,
-           professional_chamber, timezone, locale, plan, plan_status
+           professional_chamber, timezone, locale, plan, plan_status,
+           trial_ends_at,
+           stripe_customer_id, stripe_subscription_id, stripe_price_id,
+           stripe_test_customer_id, stripe_test_subscription_id, stripe_test_price_id,
+           is_test_mode
     FROM practices
     WHERE id = ?
     LIMIT 1

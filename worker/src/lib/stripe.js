@@ -2,10 +2,44 @@
 // Stripe HTTP client — minimal, no SDK
 // ============================================================
 // Uses form-encoded bodies per Stripe REST conventions.
-// STRIPE_SECRET_KEY is a Worker Secret (never in source).
+// Supports dual-mode (LIVE + TEST) routing. Call stripeContextFor(env, practice)
+// to pick the right context before issuing any API call.
 // ============================================================
 
 const STRIPE_API = 'https://api.stripe.com/v1';
+
+/**
+ * Select live vs test Stripe context based on practice.is_test_mode flag.
+ * Test tenants hit sk_test_ + test price IDs so you can run unlimited checkout
+ * with the 4242 4242 4242 4242 card without real charges.
+ */
+export function stripeContextFor(env, practice) {
+  const isTest = practice?.is_test_mode === 1;
+  if (isTest && env.STRIPE_TEST_SECRET_KEY) {
+    return {
+      mode: 'test',
+      secretKey:     env.STRIPE_TEST_SECRET_KEY,
+      webhookSecret: env.STRIPE_TEST_WEBHOOK_SECRET,
+      publicKey:     env.STRIPE_TEST_PUBLIC_KEY,
+      prices: {
+        solo:   env.STRIPE_TEST_PRICE_SOLO,
+        team:   env.STRIPE_TEST_PRICE_TEAM,
+        klinik: env.STRIPE_TEST_PRICE_KLINIK,
+      },
+    };
+  }
+  return {
+    mode: 'live',
+    secretKey:     env.STRIPE_SECRET_KEY,
+    webhookSecret: env.STRIPE_WEBHOOK_SECRET,
+    publicKey:     env.STRIPE_PUBLIC_KEY,
+    prices: {
+      solo:   env.STRIPE_PRICE_SOLO,
+      team:   env.STRIPE_PRICE_TEAM,
+      klinik: env.STRIPE_PRICE_KLINIK,
+    },
+  };
+}
 
 function formEncode(obj, prefix = '') {
   const params = [];
@@ -29,11 +63,21 @@ function formEncode(obj, prefix = '') {
   return params.filter(Boolean).join('&');
 }
 
-export async function stripeRequest(env, method, path, body) {
+/**
+ * Call the Stripe API.
+ * First arg may be either:
+ *   - an env object (legacy: uses env.STRIPE_SECRET_KEY, always LIVE)
+ *   - a context object from stripeContextFor() (dual-mode, preferred)
+ */
+export async function stripeRequest(envOrCtx, method, path, body) {
+  const secretKey = envOrCtx.secretKey || envOrCtx.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error('stripeRequest: missing secret key (call with env or context)');
+  }
   const res = await fetch(STRIPE_API + path, {
     method,
     headers: {
-      'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+      'Authorization': `Bearer ${secretKey}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: body ? formEncode(body) : undefined,
@@ -107,18 +151,25 @@ function timingSafeEq(a, b) {
 // ============================================================
 // Plan <-> Price mapping
 // ============================================================
-export function priceIdForPlan(env, plan) {
-  const map = {
-    solo:   env.STRIPE_PRICE_SOLO,
-    team:   env.STRIPE_PRICE_TEAM,
-    klinik: env.STRIPE_PRICE_KLINIK,
+// Accepts either env (legacy, LIVE only) or a context from stripeContextFor().
+export function priceIdForPlan(envOrCtx, plan) {
+  const prices = envOrCtx.prices || {
+    solo:   envOrCtx.STRIPE_PRICE_SOLO,
+    team:   envOrCtx.STRIPE_PRICE_TEAM,
+    klinik: envOrCtx.STRIPE_PRICE_KLINIK,
   };
-  return map[plan] || null;
+  return prices[plan] || null;
 }
 
+// Reverse lookup — given a Stripe Price ID, return the plan slug.
+// Checks BOTH live and test mappings so webhook events (which don't know
+// which mode they came from until verified) resolve correctly.
 export function planForPriceId(env, priceId) {
-  if (priceId === env.STRIPE_PRICE_SOLO)   return 'solo';
-  if (priceId === env.STRIPE_PRICE_TEAM)   return 'team';
-  if (priceId === env.STRIPE_PRICE_KLINIK) return 'klinik';
+  if (priceId === env.STRIPE_PRICE_SOLO)        return 'solo';
+  if (priceId === env.STRIPE_PRICE_TEAM)        return 'team';
+  if (priceId === env.STRIPE_PRICE_KLINIK)      return 'klinik';
+  if (priceId === env.STRIPE_TEST_PRICE_SOLO)   return 'solo';
+  if (priceId === env.STRIPE_TEST_PRICE_TEAM)   return 'team';
+  if (priceId === env.STRIPE_TEST_PRICE_KLINIK) return 'klinik';
   return null;
 }

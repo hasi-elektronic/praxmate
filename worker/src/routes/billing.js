@@ -16,6 +16,7 @@ import {
   verifyStripeSignature,
   priceIdForPlan,
   planForPriceId,
+  stripeContextFor,
 } from '../lib/stripe.js';
 
 // ============================================================
@@ -37,26 +38,31 @@ export async function handleCheckoutStart(env, request) {
   const mode = body?.mode;
   const explicitDays = typeof body?.trial_days === 'number' ? body.trial_days : null;
 
-  const priceId = priceIdForPlan(env, plan);
-  if (!priceId) return jsonError('Unbekannter Plan', request, 400);
-
   const practice = await getPracticeById(env, user.practice_id);
   if (!practice) return jsonError('Praxis nicht gefunden', request, 404);
 
-  // ===== Ensure a Stripe Customer exists for this practice =====
-  let customerId = practice.stripe_customer_id;
+  // Route to live or test Stripe backend based on practice.is_test_mode
+  const ctx = stripeContextFor(env, practice);
+  const priceId = priceIdForPlan(ctx, plan);
+  if (!priceId) return jsonError('Unbekannter Plan', request, 400);
+
+  // ===== Ensure a Stripe Customer exists for this practice (per-mode) =====
+  // Test customers live in a different column so they survive mode flips.
+  const customerCol = ctx.mode === 'test' ? 'stripe_test_customer_id' : 'stripe_customer_id';
+  let customerId = practice[customerCol];
   if (!customerId) {
-    const customer = await stripeRequest(env, 'POST', '/customers', {
+    const customer = await stripeRequest(ctx, 'POST', '/customers', {
       email: user.email,
       name:  practice.name,
       metadata: {
         practice_id: practice.id,
         practice_slug: practice.slug,
+        is_test: ctx.mode === 'test' ? '1' : '0',
       },
     });
     customerId = customer.id;
     await env.DB.prepare(
-      `UPDATE practices SET stripe_customer_id = ? WHERE id = ?`
+      `UPDATE practices SET ${customerCol} = ? WHERE id = ?`
     ).bind(customerId, practice.id).run();
   }
 
@@ -84,7 +90,7 @@ export async function handleCheckoutStart(env, request) {
   // Google Pay, Apple Pay, Link, Bancontact, Amazon Pay) and filters to the
   // ones compatible with subscription mode.
   // Note: `automatic_payment_methods` is a PaymentIntent param, NOT valid here.
-  const session = await stripeRequest(env, 'POST', '/checkout/sessions', {
+  const session = await stripeRequest(ctx, 'POST', '/checkout/sessions', {
     customer: customerId,
     mode: 'subscription',
     'line_items[0][price]': priceId,
@@ -126,12 +132,18 @@ export async function handleCustomerPortal(env, request) {
 
   const returnUrl = String(body?.return_base || 'https://praxmate.de').replace(/\/+$/, '') + '/praxis/billing.html';
   const practice = await getPracticeById(env, user.practice_id);
-  if (!practice?.stripe_customer_id) {
+  if (!practice) return jsonError('Praxis nicht gefunden', request, 404);
+
+  const ctx = stripeContextFor(env, practice);
+  const customerId = ctx.mode === 'test'
+    ? practice.stripe_test_customer_id
+    : practice.stripe_customer_id;
+  if (!customerId) {
     return jsonError('Kein aktives Abonnement', request, 400);
   }
 
-  const session = await stripeRequest(env, 'POST', '/billing_portal/sessions', {
-    customer: practice.stripe_customer_id,
+  const session = await stripeRequest(ctx, 'POST', '/billing_portal/sessions', {
+    customer: customerId,
     return_url: returnUrl,
   });
 
@@ -147,23 +159,30 @@ export async function handleBillingStatus(env, request) {
   const practice = await getPracticeById(env, user.practice_id);
   if (!practice) return jsonError('Praxis nicht gefunden', request, 404);
 
-  // Read the Stripe-specific columns explicitly (they may not be in getPracticeById)
+  // Read Stripe-specific columns directly so both live + test fields are visible
   const stripeRow = await env.DB.prepare(`
-    SELECT stripe_customer_id, stripe_subscription_id, stripe_price_id, current_period_end
+    SELECT stripe_customer_id, stripe_subscription_id, stripe_price_id, current_period_end,
+           stripe_test_customer_id, stripe_test_subscription_id, is_test_mode
     FROM practices WHERE id = ?
   `).bind(practice.id).first() || {};
+
+  const ctx = stripeContextFor(env, { ...practice, is_test_mode: stripeRow.is_test_mode });
 
   return jsonResponse({
     plan: practice.plan,
     plan_status: practice.plan_status,
     trial_ends_at: practice.trial_ends_at,
     current_period_end: stripeRow.current_period_end || null,
-    has_subscription: !!stripeRow.stripe_subscription_id,
-    stripe_public_key: env.STRIPE_PUBLIC_KEY || null,
+    has_subscription: !!(
+      ctx.mode === 'test' ? stripeRow.stripe_test_subscription_id : stripeRow.stripe_subscription_id
+    ),
+    is_test_mode: stripeRow.is_test_mode === 1,
+    stripe_mode: ctx.mode,
+    stripe_public_key: ctx.publicKey || null,
     prices: {
-      solo:   { id: env.STRIPE_PRICE_SOLO,   amount_cents: 3900,  currency: 'EUR' },
-      team:   { id: env.STRIPE_PRICE_TEAM,   amount_cents: 6900,  currency: 'EUR' },
-      klinik: { id: env.STRIPE_PRICE_KLINIK, amount_cents: 11900, currency: 'EUR' },
+      solo:   { id: ctx.prices.solo,   amount_cents: 3900,  currency: 'EUR' },
+      team:   { id: ctx.prices.team,   amount_cents: 6900,  currency: 'EUR' },
+      klinik: { id: ctx.prices.klinik, amount_cents: 11900, currency: 'EUR' },
     },
   }, request);
 }
@@ -176,37 +195,50 @@ export async function handleStripeWebhook(env, request) {
   const sig = request.headers.get('Stripe-Signature');
   const rawBody = await request.text();
 
-  const ok = await verifyStripeSignature(rawBody, sig, env.STRIPE_WEBHOOK_SECRET);
-  if (!ok) {
-    // Log but reply 400 so Stripe retries with different timestamp tolerance
-    console.warn('Stripe webhook: signature mismatch');
+  // Try LIVE signature first, then TEST — whichever verifies wins.
+  let webhookMode = null;
+  if (await verifyStripeSignature(rawBody, sig, env.STRIPE_WEBHOOK_SECRET)) {
+    webhookMode = 'live';
+  } else if (env.STRIPE_TEST_WEBHOOK_SECRET
+             && await verifyStripeSignature(rawBody, sig, env.STRIPE_TEST_WEBHOOK_SECRET)) {
+    webhookMode = 'test';
+  }
+  if (!webhookMode) {
+    console.warn('Stripe webhook: signature mismatch (tried both live + test)');
     return jsonError('Invalid signature', request, 400);
   }
 
   let event;
   try { event = JSON.parse(rawBody); } catch { return jsonError('Bad JSON', request, 400); }
 
+  // Column selector: test events update test-specific columns, live events update live columns.
+  const isTest = webhookMode === 'test';
+  const col = {
+    customer:     isTest ? 'stripe_test_customer_id'     : 'stripe_customer_id',
+    subscription: isTest ? 'stripe_test_subscription_id' : 'stripe_subscription_id',
+    priceId:      isTest ? 'stripe_test_price_id'        : 'stripe_price_id',
+  };
+
   try {
     switch (event.type) {
 
       case 'checkout.session.completed': {
         const s = event.data.object;
-        // s.customer, s.subscription, s.metadata.practice_id
         const practiceId = s.metadata?.practice_id;
         if (practiceId && s.subscription) {
           await env.DB.prepare(`
             UPDATE practices
-            SET stripe_customer_id = COALESCE(stripe_customer_id, ?),
-                stripe_subscription_id = ?,
+            SET ${col.customer} = COALESCE(${col.customer}, ?),
+                ${col.subscription} = ?,
                 plan_status = 'active'
             WHERE id = ?
           `).bind(s.customer, s.subscription, practiceId).run();
           await logAudit(env, {
             practice_id: practiceId,
             actor_type: 'system',
-            actor_id: 'stripe',
+            actor_id: `stripe:${webhookMode}`,
             action: 'billing.checkout_completed',
-            meta: { session_id: s.id, subscription: s.subscription },
+            meta: { session_id: s.id, subscription: s.subscription, mode: webhookMode },
             request,
           });
         }
@@ -222,7 +254,6 @@ export async function handleStripeWebhook(env, request) {
         const item = sub.items?.data?.[0] || {};
         const priceId = item.price?.id || null;
         const derivedPlan = planForPriceId(env, priceId);
-        // Stripe API 2025+: current_period_end lives on the item, not the subscription.
         const periodEnd = sub.current_period_end ?? item.current_period_end ?? null;
         const statusMap = {
           active:            'active',
@@ -238,8 +269,8 @@ export async function handleStripeWebhook(env, request) {
 
         await env.DB.prepare(`
           UPDATE practices
-          SET stripe_subscription_id = ?,
-              stripe_price_id = ?,
+          SET ${col.subscription} = ?,
+              ${col.priceId} = ?,
               plan = COALESCE(?, plan),
               plan_status = ?,
               current_period_end = CASE WHEN ? IS NULL THEN NULL ELSE datetime(?, 'unixepoch') END
@@ -258,15 +289,15 @@ export async function handleStripeWebhook(env, request) {
         await env.DB.prepare(`
           UPDATE practices
           SET plan_status = 'cancelled',
-              stripe_subscription_id = NULL
+              ${col.subscription} = NULL
           WHERE id = ?
         `).bind(practiceId).run();
         await logAudit(env, {
           practice_id: practiceId,
           actor_type: 'system',
-          actor_id: 'stripe',
+          actor_id: `stripe:${webhookMode}`,
           action: 'billing.subscription_cancelled',
-          meta: { subscription: sub.id },
+          meta: { subscription: sub.id, mode: webhookMode },
           request,
         });
         break;
@@ -274,7 +305,6 @@ export async function handleStripeWebhook(env, request) {
 
       case 'invoice.payment_succeeded': {
         const inv = event.data.object;
-        // API 2025+: invoice.subscription may be missing; look through parent
         const subId = inv.subscription
           ?? inv.parent?.subscription_details?.subscription
           ?? inv.lines?.data?.[0]?.parent?.subscription_item_details?.subscription
@@ -286,7 +316,7 @@ export async function handleStripeWebhook(env, request) {
             UPDATE practices
             SET current_period_end = datetime(?, 'unixepoch'),
                 plan_status = 'active'
-            WHERE stripe_subscription_id = ?
+            WHERE ${col.subscription} = ?
           `).bind(periodEnd, subId).run();
         }
         break;
@@ -298,19 +328,18 @@ export async function handleStripeWebhook(env, request) {
         if (!subId) break;
         await env.DB.prepare(`
           UPDATE practices SET plan_status = 'past_due'
-          WHERE stripe_subscription_id = ?
+          WHERE ${col.subscription} = ?
         `).bind(subId).run();
-        // Find practice id for audit
         const row = await env.DB.prepare(
-          `SELECT id FROM practices WHERE stripe_subscription_id = ?`
+          `SELECT id FROM practices WHERE ${col.subscription} = ?`
         ).bind(subId).first();
         if (row) {
           await logAudit(env, {
             practice_id: row.id,
             actor_type: 'system',
-            actor_id: 'stripe',
+            actor_id: `stripe:${webhookMode}`,
             action: 'billing.payment_failed',
-            meta: { invoice: inv.id, amount_due: inv.amount_due },
+            meta: { invoice: inv.id, amount_due: inv.amount_due, mode: webhookMode },
             request,
           });
         }

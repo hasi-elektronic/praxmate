@@ -45,11 +45,19 @@ CREATE TABLE practices (
   trial_ends_at TEXT,
   max_doctors INTEGER DEFAULT 3,
 
-  -- Stripe billing (nullable until owner subscribes)
+  -- Stripe billing — LIVE mode (nullable until owner subscribes)
   stripe_customer_id     TEXT,       -- cus_...
   stripe_subscription_id TEXT,       -- sub_...
   stripe_price_id        TEXT,       -- price_... (current subscription price)
   current_period_end     TEXT,       -- ISO8601, set by webhook on invoice.payment_succeeded
+
+  -- Dual-mode Stripe: when is_test_mode = 1, billing routes to sk_test_ and
+  -- stores customer/sub IDs in the _test_ columns below, leaving the live
+  -- columns untouched. Used for Hamdi's unlimited-testing tenant.
+  is_test_mode                INTEGER DEFAULT 0,
+  stripe_test_customer_id     TEXT,
+  stripe_test_subscription_id TEXT,
+  stripe_test_price_id        TEXT,
 
   -- Trial expiry reminder idempotency (one of: 7, 3, 1, 0 — highest threshold already emailed).
   -- Prevents duplicate reminders when the hourly cron re-evaluates the same tenant.

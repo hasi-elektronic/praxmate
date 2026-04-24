@@ -169,6 +169,9 @@ export default {
       // (Removed: one-time /api/internal/migrate-stripe + /reset-rl endpoints.
       //  Migrations applied; test cleanup done. Deleted for security.)
 
+      // (Removed: internal migrate-stripe-testmode / reset-signup-rl / flag-test-tenant —
+      //  migration applied, rate limit cleared, hamdi-test tenant flagged. Deleted for security.)
+
       // One-time: add trial_reminder_sent_at column for trial reminder idempotency
       if (path === '/api/internal/migrate-trial-reminder' && method === 'POST') {
         if (request.headers.get('X-Migrate-Key') !== 'praxmate-trial-init-2026') {
