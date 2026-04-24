@@ -256,11 +256,11 @@ a { color: var(--primary); text-decoration: none; }
       </div>
     </div>
     <nav class="sb-nav">
-      <a href="/praxis/dashboard.html" class="sb-nav-item" data-page="dashboard"><span class="sb-nav-icon">▦</span><span>Dashboard</span></a>
-      <a href="/praxis/new-appointment.html" class="sb-nav-item" data-page="new-appointment"><span class="sb-nav-icon">+</span><span>Neuer Termin</span></a>
-      <a href="/praxis/calendar.html" class="sb-nav-item" data-page="calendar"><span class="sb-nav-icon">▤</span><span>Kalender</span></a>
-      <a href="/praxis/patients.html" class="sb-nav-item" data-page="patients"><span class="sb-nav-icon">◉</span><span>Patienten</span></a>
-      <a href="/praxis/settings.html" class="sb-nav-item" data-page="settings"><span class="sb-nav-icon">⚙</span><span>Einstellungen</span></a>
+      <a href="/praxis/dashboard.html" class="sb-nav-item" data-page="dashboard"><span class="sb-nav-icon">▦</span><span data-i18n="sb.dashboard">Dashboard</span></a>
+      <a href="/praxis/new-appointment.html" class="sb-nav-item" data-page="new-appointment"><span class="sb-nav-icon">+</span><span data-i18n="sb.new_appt">Neuer Termin</span></a>
+      <a href="/praxis/calendar.html" class="sb-nav-item" data-page="calendar"><span class="sb-nav-icon">▤</span><span data-i18n="sb.calendar">Kalender</span></a>
+      <a href="/praxis/patients.html" class="sb-nav-item" data-page="patients"><span class="sb-nav-icon">◉</span><span data-i18n="sb.patients">Patienten</span></a>
+      <a href="/praxis/settings.html" class="sb-nav-item" data-page="settings"><span class="sb-nav-icon">⚙</span><span data-i18n="sb.settings">Einstellungen</span></a>
     </nav>
     <div class="sb-user" id="sbUser" title="Abmelden">
       <div class="sb-user-avatar" id="sbUserAvatar">?</div>
@@ -280,18 +280,18 @@ a { color: var(--primary); text-decoration: none; }
       <div class="page-title" data-i18n="page.patients">Patienten</div>
       <div class="page-sub" id="totalCount">Lade...</div>
     </div>
-    <button class="btn btn-primary" id="newPatientBtn">+ Neuer Patient</button>
+    <button class="btn btn-primary" id="newPatientBtn" data-i18n="pat.add">+ Neuer Patient</button>
   </div>
 
   <div class="toolbar">
     <div class="search-wrap">
-      <input type="search" id="searchInput" placeholder="Name, E-Mail oder Telefon suchen...">
+      <input type="search" id="searchInput" placeholder="Name, E-Mail oder Telefon suchen..." data-i18n-attr="placeholder:pat.search_placeholder">
     </div>
     <select class="sort-select" id="sortSelect">
-      <option value="recent">Zuletzt gesehen</option>
-      <option value="name">Nach Name</option>
-      <option value="appointments">Meiste Termine</option>
-      <option value="created">Neu angelegt</option>
+      <option value="recent" data-i18n="pat.sort_recent">Zuletzt gesehen</option>
+      <option value="name" data-i18n="pat.sort_name">Nach Name</option>
+      <option value="appointments" data-i18n="pat.sort_appts">Meiste Termine</option>
+      <option value="created" data-i18n="g.new">Neu angelegt</option>
     </select>
   </div>
 
@@ -304,62 +304,62 @@ a { color: var(--primary); text-decoration: none; }
 <div class="modal-overlay" id="patientModal">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-title">Neuer Patient</div>
+      <div class="modal-title" data-i18n="pat.add">Neuer Patient</div>
       <button class="modal-close" data-close>✕</button>
     </div>
     <div class="modal-body">
       <div class="form-row">
         <div class="form-group">
-          <label>Vorname *</label>
+          <label><span data-i18n="na.first_name">Vorname</span> *</label>
           <input id="pmFirst" type="text">
         </div>
         <div class="form-group">
-          <label>Nachname *</label>
+          <label><span data-i18n="na.last_name">Nachname</span> *</label>
           <input id="pmLast" type="text">
         </div>
       </div>
       <div class="form-group">
-        <label>Geburtsdatum</label>
+        <label data-i18n="pd.birth">Geburtsdatum</label>
         <input id="pmBirth" type="date">
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>E-Mail</label>
+          <label data-i18n="pd.email">E-Mail</label>
           <input id="pmEmail" type="email">
         </div>
         <div class="form-group">
-          <label>Telefon</label>
+          <label data-i18n="pd.phone">Telefon</label>
           <input id="pmPhone" type="tel">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Versicherung</label>
+          <label data-i18n="pd.insurance">Versicherung</label>
           <select id="pmInsurance">
-            <option value="gkv">Gesetzlich</option>
-            <option value="privat">Privat</option>
-            <option value="selbst">Selbstzahler</option>
+            <option value="gkv" data-i18n="appt.ins_gkv">Gesetzlich</option>
+            <option value="privat" data-i18n="appt.ins_privat">Privat</option>
+            <option value="selbst" data-i18n="appt.ins_selbst">Selbstzahler</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Versichertennummer</label>
+          <label data-i18n="pd.insurance_nr">Versichertennummer</label>
           <input id="pmInsNr" type="text">
         </div>
       </div>
       <div class="form-group">
         <label style="display:inline-flex; align-items:center; gap:8px; text-transform:none; letter-spacing:0;">
           <input id="pmNewPatient" type="checkbox" style="width:auto;" checked>
-          <span>Neupatient</span>
+          <span data-i18n="appt.new_patient">Neupatient</span>
         </label>
       </div>
       <div class="form-group">
-        <label>Interne Notizen</label>
+        <label data-i18n="pd.notes">Interne Notizen</label>
         <textarea id="pmNotes" rows="3" placeholder="Allergien, Besonderheiten..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" data-close>Abbrechen</button>
-      <button class="btn btn-primary" id="pmSaveBtn">Anlegen</button>
+      <button class="btn btn-ghost" data-close data-i18n="g.cancel">Abbrechen</button>
+      <button class="btn btn-primary" id="pmSaveBtn" data-i18n="g.add">Anlegen</button>
     </div>
   </div>
 </div>
@@ -431,8 +431,8 @@ function formatDate(dt) {
   const today = new Date();
   const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
   const dateStr = d.toLocaleDateString('de-DE');
-  if (d.toDateString() === today.toDateString()) return 'Heute';
-  if (d.toDateString() === yesterday.toDateString()) return 'Gestern';
+  if (d.toDateString() === today.toDateString()) return window.i18n.t('cal.today');
+  if (d.toDateString() === yesterday.toDateString()) return d.toLocaleDateString(document.documentElement.lang || 'de-DE');
   return dateStr;
 }
 function formatFuture(dt) {
@@ -440,7 +440,7 @@ function formatFuture(dt) {
   const d = new Date(dt);
   const today = new Date();
   const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
-  if (d.toDateString() === today.toDateString()) return 'Heute ' + d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  if (d.toDateString() === today.toDateString()) return window.i18n.t('cal.today') + ' ' + d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
   if (d.toDateString() === tomorrow.toDateString()) return 'Morgen ' + d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
   return d.toLocaleDateString('de-DE') + ' ' + d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
 }
@@ -477,7 +477,7 @@ async function init() {
 
 async function loadPatients() {
   const list = document.getElementById('patientList');
-  list.innerHTML = '<div class="loading">Lade Patienten...</div>';
+  list.innerHTML = `<div class="loading">${window.i18n.t('g.loading')}</div>`;
 
   try {
     const params = new URLSearchParams({
@@ -496,14 +496,14 @@ async function loadPatients() {
 function renderList(data) {
   const list = document.getElementById('patientList');
   document.getElementById('totalCount').textContent =
-    `${data.pagination.total} Patient(en) erfasst`;
+    `${data.pagination.total} ${window.i18n.t(data.pagination.total === 1 ? 'pat.count_one' : 'pat.count_many')}`;
 
   if (data.patients.length === 0) {
     list.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">👥</div>
-        <div style="font-weight:600; margin-bottom:4px;">${state.q ? 'Keine Treffer' : 'Noch keine Patienten'}</div>
-        <div>${state.q ? 'Versuchen Sie einen anderen Suchbegriff.' : 'Patienten werden automatisch bei der ersten Buchung angelegt.'}</div>
+        <div style="font-weight:600; margin-bottom:4px;">${state.q ? window.i18n.t('pat.empty') : window.i18n.t('pat.empty')}</div>
+        <div>${state.q ? '' : ''}</div>
       </div>
     `;
     return;
@@ -513,12 +513,12 @@ function renderList(data) {
   list.innerHTML = `
     <div class="patient-header">
       <div></div>
-      <div>Name</div>
-      <div>Kontakt</div>
-      <div>Versicherung</div>
-      <div>Termine</div>
-      <div>Zuletzt</div>
-      <div>Nächster</div>
+      <div>${window.i18n.t("pat.table_name")}</div>
+      <div>${window.i18n.t("pat.table_contact")}</div>
+      <div>${window.i18n.t("pd.insurance")}</div>
+      <div>${window.i18n.t("pat.table_count")}</div>
+      <div>${window.i18n.t("pat.table_last")}</div>
+      <div>${window.i18n.t("cal.next")}</div>
       <div></div>
     </div>
     ${data.patients.map(p => {
@@ -532,7 +532,7 @@ function renderList(data) {
         <div class="patient-name-cell">
           <div class="name">
             ${escapeHtml(p.last_name)}, ${escapeHtml(p.first_name)}
-            ${p.is_new_patient ? '<span class="neu-badge">Neu</span>' : ''}
+            ${p.is_new_patient ? `<span class="neu-badge">${window.i18n.t('g.new')}</span>` : ''}
           </div>
           <div class="age">${age !== null ? age + ' J.' : ''}${age !== null && p.birth_date ? ' · ' : ''}${p.birth_date ? new Date(p.birth_date).toLocaleDateString('de-DE') : ''}</div>
         </div>
@@ -554,10 +554,10 @@ function renderList(data) {
       </a>
     `;}).join('')}
     <div class="pagination">
-      <div>Seite ${data.pagination.page} von ${data.pagination.total_pages} · ${data.pagination.total} Patienten</div>
+      <div>${data.pagination.page} / ${data.pagination.total_pages} · ${data.pagination.total} ${window.i18n.t("pat.count_many")}</div>
       <div class="pagination-buttons">
-        <button class="page-btn" id="prevBtn" ${state.page <= 1 ? 'disabled' : ''}>← Zurück</button>
-        <button class="page-btn" id="nextBtn" ${state.page >= data.pagination.total_pages ? 'disabled' : ''}>Weiter →</button>
+        <button class="page-btn" id="prevBtn" ${state.page <= 1 ? 'disabled' : ''}>← ${window.i18n.t('g.back')}</button>
+        <button class="page-btn" id="nextBtn" ${state.page >= data.pagination.total_pages ? 'disabled' : ''}>${window.i18n.t('cal.next')} →</button>
       </div>
     </div>
   `;
@@ -577,6 +577,7 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
 });
 
 // Sort
+if (window.i18n) window.i18n.onChange(() => loadPatients());
 document.getElementById('sortSelect').addEventListener('change', (e) => {
   state.sort = e.target.value;
   state.page = 1;
