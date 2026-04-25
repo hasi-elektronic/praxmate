@@ -1,0 +1,9 @@
+name = "praxmate-router"
+main = "src/index.js"
+compatibility_date = "2026-04-25"
+
+# Wildcard route — captures every *.praxmate.de host that doesn't
+# already have a more specific route. Reserved subdomains return 404.
+[[routes]]
+pattern  = "*.praxmate.de/*"
+zone_id  = "56339a93a544c0785b0ab3ab9d0d6293"
