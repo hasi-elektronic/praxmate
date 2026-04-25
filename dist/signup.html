@@ -171,7 +171,7 @@
         <label for="slug" data-i="lbl_slug">Ihre Praxis-URL</label>
         <div class="slug-wrap">
           <input id="slug" type="text" required pattern="[a-z0-9](?:[a-z0-9\-]{0,28}[a-z0-9])?" placeholder="mueller-dental" autocomplete="off" />
-          <span class="slug-suffix">praxmate.de/…</span>
+          <span class="slug-suffix">.praxmate.de</span>
         </div>
         <div class="slug-status" id="slugStatus"></div>
       </div>
@@ -479,8 +479,8 @@ async function checkSlug() {
     const r = await fetch(`${API}/public/signup/check-slug?slug=${encodeURIComponent(v)}`);
     const data = await r.json();
     if (data.available) {
-      // Show the path-based URL since wildcard subdomain is not yet DNS-bound.
-      slugStatus.textContent = t('slug_ok').replace('{url}', `praxmate.de/praxis/?practice=${v}`);
+      // Wildcard subdomain live — show what their final URL will be.
+      slugStatus.textContent = t('slug_ok').replace('{url}', `${v}.praxmate.de`);
       slugStatus.className = 'slug-status ok';
     } else {
       const msgKey = data.reason === 'taken' ? 'slug_taken'
@@ -616,8 +616,8 @@ form.addEventListener('submit', async (e) => {
       // Fall through to success screen so the user still sees their login URL
     }
 
-    // Show the working URL (path-based until wildcard DNS is set up)
-    successUrl.textContent = `praxmate.de/praxis/?practice=${data.slug}`;
+    // Wildcard subdomain — pro per-tenant URL
+    successUrl.textContent = `${data.slug}.praxmate.de`;
     formCard.style.display = 'none';
     successCard.style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });

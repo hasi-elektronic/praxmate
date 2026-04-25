@@ -61,9 +61,9 @@ const WELCOME = {
     body: (practiceName, slug) =>
       `Ihre Praxis <strong>${practiceName}</strong> ist erfolgreich angelegt.<br><br>` +
       `So geht es weiter:<br>` +
-      `1️⃣ Anmelden: <a href="https://praxmate.de/praxis/?practice=${slug}">praxmate.de/praxis/?practice=${slug}</a><br>` +
+      `1️⃣ Anmelden: <a href="https://${slug}.praxmate.de/praxis/">${slug}.praxmate.de</a><br>` +
       `2️⃣ Einstellungen → Logo + Praxisinfo ausfüllen<br>` +
-      `3️⃣ Patienten-Link teilen: <a href="https://praxmate.de/book?practice=${slug}">praxmate.de/book?practice=${slug}</a><br><br>` +
+      `3️⃣ Patienten-Link teilen: <a href="https://${slug}.praxmate.de/book">${slug}.praxmate.de/book</a><br><br>` +
       `<strong>3 Monate kostenlos.</strong> Keine Kündigung nötig — endet automatisch.<br><br>` +
       `Fragen? Antworten Sie einfach auf diese Mail.<br><br>` +
       `Hamdi Güncavdı · Praxmate`,
@@ -74,9 +74,9 @@ const WELCOME = {
     body: (practiceName, slug) =>
       `Your practice <strong>${practiceName}</strong> has been created.<br><br>` +
       `Next steps:<br>` +
-      `1️⃣ Sign in: <a href="https://praxmate.com/praxis/?practice=${slug}">praxmate.com/praxis/?practice=${slug}</a><br>` +
+      `1️⃣ Sign in: <a href="https://${slug}.praxmate.de/praxis/">${slug}.praxmate.de</a><br>` +
       `2️⃣ Settings → upload logo + fill in practice info<br>` +
-      `3️⃣ Share booking link: <a href="https://praxmate.com/book?practice=${slug}">praxmate.com/book?practice=${slug}</a><br><br>` +
+      `3️⃣ Share booking link: <a href="https://${slug}.praxmate.de/book">${slug}.praxmate.de/book</a><br><br>` +
       `<strong>3 months free.</strong> No cancellation needed — ends automatically.<br><br>` +
       `Questions? Just reply to this email.<br><br>` +
       `Hamdi Güncavdı · Praxmate`,
@@ -87,9 +87,9 @@ const WELCOME = {
     body: (practiceName, slug) =>
       `Kliniğiniz <strong>${practiceName}</strong> başarıyla oluşturuldu.<br><br>` +
       `Sıradaki adımlar:<br>` +
-      `1️⃣ Giriş yapın: <a href="https://praxmate.de/praxis/?practice=${slug}">praxmate.de/praxis/?practice=${slug}</a><br>` +
+      `1️⃣ Giriş yapın: <a href="https://${slug}.praxmate.de/praxis/">${slug}.praxmate.de</a><br>` +
       `2️⃣ Ayarlar → Logo + klinik bilgileri doldurun<br>` +
-      `3️⃣ Randevu linkini paylaşın: <a href="https://praxmate.de/book?practice=${slug}">praxmate.de/book?practice=${slug}</a><br><br>` +
+      `3️⃣ Randevu linkini paylaşın: <a href="https://${slug}.praxmate.de/book">${slug}.praxmate.de/book</a><br><br>` +
       `<strong>3 ay ücretsiz.</strong> İptal gerekmez — otomatik biter.<br><br>` +
       `Sorularınız için bu e-postaya yanıt verin.<br><br>` +
       `Hamdi Güncavdı · Praxmate`,
@@ -277,18 +277,18 @@ export async function handlePublicSignup(env, request) {
     locale,
   }).catch(() => {});
 
-  // Primary URL is path-based (works today). Subdomain URL is reserved for when
-  // wildcard DNS + CF Pages custom domain are set up.
+  // Wildcard subdomains active since v2.0.0 — every tenant gets <slug>.praxmate.de
+  // path-based URL kept as fallback (still works, useful for cross-subdomain SSO needs).
   return jsonResponse({
     practice_id: practiceId,
     slug,
     user_id: userId,
     token,
     expires_at,
-    login_url: `https://praxmate.de/praxis/?practice=${slug}`,
-    booking_url: `https://praxmate.de/book?practice=${slug}`,
-    login_url_subdomain: `https://${slug}.praxmate.de/praxis/`,   // requires wildcard DNS
-    booking_url_subdomain: `https://${slug}.praxmate.de/book`,
+    login_url:   `https://${slug}.praxmate.de/praxis/`,
+    booking_url: `https://${slug}.praxmate.de/book`,
+    login_url_path:   `https://praxmate.de/praxis/?practice=${slug}`,
+    booking_url_path: `https://praxmate.de/book?practice=${slug}`,
     admin_url_fallback: `https://praxmate.de/praxis/?practice=${slug}`,
   }, request, 201);
 }
