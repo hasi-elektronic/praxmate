@@ -434,6 +434,26 @@ createApp({
       }).catch(() => {});
     }
 
+    // ─── Hash-based SSO (cross-subdomain auto-login from signup) ───
+    // signup.html on praxmate.de redirects newly created tenants to
+    //   https://<slug>.praxmate.de/praxis/#auth=<token>&practice=<slug>&exp=<iso>
+    // The hash never reaches the server (no logging risk). We pluck it,
+    // store the token in this origin's localStorage, then immediately scrub
+    // the URL via history.replaceState so the bar shows just /praxis/.
+    if (location.hash && location.hash.includes('auth=')) {
+      const params = new URLSearchParams(location.hash.slice(1));
+      const tk   = params.get('auth');
+      const slug = params.get('practice');
+      const exp  = params.get('exp');
+      if (tk) {
+        localStorage.setItem('praxmate_token', tk);
+        if (slug) localStorage.setItem('praxmate_practice', slug);
+        if (exp)  localStorage.setItem('praxmate_expires', exp);
+        // Wipe the hash so it doesn't leak via history / sharing
+        history.replaceState({}, '', location.pathname + location.search);
+      }
+    }
+
     // Check if already logged in (token in localStorage)
     const existingToken = localStorage.getItem('praxmate_token');
     if (existingToken) {

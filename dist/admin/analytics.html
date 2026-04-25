@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Praxmate — Super-Admin Analytics</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #0ea5e9; --teal: #14b8a6; --ink: #0f172a; --ink-soft: #475569;
+    --muted: #64748b; --border: #e2e8f0; --bg: #f8fafc;
+    --success: #059669; --warn: #d97706; --danger: #dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; min-height: 100vh; }
+
+  .topbar {
+    background: white; border-bottom: 1px solid var(--border);
+    padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; }
+  .brand-dot { width: 28px; height: 28px; }
+  .nav-link { color: var(--ink-soft); font-size: 13px; font-weight: 500; text-decoration: none; padding: 6px 12px; border-radius: 8px; }
+  .nav-link:hover { background: var(--bg); color: var(--ink); }
+  .refresh-btn { padding: 6px 14px; border: 1.5px solid var(--border); border-radius: 8px; background: white; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--ink-soft); }
+  .refresh-btn:hover { border-color: var(--sky); color: var(--sky); }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 24px 60px; }
+  .page-title { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+
+  /* KPI cards */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .kpi-card {
+    background: white; border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; transition: all 0.15s;
+  }
+  .kpi-card.featured { background: linear-gradient(135deg, #ecfeff, #f0f9ff); border-color: #bae6fd; }
+  .kpi-label {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;
+  }
+  .kpi-value { font-size: 30px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: var(--ink); }
+  .kpi-value.featured { background: linear-gradient(135deg, var(--sky), var(--teal)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .kpi-trend { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 11px; font-weight: 600; margin-top: 6px; }
+  .kpi-trend.up { background: #ecfdf5; color: var(--success); }
+  .kpi-trend.flat { background: var(--bg); color: var(--muted); }
+  .kpi-trend.down { background: #fef2f2; color: var(--danger); }
+
+  /* Sparkline */
+  .sparkline-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 22px 24px; margin-bottom: 24px; }
+  .sparkline-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .sparkline-title { font-size: 14px; font-weight: 700; }
+  .sparkline-meta { font-size: 12px; color: var(--muted); }
+  .sparkline { width: 100%; height: 80px; }
+
+  /* Lists */
+  .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { .list-grid { grid-template-columns: 1fr; } }
+  .list-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; }
+  .list-head { font-size: 13px; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: baseline; }
+  .list-head .count { color: var(--muted); font-size: 12px; font-weight: 500; }
+  .list-row { padding: 10px 0; border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: baseline; }
+  .list-row:first-of-type { border-top: none; }
+  .list-row-main { font-size: 13px; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .list-row-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .list-row-amount { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .list-empty { color: var(--muted); font-size: 13px; padding: 16px 0; text-align: center; }
+  .badge {
+    display: inline-block; padding: 2px 7px; border-radius: 100px;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .badge.trial    { background: #f0f9ff; color: var(--sky); }
+  .badge.active   { background: #ecfdf5; color: var(--success); }
+  .badge.cancelled{ background: #fef2f2; color: var(--danger); }
+  .badge.past_due { background: #fff7ed; color: var(--warn); }
+  .badge.test     { background: #fef3c7; color: #78350f; }
+
+  .err-box { padding: 14px; background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+  .err-box.visible { display: block; }
+  .loading-pulse { animation: pulse 1.4s ease-in-out infinite; opacity: 0.5; }
+  @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-dot">
+      <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+        <defs><linearGradient id="pmg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#14b8a6"/>
+        </linearGradient></defs>
+        <circle cx="20" cy="20" r="14" fill="none" stroke="url(#pmg)" stroke-width="4"/>
+        <circle cx="25.25" cy="14.45" r="3.1" fill="#0f172a"/>
+      </svg>
+    </span>
+    <span>Praxmate / Super</span>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <a href="/admin/dashboard.html" class="nav-link">Praxen</a>
+    <a href="/admin/analytics.html" class="nav-link" style="color:var(--ink);font-weight:600">Analytics</a>
+    <button class="refresh-btn" id="refreshBtn">↻ Aktualisieren</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="page-title">Analytics</div>
+  <div class="page-sub" id="generatedAt">Lade...</div>
+
+  <div class="err-box" id="errBox"></div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card featured">
+      <div class="kpi-label">MRR (Live)</div>
+      <div class="kpi-value featured" id="kpi-mrr">€—</div>
+      <div class="kpi-sub" id="kpi-mrr-sub">— aktive Abos</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Aktive Abos</div>
+      <div class="kpi-value" id="kpi-active">—</div>
+      <div class="kpi-sub" id="kpi-active-sub">— in Trial · — past due</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Tenants gesamt</div>
+      <div class="kpi-value" id="kpi-tenants">—</div>
+      <div class="kpi-sub" id="kpi-tenants-sub">— davon Test-Mode</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Signups (30 Tage)</div>
+      <div class="kpi-value" id="kpi-signups">—</div>
+      <div class="kpi-sub" id="kpi-signups-sub">— heute · — diese Woche</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Conversion (30 Tage)</div>
+      <div class="kpi-value" id="kpi-conv">—</div>
+      <div class="kpi-sub" id="kpi-conv-sub">— Trial → Paid</div>
+    </div>
+  </div>
+
+  <!-- Sparkline -->
+  <div class="sparkline-card">
+    <div class="sparkline-head">
+      <div class="sparkline-title">Signups · letzte 30 Tage</div>
+      <div class="sparkline-meta" id="spark-meta">—</div>
+    </div>
+    <svg class="sparkline" id="sparkline" viewBox="0 0 600 80" preserveAspectRatio="none"></svg>
+  </div>
+
+  <!-- Lists side-by-side -->
+  <div class="list-grid">
+    <div class="list-card">
+      <div class="list-head">Letzte Signups <span class="count" id="signup-count"></span></div>
+      <div id="recent-signups"><div class="list-empty">Lade...</div></div>
+    </div>
+    <div class="list-card">
+      <div class="list-head">Letzte Zahlungen (Live) <span class="count" id="invoice-count"></span></div>
+      <div id="recent-invoices"><div class="list-empty">Lade...</div></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const API = 'https://praxmate-api.hguencavdi.workers.dev/api';
+const token = localStorage.getItem('praxmate_token');
+if (!token) {
+  alert('Bitte als Super-Admin einloggen');
+  window.location.href = '/praxis/';
+}
+
+const fmtEuro = (cents) => new Intl.NumberFormat('de-DE', { style:'currency', currency:'EUR' }).format((cents||0)/100);
+const fmtDateRel = (iso) => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return 'gerade eben';
+  if (diff < 3600) return `vor ${Math.floor(diff/60)} min`;
+  if (diff < 86400) return `vor ${Math.floor(diff/3600)} h`;
+  if (diff < 86400*7) return `vor ${Math.floor(diff/86400)} d`;
+  return d.toLocaleDateString('de-DE');
+};
+const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function loadAnalytics() {
+  document.querySelectorAll('.kpi-value, .list-empty').forEach(el => el.classList.add('loading-pulse'));
+  document.getElementById('errBox').classList.remove('visible');
+
+  try {
+    const res = await fetch(`${API}/super/analytics`, {
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const d = await res.json();
+
+    // Generated at
+    document.getElementById('generatedAt').textContent =
+      'Stand: ' + new Date(d.generated_at).toLocaleString('de-DE');
+
+    // KPI: MRR
+    document.getElementById('kpi-mrr').textContent = fmtEuro(d.mrr.cents);
+    const breakdown = d.mrr.breakdown;
+    const totalActive = (breakdown.solo.count + breakdown.team.count + breakdown.klinik.count);
+    document.getElementById('kpi-mrr-sub').textContent =
+      `${totalActive} aktive · Solo ${breakdown.solo.count} · Team ${breakdown.team.count} · Klinik ${breakdown.klinik.count}`;
+
+    // KPI: Active
+    document.getElementById('kpi-active').textContent = d.tenants.active;
+    document.getElementById('kpi-active-sub').textContent =
+      `${d.tenants.trial} in Trial · ${d.tenants.past_due} past due · ${d.tenants.cancelled} gekündigt`;
+
+    // KPI: Tenants
+    document.getElementById('kpi-tenants').textContent = d.tenants.total;
+    document.getElementById('kpi-tenants-sub').textContent =
+      `davon ${d.tenants.test_tenants} Test-Mode (Stripe Test)`;
+
+    // KPI: Signups
+    document.getElementById('kpi-signups').textContent = d.signups.last_30d;
+    document.getElementById('kpi-signups-sub').textContent =
+      `${d.signups.today} heute · ${d.signups.week} letzte 7 Tage · ${d.signups.month} diesen Monat`;
+
+    // KPI: Conversion
+    document.getElementById('kpi-conv').textContent = d.conversion.rate_pct + '%';
+    document.getElementById('kpi-conv-sub').textContent =
+      `${d.conversion.converted} von ${d.conversion.signups_30d} Trial → Paid`;
+
+    // Sparkline
+    drawSparkline(d.signups.daily_30d);
+
+    // Recent signups
+    renderSignups(d.recent_signups);
+
+    // Recent invoices
+    renderInvoices(d.recent_invoices);
+
+    document.querySelectorAll('.loading-pulse').forEach(el => el.classList.remove('loading-pulse'));
+  } catch (e) {
+    document.getElementById('errBox').textContent = 'Fehler: ' + e.message;
+    document.getElementById('errBox').classList.add('visible');
+  }
+}
+
+function drawSparkline(daily) {
+  const svg = document.getElementById('sparkline');
+  svg.innerHTML = '';
+  // Build a 30-day series with zero-fills
+  const today = new Date();
+  const map = new Map((daily || []).map(d => [d.day, d.count]));
+  const series = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const iso = d.toISOString().slice(0,10);
+    series.push({ day: iso, count: map.get(iso) || 0 });
+  }
+  const max = Math.max(1, ...series.map(s => s.count));
+  const total = series.reduce((a, s) => a + s.count, 0);
+  document.getElementById('spark-meta').textContent = `${total} Signups · max ${max}/Tag`;
+
+  const w = 600, h = 80, pad = 4;
+  const xStep = (w - 2*pad) / (series.length - 1);
+
+  // Gradient line
+  const ns = 'http://www.w3.org/2000/svg';
+  const defs = document.createElementNS(ns, 'defs');
+  defs.innerHTML = `<linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#14b8a6"/>
+  </linearGradient>`;
+  svg.appendChild(defs);
+
+  // Bars
+  const barWidth = xStep * 0.7;
+  series.forEach((s, i) => {
+    const x = pad + i * xStep - barWidth/2;
+    const barH = max > 0 ? (s.count / max) * (h - 2*pad) : 0;
+    const y = h - pad - barH;
+    const r = document.createElementNS(ns, 'rect');
+    r.setAttribute('x', Math.max(pad, x));
+    r.setAttribute('y', y);
+    r.setAttribute('width', barWidth);
+    r.setAttribute('height', barH);
+    r.setAttribute('fill', 'url(#sg)');
+    r.setAttribute('rx', '2');
+    if (s.count > 0) svg.appendChild(r);
+    // Faint baseline dot for empty days
+    if (s.count === 0) {
+      const c = document.createElementNS(ns, 'circle');
+      c.setAttribute('cx', pad + i * xStep);
+      c.setAttribute('cy', h - pad);
+      c.setAttribute('r', 1.5);
+      c.setAttribute('fill', '#cbd5e1');
+      svg.appendChild(c);
+    }
+  });
+}
+
+function renderSignups(list) {
+  const el = document.getElementById('recent-signups');
+  document.getElementById('signup-count').textContent = list.length ? `${list.length} aktuell` : '';
+  if (!list.length) { el.innerHTML = '<div class="list-empty">Noch keine Signups</div>'; return; }
+  el.innerHTML = '';
+  list.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'list-row';
+    const main = document.createElement('div');
+    main.innerHTML = `<div class="list-row-main">${escapeHtml(s.name)} ${s.is_test_mode ? '<span class="badge test">test</span>' : ''} <span class="badge ${escapeHtml(s.plan_status)}">${escapeHtml(s.plan_status)}</span></div>
+                      <div class="list-row-meta">${escapeHtml(s.slug)}.praxmate.de · ${escapeHtml(s.plan)} · ${escapeHtml(s.locale || 'de')}</div>`;
+    const ts = document.createElement('div');
+    ts.className = 'list-row-meta';
+    ts.style.textAlign = 'right';
+    ts.textContent = fmtDateRel(s.created_at);
+    row.appendChild(main); row.appendChild(ts);
+    el.appendChild(row);
+  });
+}
+
+function renderInvoices(list) {
+  const el = document.getElementById('recent-invoices');
+  document.getElementById('invoice-count').textContent = list.length ? `${list.length} bezahlt` : '';
+  if (!list.length) { el.innerHTML = '<div class="list-empty">Noch keine Zahlungen</div>'; return; }
+  el.innerHTML = '';
+  list.forEach(inv => {
+    const row = document.createElement('div');
+    row.className = 'list-row';
+    const main = document.createElement('div');
+    main.innerHTML = `<div class="list-row-main">${escapeHtml(inv.customer_email || inv.id)}</div>
+                      <div class="list-row-meta">${escapeHtml(inv.number || inv.id)}</div>`;
+    const right = document.createElement('div');
+    right.style.textAlign = 'right';
+    right.innerHTML = `<div class="list-row-amount">${fmtEuro(inv.amount_cents)}</div>
+                       <div class="list-row-meta">${fmtDateRel(inv.paid_at ? new Date(inv.paid_at*1000).toISOString() : null)}</div>`;
+    row.appendChild(main); row.appendChild(right);
+    el.appendChild(row);
+  });
+}
+
+document.getElementById('refreshBtn').addEventListener('click', loadAnalytics);
+loadAnalytics();
+// Auto-refresh every 60 seconds
+setInterval(loadAnalytics, 60_000);
+</script>
+</body>
+</html>

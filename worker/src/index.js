@@ -110,6 +110,9 @@ import {
   handleStripeWebhook,
 } from './routes/billing.js';
 
+// Super-admin analytics (MRR + signups + conversion)
+import { handleSuperAnalytics } from './routes/super-analytics.js';
+
 // Scheduled jobs
 import { runReminders }      from './routes/reminders.js';
 import { runBackup }         from './routes/backup.js';
@@ -407,6 +410,9 @@ export default {
       // ============================================================
       if (path === '/api/super/stats' && method === 'GET') {
         return await handleSuperStats(env, request);
+      }
+      if (path === '/api/super/analytics' && method === 'GET') {
+        return await handleSuperAnalytics(env, request);
       }
       if (path === '/api/super/practices' && method === 'GET') {
         return await handleSuperPracticesList(env, request);

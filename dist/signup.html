@@ -566,11 +566,20 @@ form.addEventListener('submit', async (e) => {
       return;
     }
 
-    // Success — stash token so the admin page auto-logs in
+    // Save on signup-page origin so refresh on this page survives.
     localStorage.setItem('praxmate_token', data.token);
     localStorage.setItem('praxmate_practice', data.slug);
 
     signupResult = data;
+
+    // Build the auto-login URL for the tenant's subdomain.
+    // localStorage is per-origin, so we pass the token via URL hash;
+    // the praxis login page picks it up, stores it locally, removes the hash.
+    // Hash (not query string) → token never reaches the server / logs.
+    const subdomainAdminUrl = `https://${data.slug}.praxmate.de/praxis/`
+      + `#auth=${encodeURIComponent(data.token)}`
+      + `&practice=${encodeURIComponent(data.slug)}`
+      + `&exp=${encodeURIComponent(data.expires_at)}`;
 
     // If user came from a pricing card (?plan=...&mode=...), skip straight to Stripe Checkout.
     //   mode=trial7  → 7-day free trial, then auto-charge
@@ -632,8 +641,13 @@ form.addEventListener('submit', async (e) => {
 
 goAdminBtn.addEventListener('click', () => {
   if (!signupResult) return;
-  // Prefer path-based redirect (works on praxmate.de even without subdomain DNS)
-  window.location.href = signupResult.admin_url_fallback;
+  // Subdomain w/ hash-based SSO. Login page reads #auth=, stores token,
+  // strips the hash from the URL bar, lands on dashboard already authenticated.
+  const url = `https://${signupResult.slug}.praxmate.de/praxis/`
+    + `#auth=${encodeURIComponent(signupResult.token)}`
+    + `&practice=${encodeURIComponent(signupResult.slug)}`
+    + `&exp=${encodeURIComponent(signupResult.expires_at)}`;
+  window.location.href = url;
 });
 
 // Init
