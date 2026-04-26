@@ -175,6 +175,7 @@ export default {
 
       // (Removed: internal migrate-stripe-testmode / reset-signup-rl / flag-test-tenant —
       //  migration applied, rate limit cleared, hamdi-test tenant flagged. Deleted for security.)
+      // (Removed: emergency password reset endpoint — used once for Hamdi 2026-04-25.)
 
       // One-time: add trial_reminder_sent_at column for trial reminder idempotency
       if (path === '/api/internal/migrate-trial-reminder' && method === 'POST') {
