@@ -510,7 +510,15 @@ createApp({
         localStorage.setItem('praxmate_expires', data.expires_at);
         if (data.practice?.slug) localStorage.setItem('praxmate_practice', data.practice.slug);
 
-        // Redirect to dashboard (preserve practice param for pages.dev hosting)
+        // Honour ?next=… if the user was redirected here from a protected page
+        // (e.g. /admin/analytics.html when its session expired). Same-origin only.
+        const nextParam = new URLSearchParams(location.search).get('next');
+        if (nextParam && /^\/[a-z0-9_\-/.?=&]*$/i.test(nextParam)) {
+          window.location.href = nextParam;
+          return;
+        }
+
+        // Otherwise default to the tenant dashboard
         const qs = PRACTICE_SLUG ? '?practice=' + PRACTICE_SLUG : '';
         window.location.href = '/praxis/dashboard.html' + qs;
       } catch (e) {
