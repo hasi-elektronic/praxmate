@@ -326,6 +326,15 @@ body {
           <span v-if="loading" class="spinner"></span>
           <span>{{ loading ? t('login.submit_loading') : t('login.submit') }}</span>
         </button>
+
+        <div style="text-align:center; margin-top:14px;">
+          <a href="/praxis/forgot.html"
+             style="font-size:13px; color:var(--muted); text-decoration:none; font-weight:500;"
+             onmouseover="this.style.color='var(--primary)'"
+             onmouseout="this.style.color='var(--muted)'">
+            {{ t('login.forgot_password') }}
+          </a>
+        </div>
       </form>
 
       <div class="security-badge">

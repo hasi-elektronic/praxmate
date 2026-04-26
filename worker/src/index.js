@@ -101,6 +101,12 @@ import {
   handleSlugCheck,
 } from './routes/signup.js';
 
+// Public auth: forgot/reset password
+import {
+  handleForgotPassword,
+  handleResetPassword,
+} from './routes/password-reset.js';
+
 // Stripe billing (checkout, portal, webhook, invoices)
 import {
   handleCheckoutStart,
@@ -166,6 +172,16 @@ export default {
       if (path === '/api/public/signup/check-slug' && method === 'GET') {
         return await handleSlugCheck(env, request);
       }
+
+      // Forgot / reset password (public, no auth needed)
+      if (path === '/api/public/auth/password/forgot' && method === 'POST') {
+        return await handleForgotPassword(env, request);
+      }
+      if (path === '/api/public/auth/password/reset' && method === 'POST') {
+        return await handleResetPassword(env, request);
+      }
+
+      // (Removed: one-time /api/internal/migrate-prt — table created. Deleted for security.)
 
       // (Removed: one-time /api/internal/migrate-signup-rl and /cleanup-tenant.
       //  Both migrations already applied to production D1 — deleted for security.)

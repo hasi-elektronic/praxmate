@@ -37,6 +37,7 @@
       'login.err_rate_limit': 'Zu viele Versuche. Bitte später erneut.',
       'login.err_2fa_needed': '2FA erforderlich (noch nicht implementiert).',
       'login.err_generic': 'Fehler bei der Anmeldung.',
+      'login.forgot_password': 'Passwort vergessen?',
 
       // ===== Sidebar =====
       'sb.dashboard': 'Dashboard',
@@ -411,6 +412,7 @@
       'login.err_rate_limit': 'Too many attempts. Please try again later.',
       'login.err_2fa_needed': '2FA required (not yet implemented).',
       'login.err_generic': 'Sign-in failed.',
+      'login.forgot_password': 'Forgot password?',
 
       'sb.dashboard': 'Dashboard',
       'sb.new_appt':  'New appointment',
@@ -767,6 +769,7 @@
       'login.err_rate_limit': 'Çok fazla deneme. Biraz sonra tekrar deneyin.',
       'login.err_2fa_needed': '2FA gerekli (henüz implemente edilmedi).',
       'login.err_generic': 'Giriş başarısız.',
+      'login.forgot_password': 'Şifremi unuttum?',
 
       'sb.dashboard': 'Panel',
       'sb.new_appt':  'Yeni Randevu',

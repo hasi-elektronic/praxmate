@@ -338,6 +338,24 @@ CREATE INDEX idx_login_attempts_email_time ON login_attempts(email, created_at D
 CREATE INDEX idx_login_attempts_ip_time ON login_attempts(ip_address, created_at DESC);
 
 -- ============================================================
+-- PASSWORD RESET TOKENS (forgot-password flow)
+-- 1-hour TTL, single-use. Bound to email (not user_id) so a single
+-- token resets every user row sharing that email — matches super-admin
+-- behaviour and keeps the UX simple ("you only have one password").
+-- ============================================================
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+  id          TEXT PRIMARY KEY,
+  token       TEXT UNIQUE NOT NULL,
+  email       TEXT NOT NULL,
+  expires_at  TEXT NOT NULL,           -- ISO8601
+  used_at     TEXT,                     -- ISO8601 (NULL = unused)
+  ip_address  TEXT,
+  created_at  TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_prt_token ON password_reset_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_prt_email_time ON password_reset_tokens(email, created_at DESC);
+
+-- ============================================================
 -- SIGNUP RATE LIMIT (self-service signup anti-abuse)
 -- Hold one row per successful signup per IP, pruned every call.
 -- 3/IP/24h is enough to deter botnets without blocking legitimate staff

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Praxmate — Passwort vergessen</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="/praxis/_i18n.js"></script>
+<style>
+  :root {
+    --sky:#0ea5e9; --teal:#14b8a6; --ink:#0f172a; --ink-soft:#475569;
+    --muted:#64748b; --border:#e2e8f0; --bg:#f8fafc;
+    --success:#059669; --danger:#dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+
+  .card { background: white; border: 1px solid var(--border); border-radius: 18px; padding: 40px 36px; max-width: 440px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.06); }
+  @media (max-width: 480px) { .card { padding: 28px 22px; } }
+
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; font-weight: 800; font-size: 17px; }
+  .brand-dot { width: 32px; height: 32px; }
+
+  h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 6px; }
+  .sub { color: var(--ink-soft); font-size: 14px; margin-bottom: 26px; }
+
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 15px; background: white; color: var(--ink); }
+  input:focus { outline: none; border-color: var(--sky); box-shadow: 0 0 0 3px rgba(14,165,233,0.12); }
+
+  .btn { display: block; width: 100%; padding: 13px 20px; margin-top: 18px; background: linear-gradient(135deg, var(--sky), var(--teal)); color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; transition: transform .1s, box-shadow .15s; }
+  .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(14,165,233,0.3); }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .ok-box { padding: 14px 16px; background: #ecfdf5; border: 1px solid #a7f3d0; color: var(--success); border-radius: 10px; font-size: 14px; margin-top: 16px; line-height: 1.5; display: none; }
+  .ok-box.visible { display: block; }
+  .err-box { padding: 12px 14px; background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); border-radius: 10px; font-size: 13px; margin-top: 14px; display: none; }
+  .err-box.visible { display: block; }
+
+  .footer-link { text-align: center; font-size: 13px; color: var(--muted); margin-top: 20px; }
+  .footer-link a { color: var(--sky); font-weight: 600; text-decoration: none; }
+  .footer-link a:hover { text-decoration: underline; }
+
+  .loading { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: -2px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="brand">
+    <span class="brand-dot">
+      <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+        <defs><linearGradient id="pmg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#14b8a6"/>
+        </linearGradient></defs>
+        <circle cx="20" cy="20" r="14" fill="none" stroke="url(#pmg)" stroke-width="4"/>
+        <circle cx="25.25" cy="14.45" r="3.1" fill="#0f172a"/>
+      </svg>
+    </span>
+    <span>Praxmate</span>
+  </div>
+
+  <h1 id="title">Passwort vergessen</h1>
+  <p class="sub" id="subtitle">Geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Link zum Zurücksetzen.</p>
+
+  <form id="forgotForm">
+    <label for="email" id="lblEmail">E-Mail-Adresse</label>
+    <input id="email" type="email" required autocomplete="email" placeholder="ihre@email.de">
+    <button type="submit" class="btn" id="submitBtn">
+      <span id="submitText">Reset-Link senden</span>
+    </button>
+  </form>
+
+  <div class="ok-box" id="okBox"></div>
+  <div class="err-box" id="errBox"></div>
+
+  <div class="footer-link">
+    <a href="/praxis/" id="backLink">← Zurück zum Login</a>
+  </div>
+</div>
+
+<script>
+const API = 'https://praxmate-api.hguencavdi.workers.dev/api';
+
+const I18N = {
+  de: {
+    title: 'Passwort vergessen',
+    subtitle: 'Geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Link zum Zurücksetzen.',
+    lbl_email: 'E-Mail-Adresse',
+    submit: 'Reset-Link senden',
+    submitting: 'Wird gesendet...',
+    back: '← Zurück zum Login',
+    success: 'Wenn ein Konto mit dieser E-Mail existiert, haben wir Ihnen einen Reset-Link geschickt. Schauen Sie in Ihr Postfach (auch Spam-Ordner) — der Link ist 1 Stunde gültig.',
+    err_generic: 'Etwas ist schiefgelaufen. Bitte erneut versuchen.',
+    title_doc: 'Praxmate — Passwort vergessen',
+  },
+  en: {
+    title: 'Forgot password',
+    subtitle: 'Enter your email address. We will send you a link to reset your password.',
+    lbl_email: 'Email address',
+    submit: 'Send reset link',
+    submitting: 'Sending...',
+    back: '← Back to login',
+    success: 'If an account with this email exists, we have sent you a reset link. Check your inbox (and spam folder) — the link is valid for 1 hour.',
+    err_generic: 'Something went wrong. Please try again.',
+    title_doc: 'Praxmate — forgot password',
+  },
+  tr: {
+    title: 'Şifremi unuttum',
+    subtitle: 'E-posta adresinizi girin. Size bir sıfırlama bağlantısı göndereceğiz.',
+    lbl_email: 'E-posta adresi',
+    submit: 'Sıfırlama bağlantısı gönder',
+    submitting: 'Gönderiliyor...',
+    back: '← Girişe dön',
+    success: 'Bu e-posta ile bir hesap varsa, sıfırlama bağlantısını gönderdik. Gelen kutunuza bakın (spam klasörü dahil) — bağlantı 1 saat geçerlidir.',
+    err_generic: 'Bir şeyler yanlış gitti. Lütfen tekrar deneyin.',
+    title_doc: 'Praxmate — şifremi unuttum',
+  },
+};
+
+function detectLang() {
+  const stored = localStorage.getItem('praxmate_lang');
+  if (['de','en','tr'].includes(stored)) return stored;
+  const nav = (navigator.language || 'de').slice(0, 2);
+  return ['de','en','tr'].includes(nav) ? nav : 'de';
+}
+let lang = detectLang();
+const t = (k) => (I18N[lang] || I18N.de)[k] || I18N.de[k] || k;
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.title = t('title_doc');
+  document.getElementById('title').textContent = t('title');
+  document.getElementById('subtitle').textContent = t('subtitle');
+  document.getElementById('lblEmail').textContent = t('lbl_email');
+  document.getElementById('submitText').textContent = t('submit');
+  document.getElementById('backLink').textContent = t('back');
+}
+applyLang();
+if (window.i18n) window.i18n.onChange((l) => { lang = l; applyLang(); });
+
+const form = document.getElementById('forgotForm');
+const okBox = document.getElementById('okBox');
+const errBox = document.getElementById('errBox');
+const submitBtn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  okBox.classList.remove('visible');
+  errBox.classList.remove('visible');
+
+  const email = document.getElementById('email').value.trim();
+  if (!email) return;
+
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="loading"></span>' + t('submitting');
+
+  try {
+    const res = await fetch(`${API}/public/auth/password/forgot`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, locale: lang }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok && !data.ok) {
+      throw new Error(data.error || t('err_generic'));
+    }
+    okBox.textContent = t('success');
+    okBox.classList.add('visible');
+    document.getElementById('email').value = '';
+  } catch (err) {
+    errBox.textContent = err.message || t('err_generic');
+    errBox.classList.add('visible');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<span id="submitText">' + t('submit') + '</span>';
+  }
+});
+</script>
+</body>
+</html>
