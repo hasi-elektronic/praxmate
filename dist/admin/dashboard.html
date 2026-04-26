@@ -659,14 +659,14 @@ a { color: var(--hasi); text-decoration: none; }
       <a href="/admin/dashboard.html" class="sb-nav-item" data-page="practices">
         <span class="sb-nav-icon">▦</span><span>Praxen</span>
       </a>
-      <a href="/admin/soon.html?feature=Statistik" class="sb-nav-item" data-page="stats">
-        <span class="sb-nav-icon">📊</span><span>Statistik</span>
+      <a href="/admin/analytics.html" class="sb-nav-item" data-page="analytics">
+        <span class="sb-nav-icon">📊</span><span>Analytics</span>
+      </a>
+      <a href="/admin/health.html" class="sb-nav-item" data-page="health">
+        <span class="sb-nav-icon">🩺</span><span>Health</span>
       </a>
       <a href="/admin/soon.html?feature=Abrechnung" class="sb-nav-item" data-page="billing">
         <span class="sb-nav-icon">💳</span><span>Abrechnung</span>
-      </a>
-      <a href="/admin/soon.html?feature=Logs" class="sb-nav-item" data-page="logs">
-        <span class="sb-nav-icon">📋</span><span>Logs</span>
       </a>
       <a href="/admin/soon.html?feature=System" class="sb-nav-item" data-page="system">
         <span class="sb-nav-icon">⚙</span><span>System</span>
@@ -980,8 +980,11 @@ function renderPractices(practices) {
         </div>
 
         <div class="practice-actions">
-          <button class="act-btn act-primary" data-action="impersonate" data-id="${p.id}" title="Als Inhaber dieser Praxis einloggen">
-            🔓 Als Praxis einloggen
+          <a class="act-btn act-primary" href="/admin/tenant.html?slug=${encodeURIComponent(p.slug)}" title="Detail-Ansicht: Stripe, Team, Audit, Notizen">
+            📂 Detail
+          </a>
+          <button class="act-btn" data-action="impersonate" data-id="${p.id}" title="Als Inhaber dieser Praxis einloggen">
+            🔓 Login
           </button>
           <button class="act-btn" data-action="edit" data-id="${p.id}" title="Alle Einstellungen bearbeiten">
             ⚙ Bearbeiten

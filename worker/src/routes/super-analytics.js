@@ -132,6 +132,11 @@ export async function handleSuperAnalytics(env, request) {
       cancelled:      tenants.cancelled  || 0,
       test_tenants:   tenants.test_tenants || 0,
     },
+    plans: {
+      solo:   { count: mrrRow.solo_active   || 0 },
+      team:   { count: mrrRow.team_active   || 0 },
+      klinik: { count: mrrRow.klinik_active || 0 },
+    },
     signups: {
       today:       tenants.signups_today      || 0,
       week:        tenants.signups_7d         || 0,

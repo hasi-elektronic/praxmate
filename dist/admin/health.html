@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Praxmate — Health & Alerts</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky:#0ea5e9; --teal:#14b8a6; --ink:#0f172a; --ink-soft:#475569;
+    --muted:#64748b; --border:#e2e8f0; --bg:#f8fafc;
+    --success:#059669; --warn:#d97706; --danger:#dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; min-height: 100vh; }
+
+  .topbar { background: white; border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; }
+  .brand-dot { width: 28px; height: 28px; }
+  .nav-link { color: var(--ink-soft); font-size: 13px; font-weight: 500; text-decoration: none; padding: 6px 12px; border-radius: 8px; }
+  .nav-link.active { color: var(--ink); font-weight: 600; }
+  .nav-link:hover { background: var(--bg); color: var(--ink); }
+  .refresh-btn { padding: 6px 14px; border: 1.5px solid var(--border); border-radius: 8px; background: white; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--ink-soft); }
+  .refresh-btn:hover { border-color: var(--sky); color: var(--sky); }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 24px 60px; }
+  .page-title { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+
+  .alert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { .alert-grid { grid-template-columns: 1fr; } }
+
+  .alert-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; }
+  .alert-card.danger    { border-color: #fecaca; background: #fef2f2; }
+  .alert-card.warn      { border-color: #fde68a; background: #fffbeb; }
+  .alert-card.info      { border-color: #bae6fd; background: #f0f9ff; }
+  .alert-card.empty     { background: #f8fafc; }
+
+  .alert-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; }
+  .alert-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .alert-icon { font-size: 16px; }
+  .alert-count { background: white; padding: 2px 9px; border-radius: 100px; font-size: 11px; font-weight: 700; color: var(--ink); }
+  .alert-card.danger .alert-count { background: var(--danger); color: white; }
+  .alert-card.warn   .alert-count { background: var(--warn);   color: white; }
+  .alert-card.info   .alert-count { background: var(--sky);    color: white; }
+
+  .alert-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .alert-row:first-of-type { border-top: none; }
+  .alert-row a { color: var(--sky); text-decoration: none; font-weight: 600; }
+  .alert-row a:hover { text-decoration: underline; }
+  .alert-row .meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .alert-row .right { text-align: right; font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .alert-empty { padding: 18px 0; color: var(--muted); font-size: 13px; text-align: center; font-style: italic; }
+  .badge { display: inline-block; padding: 2px 7px; border-radius: 100px; font-size: 9px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; vertical-align: middle; margin-left: 6px; }
+  .badge.test  { background: #fef3c7; color: #78350f; }
+  .badge.solo  { background: #f0f9ff; color: var(--sky); }
+  .badge.team  { background: #ecfeff; color: var(--teal); }
+  .badge.klinik{ background: #ecfdf5; color: var(--success); }
+
+  .funnel-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .funnel-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .funnel-step { text-align: center; padding: 14px 8px; border-radius: 10px; background: var(--bg); }
+  .funnel-step .num { font-size: 22px; font-weight: 800; color: var(--ink); }
+  .funnel-step .lbl { font-size: 10px; color: var(--muted); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 4px; }
+
+  .err-box { padding: 14px; background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+  .err-box.visible { display: block; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-dot">
+      <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+        <defs><linearGradient id="pmg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#14b8a6"/>
+        </linearGradient></defs>
+        <circle cx="20" cy="20" r="14" fill="none" stroke="url(#pmg)" stroke-width="4"/>
+        <circle cx="25.25" cy="14.45" r="3.1" fill="#0f172a"/>
+      </svg>
+    </span>
+    <span>Praxmate / Super</span>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <a href="/admin/dashboard.html" class="nav-link">Praxen</a>
+    <a href="/admin/analytics.html" class="nav-link">Analytics</a>
+    <a href="/admin/health.html"    class="nav-link active">Health</a>
+    <button class="refresh-btn" id="refreshBtn">↻ Aktualisieren</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="page-title">Health &amp; Alerts</div>
+  <div class="page-sub" id="generatedAt">Lade...</div>
+
+  <div class="err-box" id="errBox"></div>
+
+  <!-- Trial reminder funnel — top-of-page snapshot -->
+  <div class="funnel-card">
+    <div style="font-size:13px; font-weight:700; margin-bottom:12px;">Trial-Reminder Funnel — wer wo steht</div>
+    <div class="funnel-grid">
+      <div class="funnel-step"><div class="num" id="f7">—</div><div class="lbl">7 Tage Erinnerung</div></div>
+      <div class="funnel-step"><div class="num" id="f3">—</div><div class="lbl">3 Tage Erinnerung</div></div>
+      <div class="funnel-step"><div class="num" id="f1">—</div><div class="lbl">1 Tag Erinnerung</div></div>
+      <div class="funnel-step"><div class="num" id="f0">—</div><div class="lbl">Trial vorbei</div></div>
+    </div>
+  </div>
+
+  <div class="alert-grid">
+
+    <!-- Past-due (highest priority — money) -->
+    <div class="alert-card danger">
+      <div class="alert-head">
+        <div class="alert-title"><span class="alert-icon">💸</span> Past-Due Subscriptions</div>
+        <div class="alert-count" id="cnt-pastdue">0</div>
+      </div>
+      <div id="list-pastdue"><div class="alert-empty">Lade...</div></div>
+    </div>
+
+    <!-- Trial expiring 7 days -->
+    <div class="alert-card warn">
+      <div class="alert-head">
+        <div class="alert-title"><span class="alert-icon">⏳</span> Trial endet in 7 Tagen</div>
+        <div class="alert-count" id="cnt-trial">0</div>
+      </div>
+      <div id="list-trial"><div class="alert-empty">Lade...</div></div>
+    </div>
+
+    <!-- Failed payments -->
+    <div class="alert-card warn">
+      <div class="alert-head">
+        <div class="alert-title"><span class="alert-icon">⚠️</span> Fehlgeschlagene Zahlungen (30 Tage)</div>
+        <div class="alert-count" id="cnt-failed">0</div>
+      </div>
+      <div id="list-failed"><div class="alert-empty">Lade...</div></div>
+    </div>
+
+    <!-- Cancellations -->
+    <div class="alert-card info">
+      <div class="alert-head">
+        <div class="alert-title"><span class="alert-icon">👋</span> Kündigungen (14 Tage)</div>
+        <div class="alert-count" id="cnt-cancelled">0</div>
+      </div>
+      <div id="list-cancelled"><div class="alert-empty">Lade...</div></div>
+    </div>
+
+    <!-- Engagement risk -->
+    <div class="alert-card info" style="grid-column: 1 / -1;">
+      <div class="alert-head">
+        <div class="alert-title"><span class="alert-icon">😴</span> Engagement-Risiko (kein Login &gt; 7 Tage)</div>
+        <div class="alert-count" id="cnt-eng">0</div>
+      </div>
+      <div id="list-eng"><div class="alert-empty">Lade...</div></div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const API = 'https://praxmate-api.hguencavdi.workers.dev/api';
+const token = localStorage.getItem('praxmate_token');
+if (!token) {
+  const here = encodeURIComponent(location.pathname);
+  location.href = '/praxis/?practice=hamdi&next=' + here;
+}
+
+const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDateRel = (iso) => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return 'gerade';
+  if (diff < 3600) return Math.floor(diff/60) + ' min';
+  if (diff < 86400) return Math.floor(diff/3600) + ' h';
+  if (diff < 86400*30) return Math.floor(diff/86400) + ' d';
+  return d.toLocaleDateString('de-DE');
+};
+const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('de-DE') : '—';
+
+async function loadHealth() {
+  document.getElementById('errBox').classList.remove('visible');
+  try {
+    const res = await fetch(`${API}/super/health`, {
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (res.status === 401) {
+      localStorage.removeItem('praxmate_token');
+      const here = encodeURIComponent(location.pathname);
+      location.href = '/praxis/?practice=hamdi&next=' + here;
+      return;
+    }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'HTTP ' + res.status);
+    }
+    const d = await res.json();
+
+    document.getElementById('generatedAt').textContent = 'Stand: ' + new Date(d.generated_at).toLocaleString('de-DE');
+
+    // Funnel
+    const f = d.trial_reminder_funnel || {};
+    document.getElementById('f7').textContent = f.at_7d ?? 0;
+    document.getElementById('f3').textContent = f.at_3d ?? 0;
+    document.getElementById('f1').textContent = f.at_1d ?? 0;
+    document.getElementById('f0').textContent = f.at_0d ?? 0;
+
+    renderRows('pastdue', d.past_due, (r) => ({
+      main: tenantLink(r.slug, r.name, r),
+      meta: `Plan ${r.plan} · letzte Zahlung versucht ${fmtDate(r.current_period_end)}`,
+      right: r.is_test_mode ? '🧪 test' : (r.stripe_subscription_id || '').slice(0, 16),
+    }));
+
+    renderRows('trial', d.trial_expiring_7d, (r) => ({
+      main: tenantLink(r.slug, r.name, r),
+      meta: `Plan ${r.plan} · Trial endet ${fmtDate(r.trial_ends_at)} (${r.days_left} Tage)`,
+      right: r.locale || 'de',
+    }));
+
+    renderRows('failed', d.failed_payments_30d, (r) => {
+      let amount = '';
+      try {
+        const m = typeof r.meta === 'string' ? JSON.parse(r.meta) : r.meta;
+        if (m?.amount_due) amount = '€' + (m.amount_due / 100).toFixed(2);
+      } catch {}
+      return {
+        main: tenantLink(r.slug, r.name, r),
+        meta: amount ? `Betrag ${amount} · ${fmtDateRel(r.created_at)}` : fmtDateRel(r.created_at),
+        right: r.locale || 'de',
+      };
+    });
+
+    renderRows('cancelled', d.recent_cancellations, (r) => ({
+      main: tenantLink(r.slug, r.name, r),
+      meta: `Plan ${r.plan} · gekündigt ${fmtDateRel(r.cancelled_at)}`,
+      right: r.locale || 'de',
+    }));
+
+    renderRows('eng', d.engagement_risk, (r) => ({
+      main: tenantLink(r.slug, r.name, r),
+      meta: `Plan ${r.plan} · letzter Login: ${r.last_login ? fmtDateRel(r.last_login) : 'NIE'} · seit ${fmtDate(r.created_at)} aktiv`,
+      right: r.locale || 'de',
+    }));
+
+  } catch (e) {
+    document.getElementById('errBox').textContent = 'Fehler: ' + e.message;
+    document.getElementById('errBox').classList.add('visible');
+  }
+}
+
+function tenantLink(slug, name, row) {
+  const badges = [];
+  if (row?.is_test_mode) badges.push('<span class="badge test">test</span>');
+  if (row?.plan) badges.push(`<span class="badge ${escapeHtml(row.plan)}">${escapeHtml(row.plan)}</span>`);
+  return `<a href="/admin/tenant.html?slug=${encodeURIComponent(slug)}">${escapeHtml(name || slug)}</a>${badges.join('')}`;
+}
+
+function renderRows(key, rows, mapFn) {
+  const list = document.getElementById('list-' + key);
+  const cnt  = document.getElementById('cnt-' + key);
+  cnt.textContent = (rows || []).length;
+  if (!rows || rows.length === 0) {
+    list.innerHTML = '<div class="alert-empty">— niemand —</div>';
+    return;
+  }
+  list.innerHTML = '';
+  rows.forEach(r => {
+    const m = mapFn(r);
+    const div = document.createElement('div');
+    div.className = 'alert-row';
+    div.innerHTML = `
+      <div>
+        <div>${m.main}</div>
+        <div class="meta">${escapeHtml(m.meta || '')}</div>
+      </div>
+      <div class="right">${escapeHtml(m.right || '')}</div>`;
+    list.appendChild(div);
+  });
+}
+
+document.getElementById('refreshBtn').addEventListener('click', loadHealth);
+loadHealth();
+setInterval(loadHealth, 60_000);
+</script>
+</body>
+</html>

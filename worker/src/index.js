@@ -119,6 +119,13 @@ import {
 // Super-admin analytics (MRR + signups + conversion)
 import { handleSuperAnalytics } from './routes/super-analytics.js';
 
+// Super-admin operations tools (tenant detail, health alerts, notes)
+import {
+  handleTenantDetail,
+  handleHealth,
+  handleAddNote,
+} from './routes/super-tools.js';
+
 // Scheduled jobs
 import { runReminders }      from './routes/reminders.js';
 import { runBackup }         from './routes/backup.js';
@@ -430,6 +437,17 @@ export default {
       }
       if (path === '/api/super/analytics' && method === 'GET') {
         return await handleSuperAnalytics(env, request);
+      }
+      if (path === '/api/super/health' && method === 'GET') {
+        return await handleHealth(env, request);
+      }
+      const superTenantDetailMatch = path.match(/^\/api\/super\/tenant\/([a-z0-9-]+|prc_[a-f0-9]+)\/detail$/);
+      if (superTenantDetailMatch && method === 'GET') {
+        return await handleTenantDetail(env, request, superTenantDetailMatch[1]);
+      }
+      const superTenantNoteMatch = path.match(/^\/api\/super\/tenant\/([a-z0-9-]+|prc_[a-f0-9]+)\/note$/);
+      if (superTenantNoteMatch && method === 'POST') {
+        return await handleAddNote(env, request, superTenantNoteMatch[1]);
       }
       if (path === '/api/super/practices' && method === 'GET') {
         return await handleSuperPracticesList(env, request);

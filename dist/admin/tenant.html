@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Praxmate — Tenant Detail</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky:#0ea5e9; --teal:#14b8a6; --ink:#0f172a; --ink-soft:#475569;
+    --muted:#64748b; --border:#e2e8f0; --bg:#f8fafc;
+    --success:#059669; --warn:#d97706; --danger:#dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; min-height: 100vh; }
+
+  .topbar { background: white; border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; }
+  .brand-dot { width: 28px; height: 28px; }
+  .nav-link { color: var(--ink-soft); font-size: 13px; font-weight: 500; text-decoration: none; padding: 6px 12px; border-radius: 8px; }
+  .nav-link.active { color: var(--ink); font-weight: 600; }
+  .nav-link:hover { background: var(--bg); color: var(--ink); }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 24px 60px; }
+
+  .breadcrumb { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .breadcrumb a { color: var(--sky); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  .header-card {
+    background: white; border: 1px solid var(--border); border-radius: 14px;
+    padding: 24px 28px; margin-bottom: 22px;
+    display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;
+  }
+  .header-logo {
+    width: 64px; height: 64px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--sky), var(--teal));
+    color: white; display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 800; flex-shrink: 0;
+  }
+  .header-main { flex: 1; min-width: 240px; }
+  .header-name { font-size: 24px; font-weight: 800; letter-spacing: -0.01em; }
+  .header-sub  { color: var(--muted); font-size: 13px; margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+    background: white; font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer; color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+  }
+  .btn:hover { border-color: var(--sky); color: var(--sky); }
+  .btn-primary { background: var(--sky); border-color: var(--sky); color: white; }
+  .btn-primary:hover { background: #0284c7; border-color: #0284c7; color: white; }
+
+  .badge {
+    display: inline-block; padding: 3px 9px; border-radius: 100px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .badge.trial { background: #f0f9ff; color: var(--sky); }
+  .badge.active { background: #ecfdf5; color: var(--success); }
+  .badge.cancelled { background: #fef2f2; color: var(--danger); }
+  .badge.past_due { background: #fff7ed; color: var(--warn); }
+  .badge.suspended { background: #fef2f2; color: var(--danger); }
+  .badge.test  { background: #fef3c7; color: #78350f; }
+  .badge.solo  { background: #f0f9ff; color: var(--sky); }
+  .badge.team  { background: #ecfeff; color: var(--teal); }
+  .badge.klinik{ background: #ecfdf5; color: var(--success); }
+
+  /* Stats strip */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 22px; }
+  .stat-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .stat-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .stat-value { font-size: 24px; font-weight: 800; line-height: 1; }
+  .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* Two-column grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; margin-bottom: 16px; }
+  .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .card-title { font-size: 14px; font-weight: 700; }
+  .card-action { font-size: 12px; color: var(--sky); text-decoration: none; font-weight: 600; }
+  .card-action:hover { text-decoration: underline; }
+
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 8px 0; border-top: 1px solid var(--border); font-size: 13px; align-items: baseline; }
+  .row:first-of-type { border-top: none; }
+  .row .key  { color: var(--muted); font-size: 12px; font-weight: 500; }
+  .row .val  { color: var(--ink); font-weight: 500; text-align: right; word-break: break-word; }
+  .row .val.mono { font-family: 'SF Mono', Monaco, monospace; font-size: 11px; color: var(--ink-soft); }
+
+  .empty { padding: 14px 0; text-align: center; color: var(--muted); font-size: 13px; font-style: italic; }
+
+  /* Audit log */
+  .audit-row { padding: 10px 0; border-top: 1px solid var(--border); font-size: 12px; }
+  .audit-row:first-of-type { border-top: none; }
+  .audit-row .head { display: flex; gap: 8px; align-items: center; }
+  .audit-row .action { font-weight: 700; color: var(--ink); font-family: 'SF Mono', monospace; font-size: 11px; }
+  .audit-row .actor  { color: var(--muted); font-size: 11px; }
+  .audit-row .when   { color: var(--muted); font-size: 11px; margin-left: auto; }
+  .audit-row .meta   { font-size: 11px; color: var(--ink-soft); margin-top: 4px; font-family: 'SF Mono', monospace; word-break: break-all; }
+
+  /* Notes */
+  .note-input { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; background: white; resize: vertical; min-height: 60px; }
+  .note-input:focus { outline: none; border-color: var(--sky); }
+
+  .err-box { padding: 12px 14px; background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+  .err-box.visible { display: block; }
+  .ok-box  { padding: 12px 14px; background: #ecfdf5; border: 1px solid #a7f3d0; color: var(--success); border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+  .ok-box.visible { display: block; }
+  .loading { color: var(--muted); padding: 30px; text-align: center; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-dot">
+      <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+        <defs><linearGradient id="pmg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#14b8a6"/>
+        </linearGradient></defs>
+        <circle cx="20" cy="20" r="14" fill="none" stroke="url(#pmg)" stroke-width="4"/>
+        <circle cx="25.25" cy="14.45" r="3.1" fill="#0f172a"/>
+      </svg>
+    </span>
+    <span>Praxmate / Super</span>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <a href="/admin/dashboard.html" class="nav-link">Praxen</a>
+    <a href="/admin/analytics.html" class="nav-link">Analytics</a>
+    <a href="/admin/health.html"    class="nav-link">Health</a>
+  </div>
+</header>
+
+<main class="wrap" id="root">
+  <div class="loading" id="loadingMsg">Lade Tenant-Daten...</div>
+</main>
+
+<template id="tpl-detail">
+  <div class="breadcrumb">
+    <a href="/admin/dashboard.html">Praxen</a> / <span class="bc-name"></span>
+  </div>
+
+  <div class="err-box" id="errBox"></div>
+  <div class="ok-box"  id="okBox"></div>
+
+  <!-- Header card -->
+  <div class="header-card">
+    <div class="header-logo" id="logo">P</div>
+    <div class="header-main">
+      <div class="header-name" id="name"></div>
+      <div class="header-sub" id="sub"></div>
+    </div>
+    <div class="header-actions">
+      <a class="btn" id="adminLink"   target="_blank">Admin öffnen ↗</a>
+      <a class="btn" id="bookingLink" target="_blank">Booking ↗</a>
+      <button class="btn" id="impersonateBtn">Impersonate</button>
+    </div>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="stats" id="stats"></div>
+
+  <!-- Two-col content -->
+  <div class="grid-2">
+    <!-- LEFT: practice + Stripe -->
+    <div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Praxis-Info</div></div>
+        <div id="practiceRows"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Stripe Subscription</div></div>
+        <div id="stripeRows"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Domains</div></div>
+        <div id="domainsRows"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: users + audit + notes -->
+    <div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Team</div></div>
+        <div id="usersRows"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Notiz hinzufügen</div></div>
+        <textarea class="note-input" id="noteInput" placeholder="Interne Notiz für diesen Tenant (z.B. Anrufzusammenfassung, Sonderregelung)..."></textarea>
+        <button class="btn btn-primary" id="noteSaveBtn" style="margin-top:10px">Notiz speichern</button>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Audit Log (letzte 30)</div></div>
+        <div id="auditRows"></div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+const API = 'https://praxmate-api.hguencavdi.workers.dev/api';
+const token = localStorage.getItem('praxmate_token');
+if (!token) {
+  const here = encodeURIComponent(location.pathname + location.search);
+  location.href = '/praxis/?practice=hamdi&next=' + here;
+}
+
+const params = new URLSearchParams(location.search);
+const slugOrId = params.get('slug') || params.get('id');
+if (!slugOrId) {
+  document.getElementById('loadingMsg').textContent = 'Kein Tenant — bitte ?slug=... oder ?id=... in der URL angeben.';
+  throw new Error('no slug');
+}
+
+const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtEuro = (cents) => cents == null ? '—' : new Intl.NumberFormat('de-DE', { style:'currency', currency:'EUR' }).format(cents/100);
+const fmtDateTime = (iso) => iso ? new Date(iso).toLocaleString('de-DE') : '—';
+const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('de-DE') : '—';
+const fmtUnixDate = (sec) => sec ? new Date(sec*1000).toLocaleDateString('de-DE') : '—';
+
+async function load() {
+  try {
+    const res = await fetch(`${API}/super/tenant/${encodeURIComponent(slugOrId)}/detail`, {
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (res.status === 401) {
+      localStorage.removeItem('praxmate_token');
+      const here = encodeURIComponent(location.pathname + location.search);
+      location.href = '/praxis/?practice=hamdi&next=' + here;
+      return;
+    }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'HTTP ' + res.status);
+    }
+    const d = await res.json();
+    render(d);
+  } catch (e) {
+    document.getElementById('loadingMsg').textContent = 'Fehler: ' + e.message;
+  }
+}
+
+function render(d) {
+  const tpl = document.getElementById('tpl-detail').content.cloneNode(true);
+  const root = document.getElementById('root');
+  root.innerHTML = '';
+  root.appendChild(tpl);
+
+  const p = d.practice;
+  const c = d.counts || {};
+
+  // Breadcrumb + title
+  document.querySelector('.bc-name').textContent = p.name;
+  document.title = `Praxmate — ${p.name}`;
+  document.getElementById('name').innerHTML = escapeHtml(p.name)
+    + (p.is_test_mode ? ' <span class="badge test">test</span>' : '')
+    + ` <span class="badge ${escapeHtml(p.plan_status)}">${escapeHtml(p.plan_status)}</span>`
+    + ` <span class="badge ${escapeHtml(p.plan)}">${escapeHtml(p.plan)}</span>`;
+  document.getElementById('logo').textContent = (p.name || '?').slice(0, 1).toUpperCase();
+  if (p.brand_primary) {
+    document.getElementById('logo').style.background = `linear-gradient(135deg, ${p.brand_primary}, ${p.brand_accent || '#14b8a6'})`;
+  }
+  if (p.logo_url) {
+    document.getElementById('logo').innerHTML = `<img src="${escapeHtml(p.logo_url)}" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:12px;background:white">`;
+  }
+  document.getElementById('sub').innerHTML = `
+    <span><strong>${escapeHtml(p.slug)}</strong>.praxmate.de</span>
+    ${p.city ? `<span>· ${escapeHtml(p.city)}</span>` : ''}
+    ${p.specialty ? `<span>· ${escapeHtml(p.specialty)}</span>` : ''}
+    <span>· seit ${fmtDate(p.created_at)}</span>
+  `;
+
+  // Header buttons
+  const adminUrl = `https://${p.slug}.praxmate.de/praxis/`;
+  const bookUrl  = `https://${p.slug}.praxmate.de/book`;
+  document.getElementById('adminLink').href   = adminUrl;
+  document.getElementById('bookingLink').href = bookUrl;
+  document.getElementById('impersonateBtn').addEventListener('click', () => doImpersonate(p.id, p.slug));
+
+  // Stats strip
+  const statsEl = document.getElementById('stats');
+  const stats = [
+    ['Patienten',     c.patient_count   || 0, ''],
+    ['Termine total', c.appt_count_total|| 0, `${c.appt_count_30d || 0} in 30 Tagen`],
+    ['Termine 7T',    c.appt_count_7d   || 0, ''],
+    ['Behandler',     c.doctor_count    || 0, ''],
+    ['Tedavi-Typen',  c.type_count      || 0, ''],
+    ['Team',          c.user_count      || 0, ''],
+  ];
+  statsEl.innerHTML = stats.map(([lbl, val, sub]) => `
+    <div class="stat-card">
+      <div class="stat-label">${escapeHtml(lbl)}</div>
+      <div class="stat-value">${val}</div>
+      ${sub ? `<div class="stat-sub">${escapeHtml(sub)}</div>` : ''}
+    </div>`).join('');
+
+  // Practice info rows
+  const pr = document.getElementById('practiceRows');
+  const prRows = [
+    ['Slug',     p.slug],
+    ['ID',       p.id, 'mono'],
+    ['Sprache',  p.locale],
+    ['Zeitzone', p.timezone],
+    ['Email',    p.email || '—'],
+    ['Telefon',  p.phone || '—'],
+    ['Website',  p.website || '—'],
+    ['Trial endet', fmtDate(p.trial_ends_at)],
+    ['Max. Behandler', p.max_doctors],
+  ];
+  pr.innerHTML = prRows.map(([k, v, cls]) =>
+    `<div class="row"><div class="key">${escapeHtml(k)}</div><div class="val ${cls === 'mono' ? 'mono' : ''}">${escapeHtml(String(v))}</div></div>`
+  ).join('');
+
+  // Stripe
+  const sr = document.getElementById('stripeRows');
+  if (!d.stripe_subscription) {
+    sr.innerHTML = '<div class="empty">Kein aktives Stripe-Abonnement</div>';
+  } else if (d.stripe_subscription.error) {
+    sr.innerHTML = `<div class="empty">Stripe-Fehler: ${escapeHtml(d.stripe_subscription.error)}</div>`;
+  } else {
+    const s = d.stripe_subscription;
+    const c2 = d.stripe_customer || {};
+    const stripeRows = [
+      ['Modus',         p.stripe_mode + (p.is_test_mode ? ' 🧪' : '')],
+      ['Subscription',  s.id, 'mono'],
+      ['Status',        s.status],
+      ['Betrag',        fmtEuro(s.amount_cents) + '/Monat'],
+      ['Aktuelle Periode bis', fmtUnixDate(s.current_period_end)],
+      ['Trial endet',   fmtUnixDate(s.trial_end)],
+      ['Cancel scheduled', s.cancel_at_period_end ? '⚠ Ja, am Periodenende' : 'nein'],
+      ['Customer',      c2.id || '—', 'mono'],
+      ['Customer balance', c2.balance_cents != null ? fmtEuro(c2.balance_cents) : '—'],
+    ];
+    sr.innerHTML = stripeRows.map(([k, v, cls]) =>
+      `<div class="row"><div class="key">${escapeHtml(k)}</div><div class="val ${cls === 'mono' ? 'mono' : ''}">${escapeHtml(String(v))}</div></div>`
+    ).join('');
+  }
+
+  // Domains
+  const dr = document.getElementById('domainsRows');
+  const doms = d.domains || [];
+  if (doms.length === 0) {
+    dr.innerHTML = '<div class="empty">Keine Domain-Bindings</div>';
+  } else {
+    dr.innerHTML = doms.map(dm => `
+      <div class="row">
+        <div class="key">${dm.is_primary ? '★ ' : ''}${escapeHtml(dm.type)}</div>
+        <div class="val">${escapeHtml(dm.hostname)} ${dm.verified ? '✓' : '⚠ unverified'}</div>
+      </div>`).join('');
+  }
+
+  // Users
+  const ur = document.getElementById('usersRows');
+  const users = d.users || [];
+  if (users.length === 0) {
+    ur.innerHTML = '<div class="empty">Keine Team-Mitglieder</div>';
+  } else {
+    ur.innerHTML = users.map(u => `
+      <div class="row">
+        <div>
+          <div style="font-weight:600">${escapeHtml(u.name)} <span class="badge ${escapeHtml(u.role)}" style="background:#f1f5f9;color:var(--ink-soft);">${escapeHtml(u.role)}</span></div>
+          <div class="key">${escapeHtml(u.email)}</div>
+        </div>
+        <div class="val">${u.last_login ? 'login: ' + fmtDate(u.last_login) : '<span style="color:var(--muted)">nie eingeloggt</span>'}</div>
+      </div>`).join('');
+  }
+
+  // Audit
+  const ar = document.getElementById('auditRows');
+  const audit = d.audit || [];
+  if (audit.length === 0) {
+    ar.innerHTML = '<div class="empty">Keine Aktivität protokolliert</div>';
+  } else {
+    ar.innerHTML = audit.map(a => {
+      let metaTxt = '';
+      try {
+        const m = typeof a.meta === 'string' ? JSON.parse(a.meta) : a.meta;
+        if (m && Object.keys(m).length) metaTxt = JSON.stringify(m);
+      } catch {}
+      return `
+        <div class="audit-row">
+          <div class="head">
+            <span class="action">${escapeHtml(a.action)}</span>
+            <span class="actor">${escapeHtml(a.actor_type)}/${escapeHtml((a.actor_id||'').slice(0, 14))}</span>
+            <span class="when">${fmtDateTime(a.created_at)}</span>
+          </div>
+          ${metaTxt ? `<div class="meta">${escapeHtml(metaTxt)}</div>` : ''}
+        </div>`;
+    }).join('');
+  }
+
+  // Note save
+  document.getElementById('noteSaveBtn').addEventListener('click', () => saveNote(p.slug));
+}
+
+async function doImpersonate(practiceId, slug) {
+  if (!confirm(`Als Owner von "${slug}" einloggen?`)) return;
+  try {
+    const res = await fetch(`${API}/super/practices/${practiceId}/impersonate`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'HTTP ' + res.status);
+    const data = await res.json();
+    if (data.token) {
+      // Open new tab with hash-auth into the tenant subdomain
+      const url = `https://${slug}.praxmate.de/praxis/#auth=${encodeURIComponent(data.token)}&practice=${encodeURIComponent(slug)}`;
+      window.open(url, '_blank', 'noopener');
+    }
+  } catch (e) {
+    showErr(e.message);
+  }
+}
+
+async function saveNote(slug) {
+  const note = document.getElementById('noteInput').value.trim();
+  if (!note) return;
+  try {
+    const res = await fetch(`${API}/super/tenant/${encodeURIComponent(slug)}/note`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'HTTP ' + res.status);
+    document.getElementById('noteInput').value = '';
+    showOk('Notiz gespeichert. Reload für die Audit-Log-Anzeige.');
+    setTimeout(() => location.reload(), 1500);
+  } catch (e) {
+    showErr(e.message);
+  }
+}
+
+function showErr(msg) {
+  const b = document.getElementById('errBox');
+  b.textContent = 'Fehler: ' + msg;
+  b.classList.add('visible');
+  setTimeout(() => b.classList.remove('visible'), 5000);
+}
+function showOk(msg) {
+  const b = document.getElementById('okBox');
+  b.textContent = msg;
+  b.classList.add('visible');
+}
+
+load();
+</script>
+</body>
+</html>
