@@ -22,9 +22,10 @@ export function stripeContextFor(env, practice) {
       webhookSecret: env.STRIPE_TEST_WEBHOOK_SECRET,
       publicKey:     env.STRIPE_TEST_PUBLIC_KEY,
       prices: {
-        solo:   env.STRIPE_TEST_PRICE_SOLO,
-        team:   env.STRIPE_TEST_PRICE_TEAM,
-        klinik: env.STRIPE_TEST_PRICE_KLINIK,
+        warteliste: env.STRIPE_TEST_PRICE_WARTELISTE,
+        solo:       env.STRIPE_TEST_PRICE_SOLO,
+        team:       env.STRIPE_TEST_PRICE_TEAM,
+        klinik:     env.STRIPE_TEST_PRICE_KLINIK,
       },
     };
   }
@@ -34,9 +35,10 @@ export function stripeContextFor(env, practice) {
     webhookSecret: env.STRIPE_WEBHOOK_SECRET,
     publicKey:     env.STRIPE_PUBLIC_KEY,
     prices: {
-      solo:   env.STRIPE_PRICE_SOLO,
-      team:   env.STRIPE_PRICE_TEAM,
-      klinik: env.STRIPE_PRICE_KLINIK,
+      warteliste: env.STRIPE_PRICE_WARTELISTE,
+      solo:       env.STRIPE_PRICE_SOLO,
+      team:       env.STRIPE_PRICE_TEAM,
+      klinik:     env.STRIPE_PRICE_KLINIK,
     },
   };
 }
@@ -154,9 +156,10 @@ function timingSafeEq(a, b) {
 // Accepts either env (legacy, LIVE only) or a context from stripeContextFor().
 export function priceIdForPlan(envOrCtx, plan) {
   const prices = envOrCtx.prices || {
-    solo:   envOrCtx.STRIPE_PRICE_SOLO,
-    team:   envOrCtx.STRIPE_PRICE_TEAM,
-    klinik: envOrCtx.STRIPE_PRICE_KLINIK,
+    warteliste: envOrCtx.STRIPE_PRICE_WARTELISTE,
+    solo:       envOrCtx.STRIPE_PRICE_SOLO,
+    team:       envOrCtx.STRIPE_PRICE_TEAM,
+    klinik:     envOrCtx.STRIPE_PRICE_KLINIK,
   };
   return prices[plan] || null;
 }
@@ -165,11 +168,64 @@ export function priceIdForPlan(envOrCtx, plan) {
 // Checks BOTH live and test mappings so webhook events (which don't know
 // which mode they came from until verified) resolve correctly.
 export function planForPriceId(env, priceId) {
-  if (priceId === env.STRIPE_PRICE_SOLO)        return 'solo';
-  if (priceId === env.STRIPE_PRICE_TEAM)        return 'team';
-  if (priceId === env.STRIPE_PRICE_KLINIK)      return 'klinik';
-  if (priceId === env.STRIPE_TEST_PRICE_SOLO)   return 'solo';
-  if (priceId === env.STRIPE_TEST_PRICE_TEAM)   return 'team';
-  if (priceId === env.STRIPE_TEST_PRICE_KLINIK) return 'klinik';
+  if (priceId === env.STRIPE_PRICE_WARTELISTE)      return 'warteliste';
+  if (priceId === env.STRIPE_PRICE_SOLO)            return 'solo';
+  if (priceId === env.STRIPE_PRICE_TEAM)            return 'team';
+  if (priceId === env.STRIPE_PRICE_KLINIK)          return 'klinik';
+  if (priceId === env.STRIPE_TEST_PRICE_WARTELISTE) return 'warteliste';
+  if (priceId === env.STRIPE_TEST_PRICE_SOLO)       return 'solo';
+  if (priceId === env.STRIPE_TEST_PRICE_TEAM)       return 'team';
+  if (priceId === env.STRIPE_TEST_PRICE_KLINIK)     return 'klinik';
   return null;
+}
+
+// ============================================================
+// Feature gating — Warteliste plan has a restricted feature set
+// ============================================================
+// Warteliste plan only includes:
+//   ✓ Wartelisten-Verwaltung (intern)
+//   ✓ Patient CRUD (intern)
+//   ✓ Excel import/export
+// Disabled for warteliste plan:
+//   ✗ Online appointment booking (public /api/appointments)
+//   ✗ Patient portal / patient login
+//   ✗ Online termin reservation
+//   ✗ Reminder SMS
+// ============================================================
+export function isWartelistePlan(practice) {
+  return practice?.plan === 'warteliste';
+}
+
+// Returns true if the practice's plan includes the given feature.
+// Used by route guards to block features outside the plan.
+export function planAllowsFeature(practice, feature) {
+  const plan = practice?.plan || 'solo';
+  if (plan === 'warteliste') {
+    // Whitelist only — everything else is denied.
+    const ALLOWED = new Set([
+      'waitlist',
+      'patients_internal',
+      'excel_io',
+      'reports_basic',
+    ]);
+    return ALLOWED.has(feature);
+  }
+  // solo / team / klinik allow everything; differences are in quotas, not features.
+  return true;
+}
+
+// Standard 402-Payment-Required style response for blocked endpoints.
+// Frontend reads `upgrade_to` and shows the upgrade modal.
+export function planRequiredResponse(neededPlan = 'solo') {
+  return new Response(
+    JSON.stringify({
+      error: 'plan_upgrade_required',
+      message: `Diese Funktion ist nicht Teil Ihres Tarifs. Upgraden Sie auf ${neededPlan === 'solo' ? 'Praxmate Solo' : 'einen höheren Tarif'}.`,
+      upgrade_to: neededPlan,
+    }),
+    {
+      status: 402,
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
 }

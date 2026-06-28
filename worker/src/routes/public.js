@@ -4,6 +4,17 @@ import { generateId, generateToken, generateBookingCode } from '../lib/crypto.js
 import { logAudit } from '../lib/audit.js';
 import { sendEmail, isDemoTenant, tenantLocale } from '../lib/email.js';
 import { confirmationEmail } from '../lib/email-templates.js';
+import { planAllowsFeature, planRequiredResponse } from '../lib/stripe.js';
+
+// Guard: public-facing booking + doctor lookup endpoints are not part of
+// the 'warteliste' plan. Return 402 so the frontend can show an upgrade prompt
+// (or just hide the booking widget entirely).
+function denyIfWartelistePlan(practice) {
+  if (!planAllowsFeature(practice, 'online_booking')) {
+    return planRequiredResponse('solo');
+  }
+  return null;
+}
 
 // ============================================================
 // GET /api/practice — info for the resolved practice
@@ -18,6 +29,8 @@ export async function handlePracticeInfo(env, request) {
 // ============================================================
 export async function handleDoctorsList(env, request) {
   const practice = await requirePractice(env, request);
+  const blocked = denyIfWartelistePlan(practice);
+  if (blocked) return blocked;
   const res = await env.DB.prepare(`
     SELECT id, name, title, role, specialty, avatar_initials, accepts_new_patients
     FROM doctors
@@ -32,6 +45,8 @@ export async function handleDoctorsList(env, request) {
 // ============================================================
 export async function handleAppointmentTypes(env, request) {
   const practice = await requirePractice(env, request);
+  const blocked = denyIfWartelistePlan(practice);
+  if (blocked) return blocked;
   const res = await env.DB.prepare(`
     SELECT id, code, name, description, duration_minutes, icon, color,
            requires_approval, new_patient_only
@@ -48,6 +63,8 @@ export async function handleAppointmentTypes(env, request) {
 // ============================================================
 export async function handleAvailability(env, request) {
   const practice = await requirePractice(env, request);
+  const blocked = denyIfWartelistePlan(practice);
+  if (blocked) return blocked;
   const url = new URL(request.url);
   const typeId = url.searchParams.get('type_id');
   const doctorId = url.searchParams.get('doctor_id');
@@ -83,6 +100,8 @@ export async function handleAvailability(env, request) {
 // ============================================================
 export async function handleSlots(env, request) {
   const practice = await requirePractice(env, request);
+  const blocked = denyIfWartelistePlan(practice);
+  if (blocked) return blocked;
   const url = new URL(request.url);
   const typeId = url.searchParams.get('type_id');
   const doctorId = url.searchParams.get('doctor_id');
@@ -212,6 +231,8 @@ const BOOKING_MAX_PER_HOUR = 5;
 
 export async function handleAppointmentCreate(env, request) {
   const practice = await requirePractice(env, request);
+  const blocked = denyIfWartelistePlan(practice);
+  if (blocked) return blocked;
   const ip = getClientIp(request);
 
   // Rate limit — count successful bookings from this IP in the last hour.

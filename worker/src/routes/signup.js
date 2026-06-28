@@ -136,7 +136,12 @@ export async function handlePublicSignup(env, request) {
     city,
     specialty = 'gp',
     gdpr_consent,
+    plan: requestedPlan,
   } = body;
+
+  // Default plan = 'solo'. Sign-ups from wartelistepro.de funnel send 'warteliste'.
+  const VALID_SIGNUP_PLANS = new Set(['warteliste', 'solo', 'team', 'klinik']);
+  const plan = VALID_SIGNUP_PLANS.has(requestedPlan) ? requestedPlan : 'solo';
 
   // ===== Validation =====
   if (!practice_name || !slug || !owner_name || !owner_email || !password) {
@@ -203,8 +208,8 @@ export async function handlePublicSignup(env, request) {
         brand_primary, brand_accent, brand_ink,
         plan, plan_status, trial_ends_at, max_doctors
       ) VALUES (?, ?, ?, ?, ?, 'DE', ?, ?, ?, '#0ea5e9', '#14b8a6', '#0f172a',
-                'solo', 'trial', ?, 1)
-    `).bind(practiceId, slug, practice_name, specialty, city || null, phone || null, locale, timezone, trialEndsAt),
+                ?, 'trial', ?, 1)
+    `).bind(practiceId, slug, practice_name, specialty, city || null, phone || null, locale, timezone, plan, trialEndsAt),
 
     env.DB.prepare(`
       INSERT INTO practice_domains (id, practice_id, hostname, type, verified, is_primary)

@@ -180,9 +180,10 @@ export async function handleBillingStatus(env, request) {
     stripe_mode: ctx.mode,
     stripe_public_key: ctx.publicKey || null,
     prices: {
-      solo:   { id: ctx.prices.solo,   amount_cents: 3900,  currency: 'EUR' },
-      team:   { id: ctx.prices.team,   amount_cents: 6900,  currency: 'EUR' },
-      klinik: { id: ctx.prices.klinik, amount_cents: 11900, currency: 'EUR' },
+      warteliste: { id: ctx.prices.warteliste, amount_cents:   900, currency: 'EUR' },
+      solo:       { id: ctx.prices.solo,       amount_cents:  3900, currency: 'EUR' },
+      team:       { id: ctx.prices.team,       amount_cents:  6900, currency: 'EUR' },
+      klinik:     { id: ctx.prices.klinik,     amount_cents: 11900, currency: 'EUR' },
     },
   }, request);
 }

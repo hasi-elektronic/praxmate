@@ -18,17 +18,19 @@ RESEND_FROM_EMAIL = "Praxmate <noreply@praxmate.de>"
 
 # ===== LIVE Stripe (default for real customers) =====
 # STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET are stored as Worker Secrets.
-STRIPE_PRICE_SOLO   = "price_1TPkIkFycImRFaiUujbYAdrG"
-STRIPE_PRICE_TEAM   = "price_1TPkIlFycImRFaiUaBZX2XsM"
-STRIPE_PRICE_KLINIK = "price_1TPkImFycImRFaiUOCHg5IU7"
-STRIPE_PUBLIC_KEY   = "pk_live_51SfKz5FycImRFaiUTRSEEYLuC91bCOMpZTgKUmTwKzABS3VnO9p24Uy1L2qz2lWNU9pr7jBgDduay5KsZDXSNFct00Nx6yCs2L"
+STRIPE_PRICE_WARTELISTE = "price_TODO_REPLACE_LIVE_WARTELISTE"
+STRIPE_PRICE_SOLO       = "price_1TPkIkFycImRFaiUujbYAdrG"
+STRIPE_PRICE_TEAM       = "price_1TPkIlFycImRFaiUaBZX2XsM"
+STRIPE_PRICE_KLINIK     = "price_1TPkImFycImRFaiUOCHg5IU7"
+STRIPE_PUBLIC_KEY       = "pk_live_51SfKz5FycImRFaiUTRSEEYLuC91bCOMpZTgKUmTwKzABS3VnO9p24Uy1L2qz2lWNU9pr7jBgDduay5KsZDXSNFct00Nx6yCs2L"
 
 # ===== TEST Stripe (tenants with practices.is_test_mode=1 — unlimited free testing) =====
 # STRIPE_TEST_SECRET_KEY + STRIPE_TEST_WEBHOOK_SECRET are stored as Worker Secrets.
-STRIPE_TEST_PRICE_SOLO   = "price_1TPid3FtQ0QujdQKX899gMnQ"
-STRIPE_TEST_PRICE_TEAM   = "price_1TPid4FtQ0QujdQK1rgjUvRD"
-STRIPE_TEST_PRICE_KLINIK = "price_1TPid5FtQ0QujdQKeUce45s2"
-STRIPE_TEST_PUBLIC_KEY   = "pk_test_51SfKzHFtQ0QujdQKJWVS8uCtlVKxOjyCVv9jfsPPMLmag2o2eHcPZJgr8UFUxNnUEZRFKQ4unlsvp9foe4tDSUDk001nMTrBxh"
+STRIPE_TEST_PRICE_WARTELISTE = "price_TODO_REPLACE_TEST_WARTELISTE"
+STRIPE_TEST_PRICE_SOLO       = "price_1TPid3FtQ0QujdQKX899gMnQ"
+STRIPE_TEST_PRICE_TEAM       = "price_1TPid4FtQ0QujdQK1rgjUvRD"
+STRIPE_TEST_PRICE_KLINIK     = "price_1TPid5FtQ0QujdQKeUce45s2"
+STRIPE_TEST_PUBLIC_KEY       = "pk_test_51SfKzHFtQ0QujdQKJWVS8uCtlVKxOjyCVv9jfsPPMLmag2o2eHcPZJgr8UFUxNnUEZRFKQ4unlsvp9foe4tDSUDk001nMTrBxh"
 
 # Schedules:
 #   "0 * * * *"   — hourly: 24h reminder sweep
