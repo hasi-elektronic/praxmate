@@ -758,20 +758,7 @@ html.is-embed-minimal .practice-meta {
         </p>
       </div>
     </div>
-    <div class="practice-meta" id="practice-hours">
-      <div>
-        <strong>Çalışma saatleri</strong>
-        Pzt–Çrş 08:00–12:00 · 15:00–18:00
-      </div>
-      <div>
-        <strong>Prş</strong>
-        08:00–12:00 · 13:00–17:00
-      </div>
-      <div>
-        <strong>Cum</strong>
-        08:00–15:00
-      </div>
-    </div>
+    <div class="practice-meta" id="opening-hours" style="display:none"></div>
   </div>
 
   <div class="progress">
@@ -928,7 +915,7 @@ html.is-embed-minimal .practice-meta {
       </div>
       <div class="confirm-info">
         <span class="icon">ℹ</span>
-        <span>Randevunuzdan 24 saat önce otomatik hatırlatma e-postası alacaksınız. İptal etmeniz gerekirse lütfen en az 24 saat önceden <strong>07042 14069</strong> numarasını arayın ya da onay e-postasındaki linki kullanın.</span>
+        <span>Randevunuzdan 24 saat önce otomatik hatırlatma e-postası alacaksınız. İptal etmeniz gerekirse lütfen en az 24 saat önceden <a class="pm-phone-link" href="tel:"><strong data-pm-phone>—</strong></a> numarasını arayın ya da onay e-postasındaki linki kullanın.</span>
       </div>
       <div class="confirm-actions">
         <button class="btn btn-outline" onclick="downloadICS()">📅 Takvime ekle</button>
@@ -966,6 +953,7 @@ html.is-embed-minimal .practice-meta {
 })();
 </script>
 
+<script src="/book-opening-hours.js"></script>
 <script>
 const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
 
@@ -1076,6 +1064,12 @@ async function loadPracticeInfo() {
       phoneEl.parentElement.style.display = 'none';
     }
     document.title = `Randevu al — ${p.name}`;
+
+    // Çalışma saatleri + telefon enjeksiyonu (book-opening-hours.js)
+    if (window.PraxmateHours) {
+      PraxmateHours.apply(p, { lang: 'tr' });
+      PraxmateHours.injectDates('tr');
+    }
 
     // Apply brand colors
     if (p.brand_primary) {
@@ -1467,13 +1461,12 @@ async function confirmBooking() {
 
     // Render confirmation
     document.getElementById('cf-type').textContent = result.type_name;
-    document.getElementById('cf-behandler').textContent = result.doctor_name || 'Wird zugeteilt';
-    const d = new Date(result.start_datetime);
-    document.getElementById('cf-date').textContent = d.toLocaleDateString('de-DE', {
-      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
-    });
+    document.getElementById('cf-behandler').textContent = result.doctor_name || 'Atanacak';
+    document.getElementById('cf-date').textContent = window.PraxmateHours
+      ? PraxmateHours.formatDate(result.start_datetime, 'tr')
+      : new Date(result.start_datetime).toLocaleDateString('tr-TR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
     document.getElementById('cf-time').textContent = state.time;
-    document.getElementById('cf-duration').textContent = result.duration_minutes + ' Minuten';
+    document.getElementById('cf-duration').textContent = result.duration_minutes + ' dakika';
     document.getElementById('cf-id').textContent = result.booking_code;
 
     btn.textContent = originalText;

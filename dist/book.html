@@ -758,20 +758,7 @@ html.is-embed-minimal .practice-meta {
         </p>
       </div>
     </div>
-    <div class="practice-meta" id="practice-hours">
-      <div>
-        <strong>Sprechzeiten</strong>
-        Mo–Mi 08:00–12:00 · 15:00–18:00
-      </div>
-      <div>
-        <strong>Do</strong>
-        08:00–12:00 · 13:00–17:00
-      </div>
-      <div>
-        <strong>Fr</strong>
-        08:00–15:00
-      </div>
-    </div>
+    <div class="practice-meta" id="opening-hours" style="display:none"></div>
   </div>
 
   <div class="progress">
@@ -928,7 +915,7 @@ html.is-embed-minimal .practice-meta {
       </div>
       <div class="confirm-info">
         <span class="icon">ℹ</span>
-        <span>Sie erhalten 24 Stunden vor dem Termin eine automatische Erinnerung per E-Mail. Falls Sie absagen müssen, rufen Sie bitte mindestens 24 h vorher unter <strong>07042 14069</strong> an oder nutzen Sie den Link in der Bestätigung.</span>
+        <span>Sie erhalten 24 Stunden vor dem Termin eine automatische Erinnerung per E-Mail. Falls Sie absagen müssen, rufen Sie bitte mindestens 24 h vorher unter <a class="pm-phone-link" href="tel:"><strong data-pm-phone>—</strong></a> an oder nutzen Sie den Link in der Bestätigung.</span>
       </div>
       <div class="confirm-actions">
         <button class="btn btn-outline" onclick="downloadICS()">📅 Zum Kalender hinzufügen</button>
@@ -966,6 +953,7 @@ html.is-embed-minimal .practice-meta {
 })();
 </script>
 
+<script src="/book-opening-hours.js"></script>
 <script>
 const API_BASE = 'https://praxmate-api.hguencavdi.workers.dev/api';
 
@@ -1076,6 +1064,12 @@ async function loadPracticeInfo() {
       phoneEl.parentElement.style.display = 'none';
     }
     document.title = `Termin buchen — ${p.name}`;
+
+    // Render opening hours + inject phone into confirmation step (book-opening-hours.js)
+    if (window.PraxmateHours) {
+      PraxmateHours.apply(p, { lang: 'de' });
+      PraxmateHours.injectDates('de');
+    }
 
     // Apply brand colors
     if (p.brand_primary) {
@@ -1469,10 +1463,9 @@ async function confirmBooking() {
     // Render confirmation
     document.getElementById('cf-type').textContent = result.type_name;
     document.getElementById('cf-behandler').textContent = result.doctor_name || 'Wird zugeteilt';
-    const d = new Date(result.start_datetime);
-    document.getElementById('cf-date').textContent = d.toLocaleDateString('de-DE', {
-      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
-    });
+    document.getElementById('cf-date').textContent = window.PraxmateHours
+      ? PraxmateHours.formatDate(result.start_datetime, 'de')
+      : new Date(result.start_datetime).toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
     document.getElementById('cf-time').textContent = state.time + ' Uhr';
     document.getElementById('cf-duration').textContent = result.duration_minutes + ' Minuten';
     document.getElementById('cf-id').textContent = result.booking_code;
