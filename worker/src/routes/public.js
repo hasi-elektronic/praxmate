@@ -19,9 +19,46 @@ function denyIfWartelistePlan(practice) {
 // ============================================================
 // GET /api/practice — info for the resolved practice
 // ============================================================
+// Includes aggregated opening_hours from all active doctors' working_hours,
+// so book.html can render practice-level Sprechzeiten dynamically per tenant.
+// Shape: opening_hours: [{ weekday: 0..6, spans: [{ from: 'HH:MM', to: 'HH:MM' }] }]
 export async function handlePracticeInfo(env, request) {
   const practice = await requirePractice(env, request);
-  return jsonResponse(practice, request);
+
+  const hoursRows = await env.DB.prepare(`
+    SELECT DISTINCT weekday, start_time, end_time
+    FROM working_hours wh
+    JOIN doctors d ON d.id = wh.doctor_id
+    WHERE wh.practice_id = ?
+      AND d.is_active = 1
+    ORDER BY weekday, start_time
+  `).bind(practice.id).all();
+
+  const byDay = {};
+  for (const r of (hoursRows.results || [])) {
+    if (!byDay[r.weekday]) byDay[r.weekday] = [];
+    const fmt = (t) => String(t || '').slice(0, 5);  // 'HH:MM:SS' → 'HH:MM'
+    byDay[r.weekday].push({ from: fmt(r.start_time), to: fmt(r.end_time) });
+  }
+  // Merge touching/overlapping spans within the same weekday
+  for (const wd of Object.keys(byDay)) {
+    const spans = byDay[wd].sort((a, b) => a.from.localeCompare(b.from));
+    const merged = [];
+    for (const s of spans) {
+      const last = merged[merged.length - 1];
+      if (last && s.from <= last.to) {
+        if (s.to > last.to) last.to = s.to;
+      } else {
+        merged.push({ ...s });
+      }
+    }
+    byDay[wd] = merged;
+  }
+  const opening_hours = Object.keys(byDay)
+    .map(wd => ({ weekday: parseInt(wd, 10), spans: byDay[wd] }))
+    .sort((a, b) => a.weekday - b.weekday);
+
+  return jsonResponse({ ...practice, opening_hours }, request);
 }
 
 // ============================================================
