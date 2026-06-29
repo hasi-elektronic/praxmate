@@ -25,13 +25,14 @@ function denyIfWartelistePlan(practice) {
 export async function handlePracticeInfo(env, request) {
   const practice = await requirePractice(env, request);
 
+  // Schema: working_hours.day_of_week (1=Mo..7=So). API normalises to 1-7.
   const hoursRows = await env.DB.prepare(`
-    SELECT DISTINCT weekday, start_time, end_time
+    SELECT DISTINCT day_of_week AS weekday, start_time, end_time
     FROM working_hours wh
     JOIN doctors d ON d.id = wh.doctor_id
     WHERE wh.practice_id = ?
       AND d.is_active = 1
-    ORDER BY weekday, start_time
+    ORDER BY day_of_week, start_time
   `).bind(practice.id).all();
 
   const byDay = {};
