@@ -756,7 +756,7 @@ textarea { resize: vertical; min-height: 70px; }
       </div>
       <div>
         <strong>Fr</strong>
-        08:00–15:00
+        08:00–12:00 · 13:00–15:00
       </div>
     </div>
   </div>
@@ -846,7 +846,7 @@ textarea { resize: vertical; min-height: 70px; }
   <!-- STEP 2: Behandler -->
   <div class="step-content" id="step-2" style="display:none;">
     <h2>Bei wem möchten Sie?</h2>
-    <p class="subtitle">Die Praxis besteht aus drei Behandlern. Wählen Sie Ihren Wunsch.</p>
+    <p class="subtitle">Die Praxis besteht aus zwei Behandlern. Wählen Sie Ihren Wunsch.</p>
     <div class="behandler-list">
       <button class="behandler-card" data-behandler="juliane">
         <div class="behandler-avatar">JH</div>
@@ -862,16 +862,7 @@ textarea { resize: vertical; min-height: 70px; }
         <div class="behandler-info">
           <div class="role">Zahnarzt · Senior</div>
           <h4>Herr Wolfgang Hild</h4>
-          <div class="bio">Staatsexamen 1979 · über 40 Jahre Erfahrung · Praxisgründer 1987</div>
-        </div>
-        <div class="behandler-check">✓</div>
-      </button>
-      <button class="behandler-card" data-behandler="angestellter">
-        <div class="behandler-avatar">AZ</div>
-        <div class="behandler-info">
-          <div class="role">Zahnarzt · Angestellt</div>
-          <h4>Angestellter Zahnarzt</h4>
-          <div class="bio">Moderne Zahnmedizin · Allgemeine Behandlungen, Vorsorge</div>
+          <div class="bio">Staatsexamen 1979 · über 45 Jahre Erfahrung · Praxisgründer 1987</div>
         </div>
         <div class="behandler-check">✓</div>
       </button>
@@ -887,7 +878,7 @@ textarea { resize: vertical; min-height: 70px; }
     <h2>Wann passt es Ihnen?</h2>
     <p class="subtitle">Blaue Punkte zeigen Tage mit freien Terminen.</p>
     <div class="cal-head">
-      <div class="cal-month" id="cal-month">April 2026</div>
+      <div class="cal-month" id="cal-month">&nbsp;</div>
       <div class="cal-nav">
         <button id="cal-prev">‹</button>
         <button id="cal-next">›</button>
@@ -1195,7 +1186,7 @@ function renderSlots(date) {
   } else if (dayOfWeek === 4) {
     schedule = [[8,12], [13,17]];
   } else if (dayOfWeek === 5) {
-    schedule = [[8,15]];
+    schedule = [[8,12], [13,15]];
   }
   schedule.forEach(([start, end]) => {
     for (let h = start; h < end; h++) {

@@ -583,7 +583,7 @@ main {
     <div class="main-head">
       <div>
         <h1>Guten Morgen, Dr. Vayhinger.</h1>
-        <p>Heute ist Montag, 20. April 2026 · 14 Termine geplant</p>
+        <p id="today-line">14 Termine geplant</p>
       </div>
       <div class="head-actions">
         <button class="btn btn-outline">📥 Export</button>
@@ -600,7 +600,7 @@ main {
       </div>
       <div class="stat-card sc-2">
         <div class="stat-label">Diese Woche</div>
-        <div class="stat-value">67</div>
+        <div class="stat-value">76</div>
         <div class="stat-delta up">↗ +12% vs. Vorwoche</div>
       </div>
       <div class="stat-card sc-3">
@@ -739,7 +739,7 @@ main {
               <div class="bar" style="height: 10%; opacity: 0.4" data-label="So"><span class="bar-tooltip">Geschlossen</span></div>
             </div>
           </div>
-          <p style="font-size:12px;color:var(--muted);margin-top:26px;">Insgesamt 76 Termine · Ø 3.6 Min Bearbeitung</p>
+          <p style="font-size:12px;color:var(--muted);margin-top:26px;">Insgesamt 76 Termine · Ø 14 Min pro Termin</p>
         </div>
 
         <div class="panel">
@@ -750,7 +750,7 @@ main {
             <div class="summary-dot coral"></div>
             <div class="summary-content">
               <h5>Neue Buchung</h5>
-              <p>Julia Bergmann · Neuaufnahme morgen 09:45</p>
+              <p>Julia Bergmann · Neuaufnahme heute 09:45</p>
             </div>
             <div class="summary-time">gerade eben</div>
           </div>
@@ -891,6 +891,17 @@ document.querySelectorAll('.appt:not(.cancelled)').forEach(a => {
     setTimeout(() => a.style.transform = '', 150);
   });
 });
+
+// Live date — keep the demo "today" consistent with the user's clock
+(function () {
+  const el = document.getElementById('today-line');
+  if (!el) return;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('de-DE', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  });
+  el.textContent = `Heute ist ${dateStr} · 14 Termine geplant`;
+})();
 </script>
 </body>
 </html>

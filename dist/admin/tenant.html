@@ -132,6 +132,7 @@
     <a href="/admin/dashboard.html" class="nav-link">Praxen</a>
     <a href="/admin/analytics.html" class="nav-link">Analytics</a>
     <a href="/admin/health.html"    class="nav-link">Health</a>
+    <a href="/admin/audit.html"     class="nav-link">Audit</a>
   </div>
 </header>
 
@@ -176,6 +177,67 @@
         <div class="card-head"><div class="card-title">Stripe Subscription</div></div>
         <div id="stripeRows"></div>
       </div>
+
+      <!-- Billing Actions (manuel super-admin operations) -->
+      <div class="card" id="billingActionsCard">
+        <div class="card-head"><div class="card-title">Billing-Aktionen <span style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-left:4px">manuel</span></div></div>
+
+        <div style="padding:10px 0; border-top:1px solid var(--border)">
+          <div style="font-size:12px; font-weight:700; margin-bottom:8px">📦 Plan ändern</div>
+          <div style="display:grid; grid-template-columns:1fr auto; gap:8px">
+            <select id="ba-plan" style="padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;background:white">
+              <option value="warteliste">Warteliste · 9 € (nur Wartelisten-Modus)</option>
+              <option value="solo">Solo · 39 € (1 Behandler)</option>
+              <option value="team">Team · 69 € (bis 5)</option>
+              <option value="klinik">Klinik · 119 € (bis 50)</option>
+            </select>
+            <button class="btn" id="ba-plan-btn" style="font-size:12px;padding:7px 12px">Wechseln</button>
+          </div>
+          <label style="display:flex;gap:6px;align-items:center;margin-top:6px;font-size:11px;color:var(--muted);cursor:pointer">
+            <input type="checkbox" id="ba-plan-prorate" checked> Pro-rata Verrechnung
+          </label>
+        </div>
+
+        <div style="padding:10px 0; border-top:1px solid var(--border)">
+          <div style="font-size:12px; font-weight:700; margin-bottom:8px">⏳ Trial verlängern</div>
+          <div style="display:grid; grid-template-columns:1fr auto; gap:8px">
+            <input id="ba-trial-days" type="number" min="1" max="90" placeholder="Tage (1–90)" style="padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px">
+            <button class="btn" id="ba-trial-btn" style="font-size:12px;padding:7px 12px">Verlängern</button>
+          </div>
+        </div>
+
+        <div style="padding:10px 0; border-top:1px solid var(--border)">
+          <div style="font-size:12px; font-weight:700; margin-bottom:8px">🛑 Kündigung am Periodenende</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+            <button class="btn btn-danger" id="ba-cancel-set" style="font-size:12px;padding:7px 12px;background:white;border-color:#fecaca;color:var(--danger)">Setzen</button>
+            <button class="btn" id="ba-cancel-undo" style="font-size:12px;padding:7px 12px">Aufheben</button>
+          </div>
+        </div>
+
+        <div style="padding:10px 0; border-top:1px solid var(--border)">
+          <div style="font-size:12px; font-weight:700; margin-bottom:8px">🎟 Coupon anwenden</div>
+          <div style="display:grid; grid-template-columns:1fr auto; gap:8px">
+            <input id="ba-coupon" type="text" placeholder="Stripe-Coupon-ID" style="padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px">
+            <button class="btn" id="ba-coupon-btn" style="font-size:12px;padding:7px 12px">Anwenden</button>
+          </div>
+        </div>
+
+        <div style="padding:10px 0; border-top:1px solid var(--border)">
+          <div style="font-size:12px; font-weight:700; margin-bottom:8px">🎁 Goodwill-Gutschrift</div>
+          <div style="display:grid; grid-template-columns:1fr auto; gap:8px">
+            <select id="ba-comp-months" style="padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;background:white">
+              <option value="1">1 Monat</option><option value="2">2 Monate</option><option value="3">3 Monate</option>
+            </select>
+            <button class="btn" id="ba-comp-btn" style="font-size:12px;padding:7px 12px">Gutschrift</button>
+          </div>
+        </div>
+
+        <div style="padding:10px 0; border-top:1px solid var(--border); display:grid; grid-template-columns:1fr 1fr; gap:8px">
+          <button class="btn btn-danger" id="ba-suspend-btn" style="font-size:12px;padding:7px 12px;background:white;border-color:#fecaca;color:var(--danger)">⛔ Sperren</button>
+          <button class="btn" id="ba-unsuspend-btn" style="font-size:12px;padding:7px 12px">✅ Entsperren</button>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-head"><div class="card-title">Domains</div></div>
         <div id="domainsRows"></div>
@@ -395,6 +457,83 @@ function render(d) {
 
   // Note save
   document.getElementById('noteSaveBtn').addEventListener('click', () => saveNote(p.slug));
+
+  // Billing actions — wire all forms
+  wireBillingActions(p);
+}
+
+// ============================================================
+// Billing-Aktionen — manuel super-admin operations
+// ============================================================
+function wireBillingActions(p) {
+  const slug = p.slug;
+  const planSel = document.getElementById('ba-plan');
+  if (planSel && p.plan) planSel.value = p.plan;
+
+  document.getElementById('ba-plan-btn').addEventListener('click', () => {
+    const targetPlan = document.getElementById('ba-plan').value;
+    if (!confirm(`Plan "${p.plan}" → "${targetPlan}" ändern?`)) return;
+    callBilling(slug, { action: 'change_plan', plan: targetPlan, proration: document.getElementById('ba-plan-prorate').checked }, `Plan auf "${targetPlan}" geändert.`);
+  });
+
+  document.getElementById('ba-trial-btn').addEventListener('click', () => {
+    const days = parseInt(document.getElementById('ba-trial-days').value, 10);
+    if (!Number.isFinite(days) || days < 1 || days > 90) { showErr('1–90 Tage'); return; }
+    if (!confirm(`Trial um ${days} Tage verlängern?`)) return;
+    callBilling(slug, { action: 'extend_trial', days }, `Trial +${days} Tage.`);
+  });
+
+  document.getElementById('ba-cancel-set').addEventListener('click', () => {
+    if (!confirm('Subscription am Periodenende kündigen?')) return;
+    callBilling(slug, { action: 'cancel_at_period_end', cancel: true }, 'Cancel gesetzt.');
+  });
+  document.getElementById('ba-cancel-undo').addEventListener('click', () => {
+    if (!confirm('Cancel aufheben?')) return;
+    callBilling(slug, { action: 'cancel_at_period_end', cancel: false }, 'Cancel aufgehoben.');
+  });
+
+  document.getElementById('ba-coupon-btn').addEventListener('click', () => {
+    const coupon = document.getElementById('ba-coupon').value.trim();
+    if (!coupon) { showErr('Coupon-ID erforderlich.'); return; }
+    if (!confirm(`Coupon "${coupon}" anwenden?`)) return;
+    callBilling(slug, { action: 'apply_coupon', coupon }, `Coupon "${coupon}" angewandt.`);
+  });
+
+  document.getElementById('ba-comp-btn').addEventListener('click', () => {
+    const months = parseInt(document.getElementById('ba-comp-months').value, 10);
+    if (!confirm(`${months} Monat${months>1?'e':''} Gutschrift erstellen?`)) return;
+    callBilling(slug, { action: 'comp_month', months }, `Gutschrift für ${months} Monat${months>1?'e':''}.`);
+  });
+
+  document.getElementById('ba-suspend-btn').addEventListener('click', () => {
+    const reason = prompt('Sperrgrund? (optional)');
+    if (reason === null) return;
+    if (!confirm('Tenant SPERREN? Anmeldung blockiert wird.')) return;
+    callBilling(slug, { action: 'suspend', reason }, 'Tenant gesperrt.');
+  });
+  document.getElementById('ba-unsuspend-btn').addEventListener('click', () => {
+    if (!confirm('Sperre aufheben?')) return;
+    callBilling(slug, { action: 'unsuspend' }, 'Sperre aufgehoben.');
+  });
+}
+
+async function callBilling(slug, body, successMsg) {
+  const btns = document.querySelectorAll('#billingActionsCard button');
+  btns.forEach(b => b.disabled = true);
+  try {
+    const res = await fetch(`${API}/super/tenant/${encodeURIComponent(slug)}/billing`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    showOk(successMsg + (data.stripe_warning ? ` (Stripe: ${data.stripe_warning})` : ''));
+    setTimeout(() => location.reload(), 1500);
+  } catch (e) {
+    showErr(e.message);
+    btns.forEach(b => b.disabled = false);
+  }
 }
 
 async function doImpersonate(practiceId, slug) {

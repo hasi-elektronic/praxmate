@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Praxmate — Audit Log</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --sky:#0ea5e9; --teal:#14b8a6; --ink:#0f172a; --ink-soft:#475569; --muted:#64748b; --border:#e2e8f0; --bg:#f8fafc; --success:#059669; --warn:#d97706; --danger:#dc2626; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; min-height: 100vh; }
+  .topbar { background: white; border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; }
+  .brand-dot { width: 28px; height: 28px; }
+  .nav-link { color: var(--ink-soft); font-size: 13px; font-weight: 500; text-decoration: none; padding: 6px 12px; border-radius: 8px; }
+  .nav-link.active { color: var(--ink); font-weight: 600; }
+  .nav-link:hover { background: var(--bg); color: var(--ink); }
+  .refresh-btn { padding: 6px 14px; border: 1.5px solid var(--border); border-radius: 8px; background: white; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--ink-soft); }
+  .refresh-btn:hover { border-color: var(--sky); color: var(--sky); }
+  .wrap { max-width: 1480px; margin: 0 auto; padding: 28px 24px 60px; }
+  .page-title { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  .filter-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 16px; }
+  .filter-grid { display: grid; grid-template-columns: 2fr 2fr 1.5fr 1.5fr 1fr auto; gap: 10px; align-items: end; }
+  @media (max-width: 1000px) { .filter-grid { grid-template-columns: 1fr 1fr; } }
+  .field label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .field input, .field select { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; background: white; }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--sky); box-shadow: 0 0 0 3px rgba(14,165,233,0.15); }
+  .filter-help { font-size: 11px; color: var(--muted); margin-top: 8px; }
+  .filter-help code { background: var(--bg); padding: 1px 5px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+  .btn-primary { padding: 8px 16px; border: 0; border-radius: 8px; background: var(--ink); color: white; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .btn-primary:hover { background: var(--sky); }
+  .btn-secondary { padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 8px; background: white; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--ink-soft); }
+  .btn-secondary:hover { border-color: var(--ink); color: var(--ink); }
+  .quick-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .quick-chip { padding: 4px 10px; border: 1px solid var(--border); border-radius: 100px; background: white; font-size: 11px; font-weight: 600; color: var(--ink-soft); cursor: pointer; font-family: inherit; }
+  .quick-chip:hover { border-color: var(--sky); color: var(--sky); }
+  .table-card { background: white; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--bg); padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+  td.timestamp { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--ink-soft); font-size: 12px; }
+  td.action { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; }
+  td.action .ns { color: var(--muted); }
+  td.action.danger { color: var(--danger); }
+  td.action.warn   { color: var(--warn); }
+  td.action.ok     { color: var(--success); }
+  td.tenant a { color: var(--sky); text-decoration: none; font-weight: 600; }
+  td.tenant a:hover { text-decoration: underline; }
+  td.tenant .meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  td.actor { font-size: 12px; color: var(--ink-soft); }
+  td.target { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-soft); }
+  td.meta-cell { max-width: 360px; }
+  td.meta-cell pre { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-soft); background: var(--bg); padding: 6px 8px; border-radius: 6px; max-height: 80px; overflow: auto; white-space: pre-wrap; word-break: break-all; }
+  .footer-row { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .footer-info { font-size: 12px; color: var(--muted); }
+  .err-box { padding: 14px; background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+  .err-box.visible { display: block; }
+  .empty-row td { text-align: center; padding: 40px 20px; color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-dot">
+      <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+        <defs><linearGradient id="pmg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#14b8a6"/></linearGradient></defs>
+        <circle cx="20" cy="20" r="14" fill="none" stroke="url(#pmg)" stroke-width="4"/>
+        <circle cx="25.25" cy="14.45" r="3.1" fill="#0f172a"/>
+      </svg>
+    </span>
+    <span>Praxmate / Super</span>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <a href="/admin/dashboard.html" class="nav-link">Praxen</a>
+    <a href="/admin/analytics.html" class="nav-link">Analytics</a>
+    <a href="/admin/health.html"    class="nav-link">Health</a>
+    <a href="/admin/audit.html"     class="nav-link active">Audit</a>
+    <button class="refresh-btn" id="refreshBtn">↻ Aktualisieren</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="page-title">Audit Log</div>
+  <div class="page-sub">Cross-tenant — sistemde ne oldu? Filtre + arama.</div>
+
+  <div class="err-box" id="errBox"></div>
+
+  <div class="filter-card">
+    <form id="filterForm">
+      <div class="filter-grid">
+        <div class="field">
+          <label for="f-practice">Praxis (slug veya ID)</label>
+          <input id="f-practice" type="text" placeholder="hild veya prc_..." autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="f-action">Aktion</label>
+          <input id="f-action" type="text" placeholder="billing.* veya login.success" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="f-since">Von</label>
+          <input id="f-since" type="datetime-local">
+        </div>
+        <div class="field">
+          <label for="f-until">Bis</label>
+          <input id="f-until" type="datetime-local">
+        </div>
+        <div class="field">
+          <label for="f-limit">Limit</label>
+          <select id="f-limit"><option>50</option><option>100</option><option>200</option></select>
+        </div>
+        <div class="field" style="display:flex;gap:6px;align-items:flex-end">
+          <button type="submit" class="btn-primary">Filtrele</button>
+          <button type="button" class="btn-secondary" id="resetBtn">Reset</button>
+        </div>
+      </div>
+
+      <div class="quick-filters">
+        <button type="button" class="quick-chip" data-action="billing.*">💸 billing.*</button>
+        <button type="button" class="quick-chip" data-action="login.*">🔑 login.*</button>
+        <button type="button" class="quick-chip" data-action="signup.*">🆕 signup.*</button>
+        <button type="button" class="quick-chip" data-action="super.*">👑 super.*</button>
+        <button type="button" class="quick-chip" data-since="24h">⏱ Son 24h</button>
+        <button type="button" class="quick-chip" data-since="7d">📆 Son 7 gün</button>
+      </div>
+
+      <div class="filter-help">
+        Tipp: <code>billing.*</code> tüm billing event'leri gösterir (* prefix).
+      </div>
+    </form>
+  </div>
+
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:135px">Zeit</th>
+          <th style="width:165px">Aktion</th>
+          <th style="width:185px">Praxis</th>
+          <th style="width:145px">Akteur</th>
+          <th>Target</th>
+          <th>Meta</th>
+          <th style="width:110px">IP</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr class="empty-row"><td colspan="7">Lade…</td></tr>
+      </tbody>
+    </table>
+    <div class="footer-row">
+      <div class="footer-info" id="footerInfo">—</div>
+      <div style="display:flex;gap:8px">
+        <button id="loadMoreBtn" class="btn-secondary" style="display:none">Weitere laden</button>
+        <button id="exportBtn" class="btn-secondary">CSV indir</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const API = 'https://praxmate-api.hguencavdi.workers.dev/api';
+const token = localStorage.getItem('praxmate_super_token') || localStorage.getItem('praxmate_token');
+if (!token) location.href = '/admin/?next=' + encodeURIComponent(location.pathname);
+
+const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const fmtTime = (iso) => {
+  if (!iso) return '—';
+  const d = new Date(iso.replace(' ', 'T') + 'Z');
+  if (isNaN(d.getTime())) return iso;
+  const today = new Date();
+  const sameDay = d.toDateString() === today.toDateString();
+  const opts = sameDay
+    ? { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+    : { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' };
+  return d.toLocaleString('de-DE', opts);
+};
+
+const actionTone = (a) => {
+  if (/(failed|cancelled|delete|error|past_due)/i.test(a)) return 'danger';
+  if (/(warn|expir|trial)/i.test(a)) return 'warn';
+  if (/(success|created|active|paid|completed)/i.test(a)) return 'ok';
+  return '';
+};
+
+const formatAction = (a) => {
+  const dot = a.indexOf('.');
+  if (dot < 0) return escapeHtml(a);
+  return `<span class="ns">${escapeHtml(a.slice(0, dot+1))}</span>${escapeHtml(a.slice(dot+1))}`;
+};
+
+const formatActor = (item) => {
+  if (!item.actor_id && !item.actor_email) return `<span style="color:var(--muted)">${escapeHtml(item.actor_type || 'system')}</span>`;
+  return `${escapeHtml(item.actor_name || item.actor_email || item.actor_id || '?')}`;
+};
+
+const formatTarget = (item) => {
+  if (!item.target_type && !item.target_id) return '—';
+  return escapeHtml([item.target_type, item.target_id].filter(Boolean).join(':'));
+};
+
+const formatMeta = (rawMeta) => {
+  if (!rawMeta) return '<span style="color:var(--muted)">—</span>';
+  let pretty = rawMeta;
+  try { pretty = JSON.stringify(typeof rawMeta === 'string' ? JSON.parse(rawMeta) : rawMeta, null, 2); } catch {}
+  return `<pre>${escapeHtml(pretty)}</pre>`;
+};
+
+const tenantCell = (item) => {
+  if (!item.practice_id) return '<span style="color:var(--muted)">— (system)</span>';
+  const slug = item.practice_slug;
+  if (!slug) return `<span style="color:var(--muted)">${escapeHtml(item.practice_id)}</span>`;
+  return `<a href="/admin/tenant.html?slug=${encodeURIComponent(slug)}">${escapeHtml(item.practice_name || slug)}</a><div class="meta">${escapeHtml(slug)}</div>`;
+};
+
+let nextCursor = null;
+let allRows    = [];
+
+function buildQuery(extra = {}) {
+  const q = new URLSearchParams();
+  const pr = document.getElementById('f-practice').value.trim();
+  const ac = document.getElementById('f-action').value.trim();
+  const sn = document.getElementById('f-since').value.trim();
+  const un = document.getElementById('f-until').value.trim();
+  const lm = document.getElementById('f-limit').value || '50';
+  if (pr) q.set('practice', pr);
+  if (ac) q.set('action', ac);
+  if (sn) q.set('since', sn.replace('T', ' '));
+  if (un) q.set('until', un.replace('T', ' '));
+  q.set('limit', lm);
+  Object.entries(extra).forEach(([k, v]) => { if (v) q.set(k, v); });
+  return q.toString();
+}
+
+async function loadAudit({ append = false } = {}) {
+  const errBox = document.getElementById('errBox');
+  errBox.classList.remove('visible');
+  const tbody = document.getElementById('tbody');
+  if (!append) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Lade…</td></tr>';
+    nextCursor = null;
+    allRows = [];
+  }
+  const qs = buildQuery(append && nextCursor ? { cursor: nextCursor } : {});
+  try {
+    const res = await fetch(`${API}/super/audit?${qs}`, { headers: { 'Authorization': 'Bearer ' + token } });
+    if (res.status === 401) {
+      localStorage.removeItem('praxmate_super_token');
+      localStorage.removeItem('praxmate_token');
+      location.href = '/admin/?next=' + encodeURIComponent(location.pathname);
+      return;
+    }
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'HTTP ' + res.status);
+    const d = await res.json();
+    allRows = append ? [...allRows, ...d.items] : d.items;
+    nextCursor = d.next_cursor;
+    renderTable(allRows);
+    document.getElementById('footerInfo').textContent = `${allRows.length} Einträge` + (nextCursor ? ' · weitere verfügbar' : ' · Ende');
+    document.getElementById('loadMoreBtn').style.display = nextCursor ? '' : 'none';
+  } catch (e) {
+    errBox.textContent = 'Fehler: ' + e.message;
+    errBox.classList.add('visible');
+    tbody.innerHTML = '';
+  }
+}
+
+function renderTable(rows) {
+  const tbody = document.getElementById('tbody');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Keine Einträge.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  for (const item of rows) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="timestamp">${escapeHtml(fmtTime(item.created_at))}</td>
+      <td class="action ${actionTone(item.action)}">${formatAction(item.action)}</td>
+      <td class="tenant">${tenantCell(item)}</td>
+      <td class="actor">${formatActor(item)}</td>
+      <td class="target">${formatTarget(item)}</td>
+      <td class="meta-cell">${formatMeta(item.meta)}</td>
+      <td class="timestamp">${escapeHtml(item.ip_address || '—')}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+document.querySelectorAll('.quick-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    if (chip.dataset.action) document.getElementById('f-action').value = chip.dataset.action;
+    if (chip.dataset.since) {
+      const ms = chip.dataset.since === '24h' ? 86400e3 : 7 * 86400e3;
+      const dt = new Date(Date.now() - ms);
+      const pad = (n) => String(n).padStart(2, '0');
+      document.getElementById('f-since').value = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+      document.getElementById('f-until').value = '';
+    }
+    loadAudit();
+  });
+});
+
+document.getElementById('filterForm').addEventListener('submit', (e) => { e.preventDefault(); loadAudit(); });
+document.getElementById('resetBtn').addEventListener('click', () => {
+  ['f-practice','f-action','f-since','f-until'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-limit').value = '50';
+  loadAudit();
+});
+document.getElementById('refreshBtn').addEventListener('click', () => loadAudit());
+document.getElementById('loadMoreBtn').addEventListener('click', () => loadAudit({ append: true }));
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if (!allRows.length) return;
+  const cols = ['created_at','practice_slug','action','actor_email','actor_type','target_type','target_id','ip_address','meta'];
+  const csv = [cols.join(',')];
+  for (const row of allRows) {
+    csv.push(cols.map(c => {
+      const v = row[c] == null ? '' : String(row[c]);
+      return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    }).join(','));
+  }
+  const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `praxmate-audit-${new Date().toISOString().slice(0,16).replace(/[:T]/g,'-')}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+});
+
+const params = new URLSearchParams(location.search);
+if (params.get('practice')) document.getElementById('f-practice').value = params.get('practice');
+if (params.get('action'))   document.getElementById('f-action').value   = params.get('action');
+
+loadAudit();
+</script>
+</body>
+</html>

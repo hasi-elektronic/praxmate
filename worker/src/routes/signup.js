@@ -16,6 +16,7 @@ import { generateId, hashPassword } from '../lib/crypto.js';
 import { createSession } from '../lib/auth.js';
 import { logAudit } from '../lib/audit.js';
 import { sendEmail } from '../lib/email.js';
+import { notify } from '../lib/notify.js';
 
 // ===== Reserved slugs =====
 // Keep in sync with tenant.js resolver
@@ -281,6 +282,15 @@ export async function handlePublicSignup(env, request) {
     slug,
     locale,
   }).catch(() => {});
+
+  // Super-admin notification — fire-and-forget
+  if (env.waitUntil) {
+    env.waitUntil(notify(env, 'tenant.signup', {
+      practice: { id: practiceId, slug, name: practice_name, locale },
+      user: { email: owner_email, name: owner_name },
+      plan,
+    }));
+  }
 
   // Wildcard subdomains active since v2.0.0 — every tenant gets <slug>.praxmate.de
   // path-based URL kept as fallback (still works, useful for cross-subdomain SSO needs).

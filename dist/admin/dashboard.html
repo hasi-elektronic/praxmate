@@ -401,6 +401,40 @@ a { color: var(--hasi); text-decoration: none; }
 }
 .practice-card { position: relative; }
 
+/* ===== BULK ACTIONS ===== */
+.bulk-checkbox-wrap { position: absolute; top: 14px; right: 14px; z-index: 4; }
+.bulk-checkbox { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 6px; background: white; cursor: pointer; appearance: none; -webkit-appearance: none; position: relative; transition: all 0.15s; margin: 0; }
+.bulk-checkbox:hover { border-color: var(--hasi); }
+.bulk-checkbox:checked { background: var(--hasi); border-color: var(--hasi); }
+.bulk-checkbox:checked::after { content: ''; position: absolute; left: 5px; top: 1px; width: 6px; height: 12px; border: solid white; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+.practice-card.bulk-selected { border-color: var(--hasi); box-shadow: 0 0 0 2px rgba(45,106,142,0.15); }
+
+.bulk-toolbar {
+  position: sticky; top: 0; z-index: 30; background: white; border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 16px; margin-bottom: 16px; display: none; align-items: center; gap: 12px; flex-wrap: wrap;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06); animation: bulkSlide 0.2s;
+}
+.bulk-toolbar.visible { display: flex; }
+@keyframes bulkSlide { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.bulk-count { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.bulk-count-pill { background: var(--hasi); color: white; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.bulk-divider { width: 1px; height: 22px; background: var(--border); }
+.bulk-action-select, .bulk-action-arg { padding: 7px 11px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; background: white; }
+.bulk-arg-wrap { display: none; gap: 6px; align-items: center; }
+.bulk-arg-wrap.visible { display: flex; }
+.bulk-arg-wrap label { font-size: 11px; font-weight: 600; }
+.bulk-apply-btn { margin-left: auto; padding: 8px 18px; border: 0; background: var(--hasi); color: white; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.bulk-apply-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.bulk-clear-btn { padding: 7px 12px; border: 1.5px solid var(--border); border-radius: 8px; background: white; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+.bulk-result-list { max-height: 50vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; margin-top: 12px; }
+.bulk-result-row { display: grid; grid-template-columns: 16px 1fr auto; gap: 10px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.bulk-result-row:last-child { border-bottom: none; }
+.bulk-result-row.ok { background: #ecfdf5; }
+.bulk-result-row.fail { background: #fef2f2; }
+.bulk-result-row .err { font-size: 11px; color: #dc2626; margin-top: 2px; }
+.bulk-result-summary { display: flex; gap: 16px; font-size: 13px; margin: 8px 0; }
+
 /* MODAL */
 .modal-overlay {
   position: fixed; inset: 0;
@@ -638,6 +672,102 @@ a { color: var(--hasi); text-decoration: none; }
   .act-btn { flex: 1 1 auto; }
   .wrap { padding: 20px 16px; }
 }
+
+/* ===== SUPER-HEADER (refresh / logout / last-refresh) ===== */
+.super-header {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 10px 14px; margin-bottom: 18px;
+  background: white; border: 1px solid var(--border); border-radius: 12px;
+  font-size: 13px;
+}
+.super-header .sh-label { font-weight: 700; color: var(--ink); }
+.super-header .sh-ts { color: #64748b; font-size: 12px; }
+.super-header .sh-spacer { flex: 1; }
+.super-header button, .super-header a.sh-link {
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  padding: 6px 12px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--border); background: white; color: var(--ink);
+  transition: all 0.15s; text-decoration: none;
+}
+.super-header button:hover, .super-header a.sh-link:hover { border-color: var(--hasi); color: var(--hasi); }
+.super-header a.sh-logout { color: #dc2626; }
+.super-header a.sh-logout:hover { border-color: #dc2626; color: #b91c1c; }
+
+/* ===== KPI ROW ===== */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.kpi-tile {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.kpi-tile:hover { box-shadow: 0 6px 16px rgba(15,23,42,0.08); transform: translateY(-1px); }
+.kpi-tile-title {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+.kpi-tile-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.kpi-tile.danger { background: #fef2f2; border-color: #fecaca; }
+.kpi-tile.danger .kpi-tile-value { color: #dc2626; }
+.kpi-tile.danger .kpi-tile-title { color: #991b1b; }
+@media (max-width: 720px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ===== FILTER PILLS ===== */
+.filter-bar {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.filter-pill {
+  padding: 6px 14px;
+  background: #f1f5f9;
+  border: 1px solid transparent;
+  border-radius: 100px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filter-pill:hover { background: #e2e8f0; }
+.filter-pill.active {
+  background: #0ea5e9;
+  color: white;
+  border-color: #0ea5e9;
+}
+
+/* ===== HEALTH STATUS DOTS ===== */
+.status-dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.status-dot.active    { background: #10b981; }
+.status-dot.trial     { background: #0ea5e9; }
+.status-dot.past_due  { background: #f59e0b; }
+.status-dot.suspended { background: #dc2626; }
+.status-dot.cancelled { background: #94a3b8; }
 </style>
 </head>
 <body data-page="practices">
@@ -687,12 +817,53 @@ a { color: var(--hasi); text-decoration: none; }
 
 <div class="wrap">
 
+  <div class="super-header">
+    <span class="sh-label">Super-Admin</span>
+    <span class="sh-ts" id="last-refresh">Aktualisiert: --:--</span>
+    <span class="sh-spacer"></span>
+    <button type="button" onclick="refreshAll()">↻ Aktualisieren</button>
+    <a href="#" class="sh-link sh-logout" onclick="doLogout(); return false;">Abmelden</a>
+  </div>
+
   <div class="page-head">
     <div>
       <div class="page-title">Alle Praxen</div>
       <div class="page-sub">Verwalte deine Kunden-Praxen, Logos, Branding und Pläne.</div>
     </div>
     <button class="btn-primary" id="newPracticeBtn">+ Neue Praxis anlegen</button>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="kpi-row" id="kpi-row">
+    <div class="kpi-tile" id="tile-mrr" onclick="applyFilter('active')">
+      <div class="kpi-tile-title">MRR</div>
+      <div class="kpi-tile-value" id="kpi-mrr">€0</div>
+    </div>
+    <div class="kpi-tile" id="tile-active" onclick="applyFilter('active')">
+      <div class="kpi-tile-title">Aktif</div>
+      <div class="kpi-tile-value" id="kpi-active">0</div>
+    </div>
+    <div class="kpi-tile" id="tile-trial" onclick="applyFilter('trial')">
+      <div class="kpi-tile-title">Trial → 7d</div>
+      <div class="kpi-tile-value" id="kpi-trial">0</div>
+    </div>
+    <div class="kpi-tile" id="tile-pastdue" onclick="applyFilter('past_due')">
+      <div class="kpi-tile-title">Past-due</div>
+      <div class="kpi-tile-value" id="kpi-pastdue">0</div>
+    </div>
+    <div class="kpi-tile" id="tile-suspended" onclick="applyFilter('suspended')">
+      <div class="kpi-tile-title">Suspended</div>
+      <div class="kpi-tile-value" id="kpi-suspended">0</div>
+    </div>
+  </div>
+
+  <!-- FILTER PILLS -->
+  <div class="filter-bar" id="filter-bar">
+    <button type="button" class="filter-pill active" data-filter="all"       onclick="applyFilter('all')">Alle</button>
+    <button type="button" class="filter-pill"        data-filter="trial"     onclick="applyFilter('trial')">Trial</button>
+    <button type="button" class="filter-pill"        data-filter="active"    onclick="applyFilter('active')">Aktiv</button>
+    <button type="button" class="filter-pill"        data-filter="past_due"  onclick="applyFilter('past_due')">Past-due</button>
+    <button type="button" class="filter-pill"        data-filter="suspended" onclick="applyFilter('suspended')">Suspended</button>
   </div>
 
   <!-- STATS -->
@@ -722,11 +893,85 @@ a { color: var(--hasi); text-decoration: none; }
   <!-- PRACTICES -->
   <div class="section-title">
     <span>Kunden-Praxen</span>
+    <button id="bulkSelectAllBtn" type="button" class="bulk-clear-btn" style="margin-left:auto">☐ Alle auswählen</button>
   </div>
+
+  <!-- Sticky bulk-action toolbar -->
+  <div class="bulk-toolbar" id="bulkToolbar">
+    <div class="bulk-count">
+      <span class="bulk-count-pill" id="bulkCountPill">0</span>
+      <span id="bulkCountLabel">ausgewählt</span>
+    </div>
+    <button id="bulkClearBtn" class="bulk-clear-btn" type="button">Auswahl löschen</button>
+    <div class="bulk-divider"></div>
+
+    <select id="bulkAction" class="bulk-action-select">
+      <option value="">— Aktion wählen —</option>
+      <option value="extend_trial">⏳ Trial verlängern</option>
+      <option value="change_plan">📦 Plan ändern</option>
+      <option value="apply_coupon">🎟 Coupon</option>
+      <option value="comp_month">🎁 Goodwill</option>
+      <option value="cancel_at_period_end">🛑 Cancel am Periodenende</option>
+      <option value="suspend">⛔ Sperren</option>
+      <option value="unsuspend">✅ Entsperren</option>
+    </select>
+
+    <div class="bulk-arg-wrap" data-arg="extend_trial">
+      <label>Tage:</label>
+      <input id="bulkArgDays" class="bulk-action-arg" type="number" min="1" max="90" value="7" style="width:70px">
+    </div>
+    <div class="bulk-arg-wrap" data-arg="change_plan">
+      <label>Neu:</label>
+      <select id="bulkArgPlan" class="bulk-action-arg">
+        <option value="warteliste">Warteliste</option>
+        <option value="solo">Solo</option><option value="team">Team</option><option value="klinik">Klinik</option>
+      </select>
+    </div>
+    <div class="bulk-arg-wrap" data-arg="apply_coupon">
+      <label>Coupon:</label>
+      <input id="bulkArgCoupon" class="bulk-action-arg" type="text" placeholder="WELCOME20" style="width:140px">
+    </div>
+    <div class="bulk-arg-wrap" data-arg="comp_month">
+      <label>Monate:</label>
+      <select id="bulkArgMonths" class="bulk-action-arg">
+        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+      </select>
+    </div>
+    <div class="bulk-arg-wrap" data-arg="cancel_at_period_end">
+      <label>Modus:</label>
+      <select id="bulkArgCancel" class="bulk-action-arg">
+        <option value="true">Setzen</option><option value="false">Aufheben</option>
+      </select>
+    </div>
+
+    <button id="bulkApplyBtn" class="bulk-apply-btn" type="button">Anwenden</button>
+  </div>
+
   <div id="practicesList">
     <div class="loading">Lade Praxen...</div>
   </div>
 
+</div>
+
+<!-- BULK RESULT MODAL -->
+<div class="modal-overlay" id="bulkResultModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-head">
+      <div class="modal-title" id="bulkResultTitle">Ergebnis</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="bulk-result-summary">
+        <div>Gesamt: <strong id="bulkRsTotal">0</strong></div>
+        <div style="color:#059669;font-weight:700">✓ <span id="bulkRsOk">0</span></div>
+        <div style="color:#dc2626;font-weight:700">✗ <span id="bulkRsFail">0</span></div>
+      </div>
+      <div class="bulk-result-list" id="bulkRsList"></div>
+    </div>
+    <div class="modal-footer" style="padding:14px 24px;display:flex;justify-content:flex-end;border-top:1px solid var(--border)">
+      <button class="bulk-apply-btn" data-close>Schließen &amp; neu laden</button>
+    </div>
+  </div>
 </div>
 
 <!-- NEW PRACTICE MODAL -->
@@ -938,13 +1183,17 @@ function renderPractices(practices) {
       : `<div class="practice-logo" style="--practice-color: ${p.brand_primary || '#2d6a8e'}">${p.name.charAt(0)}</div>`;
 
     const statusBadge = `<span class="badge ${p.plan_status || 'trial'}">${p.plan_status === 'active' ? 'Aktiv' : p.plan_status === 'suspended' ? 'Gesperrt' : 'Trial'}</span>`;
+    const statusClass = (p.plan_status || 'trial');
 
     return `
-      <div class="practice-card" data-id="${p.id}" data-slug="${p.slug}" data-name="${escapeHtml(p.name)}">
+      <div class="practice-card" data-practice-card data-status="${statusClass}" data-id="${p.id}" data-slug="${p.slug}" data-name="${escapeHtml(p.name)}">
+        <div class="bulk-checkbox-wrap">
+          <input type="checkbox" class="bulk-checkbox" data-id="${p.id}" data-slug="${p.slug}" data-name="${escapeHtml(p.name)}" title="Für Bulk-Aktion auswählen">
+        </div>
         <div class="practice-card-head">
           ${logoHtml}
           <div class="practice-card-info">
-            <div class="practice-name">${escapeHtml(p.name)}</div>
+            <div class="practice-name"><span class="status-dot ${statusClass}" title="${statusClass}"></span>${escapeHtml(p.name)}</div>
             <div class="practice-slug">${p.slug}.praxmate.de</div>
           </div>
           ${statusBadge}
@@ -1013,12 +1262,85 @@ async function loadAll() {
     ]);
     if (statsRes) renderStats(statsRes.stats);
     if (practicesRes) renderPractices(practicesRes.practices);
+    // Re-apply current filter after re-rendering grid
+    const activePill = document.querySelector('.filter-pill.active');
+    const cur = activePill?.dataset.filter || 'all';
+    if (cur !== 'all') applyFilter(cur);
   } catch (e) {
     document.getElementById('practicesList').innerHTML =
       `<div class="error-msg">Fehler beim Laden: ${e.message}</div>`;
   }
 }
+
+// ============================================================
+// KPI summary — top dashboard tiles
+// ============================================================
+async function loadKpi() {
+  try {
+    const r = await fetch(API_BASE + '/super/kpi', {
+      headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('praxmate_super_token') || localStorage.getItem('praxmate_token') || '') }
+    });
+    if (r.status === 401) {
+      localStorage.removeItem('praxmate_super_token');
+      localStorage.removeItem('praxmate_token');
+      location.href = '/admin/index.html';
+      return;
+    }
+    if (!r.ok) return;
+    const d = await r.json();
+    document.getElementById('kpi-mrr').textContent       = '€' + (d.mrr_eur || 0).toLocaleString('de-DE');
+    document.getElementById('kpi-active').textContent    = d.active_count || 0;
+    document.getElementById('kpi-trial').textContent     = d.trial_ending_7d || 0;
+    document.getElementById('kpi-pastdue').textContent   = d.past_due_count || 0;
+    document.getElementById('kpi-suspended').textContent = d.suspended_count || 0;
+    // Past-due red highlight if > 0
+    const pdTile = document.getElementById('tile-pastdue');
+    if (pdTile) pdTile.classList.toggle('danger', (d.past_due_count || 0) > 0);
+    // Active breakdown tooltip
+    const aTile = document.getElementById('tile-active');
+    if (aTile && d.by_plan) {
+      const parts = Object.entries(d.by_plan).map(([k, v]) => `${k}: ${v}`).join(' · ');
+      aTile.title = parts;
+    }
+    // Last refresh stamp
+    const ts = document.getElementById('last-refresh');
+    if (ts) ts.textContent = 'Aktualisiert: ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  } catch (e) {
+    /* silent */
+  }
+}
+
+// Filter cards by data-status
+function applyFilter(status) {
+  document.querySelectorAll('.filter-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.filter === status);
+  });
+  document.querySelectorAll('[data-practice-card]').forEach(c => {
+    const s = c.dataset.status;
+    c.style.display = (status === 'all' || s === status) ? '' : 'none';
+  });
+  // Scroll grid into view (helpful when triggered from KPI tile click)
+  const grid = document.getElementById('practicesList');
+  if (grid && status !== 'all') {
+    try { grid.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch {}
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('praxmate_super_token');
+  localStorage.removeItem('praxmate_token');
+  localStorage.removeItem('praxmate_super_user');
+  location.href = '/admin/index.html';
+}
+
+function refreshAll() {
+  if (typeof loadKpi === 'function') loadKpi();
+  if (typeof loadAll === 'function') loadAll();
+  else location.reload();
+}
+
 loadAll();
+loadKpi();
 
 // ========== MODAL HANDLING ==========
 document.querySelectorAll('[data-close]').forEach(el => {
@@ -1121,6 +1443,8 @@ document.getElementById('practicesList').addEventListener('click', async (e) => 
   if (e.target.closest('a')) return;
   // Click on plan select — handled by change event
   if (e.target.closest('select')) return;
+  // Bulk checkbox — handled by change listener
+  if (e.target.closest('.bulk-checkbox-wrap')) return;
   // Click anywhere else on the card → open edit modal
   const card = e.target.closest('.practice-card');
   if (!card) return;
@@ -1535,6 +1859,138 @@ document.getElementById('logoutBtn')?.addEventListener('click', async () => {
   localStorage.removeItem('praxmate_super_token');
   localStorage.removeItem('praxmate_super_user');
   window.location.href = '/admin/';
+});
+
+// ============================================================
+// BULK ACTIONS — checkbox selection + sticky toolbar + bulk API
+// ============================================================
+const bulkSelected = new Map();
+
+function updateBulkUI() {
+  const n = bulkSelected.size;
+  const toolbar = document.getElementById('bulkToolbar');
+  document.getElementById('bulkCountPill').textContent = n;
+  document.getElementById('bulkCountLabel').textContent = n === 1 ? 'Praxis ausgewählt' : 'Praxen ausgewählt';
+  toolbar.classList.toggle('visible', n > 0);
+  const cards = document.querySelectorAll('.practice-card');
+  const allBtn = document.getElementById('bulkSelectAllBtn');
+  if (allBtn) allBtn.textContent = (cards.length > 0 && n === cards.length) ? '☑ Auswahl löschen' : '☐ Alle auswählen';
+}
+
+document.getElementById('practicesList').addEventListener('change', (e) => {
+  if (!e.target.classList.contains('bulk-checkbox')) return;
+  const id = e.target.dataset.id;
+  const card = e.target.closest('.practice-card');
+  if (e.target.checked) {
+    bulkSelected.set(id, { slug: e.target.dataset.slug, name: e.target.dataset.name });
+    card?.classList.add('bulk-selected');
+  } else {
+    bulkSelected.delete(id);
+    card?.classList.remove('bulk-selected');
+  }
+  updateBulkUI();
+});
+
+document.getElementById('bulkSelectAllBtn')?.addEventListener('click', () => {
+  const cbs = document.querySelectorAll('.bulk-checkbox');
+  const allChecked = cbs.length > 0 && bulkSelected.size === cbs.length;
+  if (allChecked) {
+    bulkSelected.clear();
+    cbs.forEach(cb => cb.checked = false);
+    document.querySelectorAll('.practice-card').forEach(c => c.classList.remove('bulk-selected'));
+  } else {
+    cbs.forEach(cb => {
+      cb.checked = true;
+      bulkSelected.set(cb.dataset.id, { slug: cb.dataset.slug, name: cb.dataset.name });
+      cb.closest('.practice-card')?.classList.add('bulk-selected');
+    });
+  }
+  updateBulkUI();
+});
+
+document.getElementById('bulkClearBtn').addEventListener('click', () => {
+  bulkSelected.clear();
+  document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = false);
+  document.querySelectorAll('.practice-card').forEach(c => c.classList.remove('bulk-selected'));
+  updateBulkUI();
+});
+
+document.getElementById('bulkAction').addEventListener('change', (e) => {
+  const v = e.target.value;
+  document.querySelectorAll('.bulk-arg-wrap').forEach(w => w.classList.toggle('visible', w.dataset.arg === v));
+});
+
+document.getElementById('bulkApplyBtn').addEventListener('click', async () => {
+  const action = document.getElementById('bulkAction').value;
+  if (!action) { alert('Aktion seç.'); return; }
+  if (bulkSelected.size === 0) { alert('Keine Praxis seçili.'); return; }
+
+  const args = { action };
+  if (action === 'extend_trial') {
+    const d = parseInt(document.getElementById('bulkArgDays').value, 10);
+    if (!Number.isFinite(d) || d < 1 || d > 90) { alert('1–90 Tage'); return; }
+    args.days = d;
+  } else if (action === 'change_plan') {
+    args.plan = document.getElementById('bulkArgPlan').value;
+    args.proration = true;
+  } else if (action === 'apply_coupon') {
+    args.coupon = document.getElementById('bulkArgCoupon').value.trim();
+    if (!args.coupon) { alert('Coupon-ID leer.'); return; }
+  } else if (action === 'comp_month') {
+    args.months = parseInt(document.getElementById('bulkArgMonths').value, 10);
+  } else if (action === 'cancel_at_period_end') {
+    args.cancel = document.getElementById('bulkArgCancel').value === 'true';
+  }
+
+  const names = [...bulkSelected.values()].map(v => v.name).slice(0, 5);
+  const summary = names.join(', ') + (bulkSelected.size > 5 ? ` … +${bulkSelected.size - 5}` : '');
+  const actionLabel = document.getElementById('bulkAction').selectedOptions[0]?.textContent || action;
+  if (!confirm(`"${actionLabel}" → ${bulkSelected.size} Praxis?\n\n${summary}`)) return;
+
+  const btn = document.getElementById('bulkApplyBtn');
+  btn.disabled = true;
+  btn.textContent = 'Läuft...';
+  try {
+    const data = await api('/super/bulk', {
+      method: 'POST',
+      body: JSON.stringify({ practice_ids: [...bulkSelected.keys()], ...args }),
+    });
+    showBulkResults(data);
+  } catch (e) {
+    alert('Bulk fail: ' + (e.message || e));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Anwenden';
+  }
+});
+
+function showBulkResults(data) {
+  document.getElementById('bulkRsTotal').textContent = data.total ?? 0;
+  document.getElementById('bulkRsOk').textContent    = data.succeeded ?? 0;
+  document.getElementById('bulkRsFail').textContent  = data.failed ?? 0;
+  const list = document.getElementById('bulkRsList');
+  list.innerHTML = '';
+  for (const r of (data.results || [])) {
+    const row = document.createElement('div');
+    row.className = 'bulk-result-row ' + (r.ok ? 'ok' : 'fail');
+    row.innerHTML = `
+      <div>${r.ok ? '✓' : '✗'}</div>
+      <div>
+        <div style="font-weight:600">${escapeHtml(r.name || r.slug || r.ref || '')}</div>
+        ${r.ok ? '' : `<div class="err">${escapeHtml(r.error || 'Unbekannter Fehler')}</div>`}
+      </div>
+      <div style="font-size:11px;color:var(--muted)">${r.ok ? (r.action || '') : `HTTP ${r.status || '?'}`}</div>`;
+    list.appendChild(row);
+  }
+  document.getElementById('bulkResultModal').classList.add('visible');
+  bulkSelected.clear();
+}
+
+document.getElementById('bulkResultModal').addEventListener('click', (e) => {
+  if (e.target.dataset.close !== undefined || e.target.classList.contains('modal-overlay')) {
+    document.getElementById('bulkResultModal').classList.remove('visible');
+    loadAll();
+  }
 });
 </script>
 

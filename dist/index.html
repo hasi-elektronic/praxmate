@@ -774,7 +774,7 @@ a { color: var(--ink); text-decoration: none; }
 <section class="hero">
   <div class="hero-badge">
     <span class="hero-badge-dot">✨</span>
-    <span><strong>Neu:</strong> DSGVO-konform, made in Vaihingen</span>
+    <span><strong>Neu:</strong> DSGVO-konform, aus Vaihingen</span>
   </div>
 
   <h1 class="hero-title">
@@ -799,8 +799,8 @@ a { color: var(--ink); text-decoration: none; }
   </div>
 
   <div class="hero-meta">
-    <div class="hero-meta-item">3 Monate gratis testen</div>
-    <div class="hero-meta-item">Keine Kreditkarte nötig</div>
+    <div class="hero-meta-item">7 Tage gratis testen</div>
+    <div class="hero-meta-item">Erst nach 7 Tagen belastet</div>
     <div class="hero-meta-item">Support auf Deutsch</div>
   </div>
 
@@ -878,7 +878,7 @@ a { color: var(--ink); text-decoration: none; }
   <div class="section-head">
     <div class="section-eyebrow reveal">So funktioniert's</div>
     <h2 class="section-title reveal reveal-delay-1">In 20&nbsp;Sekunden von der Buchung <span class="grad-text">bis zur Erinnerung.</span></h2>
-    <p class="section-sub reveal reveal-delay-2">Der Patient bucht online — der Termin erscheint sofort in Ihrem Kalender. Bestätigung und Erinnerung gehen automatisch raus. Kein Anruf, kein Rückfragen, kein vergessenes "Zahnarzt morgen 10 Uhr".</p>
+    <p class="section-sub reveal reveal-delay-2">Der Patient bucht online — der Termin erscheint sofort in Ihrem Kalender. Bestätigung und Erinnerung gehen automatisch raus. Kein Anruf, keine Rückfragen, kein vergessener Zahnarzttermin.</p>
   </div>
 
   <div class="story-stage reveal reveal-delay-3">
@@ -1039,7 +1039,7 @@ a { color: var(--ink); text-decoration: none; }
 </section>
 
 <section class="counter-section">
-  <div class="section-eyebrow reveal">Live</div>
+  <div class="section-eyebrow reveal">Pilot-Praxen</div>
   <div class="counter-big reveal reveal-delay-1" id="bigCounter">0</div>
   <div class="counter-label reveal reveal-delay-2">Termine wurden über Praxmate gebucht</div>
   <div class="counter-sub-grid reveal reveal-delay-3">
@@ -1132,7 +1132,7 @@ a { color: var(--ink); text-decoration: none; }
       <div class="testimonial-avatar">JH</div>
       <div>
         <div class="testimonial-name">Dr. Juliane Hild</div>
-        <div class="testimonial-role">Zahnarztpraxis Hild &amp; Kollegen · Sersheim</div>
+        <div class="testimonial-role">Zahnarztpraxis Hild &amp; Kollegen · Vaihingen a.d. Enz</div>
       </div>
     </div>
   </div>
@@ -1142,7 +1142,7 @@ a { color: var(--ink); text-decoration: none; }
   <div class="section-head">
     <div class="section-eyebrow reveal">Preise</div>
     <h2 class="section-title reveal reveal-delay-1">Einfache Preise, <span class="grad-text">keine Überraschungen.</span></h2>
-    <p class="section-sub reveal reveal-delay-2">3 Monate kostenlos. Danach ab 39 € / Monat. Jederzeit kündbar.</p>
+    <p class="section-sub reveal reveal-delay-2">7 Tage kostenlos testen. Danach ab 39 € / Monat. Jederzeit kündbar.</p>
   </div>
 
   <div class="pricing-grid">
@@ -1191,7 +1191,7 @@ a { color: var(--ink); text-decoration: none; }
     </div>
 
     <div class="price-card reveal reveal-delay-3">
-      <div class="price-tier">Praxis</div>
+      <div class="price-tier">Klinik</div>
       <div class="price-tier-sub">Große Praxis · bis 10 Behandler</div>
       <div class="price-amount">
         <span class="price-currency">€</span>
@@ -1217,10 +1217,10 @@ a { color: var(--ink); text-decoration: none; }
 <section class="cta-band">
   <div class="cta-band-inner">
     <div class="cta-band-bg"></div>
-    <h2 class="cta-title">Noch Fragen?<br><span class="grad-text">Einfach anrufen.</span></h2>
-    <p class="cta-sub">Kein Verkaufsgespräch. Kein Druck. Nur ehrliche Antworten in 15 Minuten.</p>
+    <h2 class="cta-title">Noch Fragen?<br><span class="grad-text">Schreiben Sie uns.</span></h2>
+    <p class="cta-sub">Kein Verkaufsgespräch. Kein Druck. Nur ehrliche Antworten — meistens innerhalb von 24 Stunden.</p>
     <a href="mailto:h.guencavdi@hasi-elektronic.de" class="cta-btn">
-      <span>Kostenloses Beratungsgespräch →</span>
+      <span>Kostenloses Beratungsgespräch anfragen →</span>
     </a>
   </div>
 </section>
@@ -1314,10 +1314,9 @@ window.addEventListener('scroll', () => {
   });
 })();
 
-// Big counter animation
+// Big counter animation — pilot-Praxen real total (no fake live increment)
 const bigCounter = document.getElementById('bigCounter');
-const baseValue = 14237;
-let current = baseValue;
+const baseValue = 1847;
 function formatNum(n) { return n.toLocaleString('de-DE'); }
 
 const counterObserver = new IntersectionObserver((entries) => {
@@ -1329,17 +1328,9 @@ const counterObserver = new IntersectionObserver((entries) => {
       function tick(now) {
         const progress = Math.min((now - startTime) / duration, 1);
         const eased = 1 - Math.pow(1 - progress, 3);
-        current = Math.floor(target * eased);
-        bigCounter.textContent = formatNum(current);
+        bigCounter.textContent = formatNum(Math.floor(target * eased));
         if (progress < 1) requestAnimationFrame(tick);
-        else {
-          setInterval(() => {
-            if (Math.random() > 0.7) {
-              current += 1;
-              bigCounter.textContent = formatNum(current);
-            }
-          }, 3500);
-        }
+        else bigCounter.textContent = formatNum(target);
       }
       requestAnimationFrame(tick);
       counterObserver.unobserve(e.target);

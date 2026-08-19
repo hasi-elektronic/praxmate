@@ -18,6 +18,7 @@ import {
   planForPriceId,
   stripeContextFor,
 } from '../lib/stripe.js';
+import { notify } from '../lib/notify.js';
 
 // ============================================================
 // POST /api/admin/billing/checkout
@@ -180,7 +181,7 @@ export async function handleBillingStatus(env, request) {
     stripe_mode: ctx.mode,
     stripe_public_key: ctx.publicKey || null,
     prices: {
-      warteliste: { id: ctx.prices.warteliste, amount_cents:   900, currency: 'EUR' },
+      warteliste: { id: ctx.prices.warteliste, amount_cents:  2900, currency: 'EUR' },
       solo:       { id: ctx.prices.solo,       amount_cents:  3900, currency: 'EUR' },
       team:       { id: ctx.prices.team,       amount_cents:  6900, currency: 'EUR' },
       klinik:     { id: ctx.prices.klinik,     amount_cents: 11900, currency: 'EUR' },
@@ -328,6 +329,14 @@ export async function handleStripeWebhook(env, request) {
           sub.id, priceId, derivedPlan, planStatus,
           periodEnd, periodEnd, practiceId
         ).run();
+        // Only fire on first 'created' with active status (avoid noise on update events)
+        if (event.type === 'customer.subscription.created' && sub.status === 'active' && env.waitUntil) {
+          const pr = await env.DB.prepare(`SELECT id, slug, name, locale FROM practices WHERE id = ? LIMIT 1`).bind(practiceId).first();
+          if (pr) env.waitUntil(notify(env, 'tenant.subscription_created', {
+            practice: pr, plan: derivedPlan, mode: webhookMode,
+            amount_eur: item.price?.unit_amount ? (item.price.unit_amount / 100).toFixed(2) : null,
+          }));
+        }
         break;
       }
 
@@ -349,6 +358,10 @@ export async function handleStripeWebhook(env, request) {
           meta: { subscription: sub.id, mode: webhookMode },
           request,
         });
+        if (env.waitUntil) {
+          const pr = await env.DB.prepare(`SELECT id, slug, name, locale, plan FROM practices WHERE id = ? LIMIT 1`).bind(practiceId).first();
+          if (pr) env.waitUntil(notify(env, 'tenant.cancelled', { practice: pr, plan: pr.plan, mode: webhookMode }));
+        }
         break;
       }
 
@@ -391,6 +404,12 @@ export async function handleStripeWebhook(env, request) {
             meta: { invoice: inv.id, amount_due: inv.amount_due, mode: webhookMode },
             request,
           });
+          if (env.waitUntil) {
+            env.waitUntil(notify(env, 'tenant.past_due', {
+              practice: row, plan: row.plan, mode: webhookMode,
+              amount_eur: inv.amount_due ? (inv.amount_due / 100).toFixed(2) : null,
+            }));
+          }
         }
         break;
       }

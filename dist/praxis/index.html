@@ -291,7 +291,8 @@ body {
 
       <div v-if="error" class="error-box">{{ error }}</div>
 
-      <form @submit.prevent="login">
+      <!-- STEP 1: email + password -->
+      <form v-if="!requires2fa" @submit.prevent="login">
         <div class="field">
           <label for="email">{{ t('login.email') }}</label>
           <input
@@ -334,6 +335,43 @@ body {
              onmouseout="this.style.color='var(--muted)'">
             {{ t('login.forgot_password') }}
           </a>
+        </div>
+      </form>
+
+      <!-- STEP 2: 2FA code (TOTP or backup) -->
+      <form v-else @submit.prevent="login">
+        <h2 style="font-size:18px;font-weight:700;margin-bottom:6px">{{ t('login.2fa_title') }}</h2>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:18px">{{ t('login.2fa_subtitle') }}</p>
+
+        <div v-if="!useBackupCode" class="field">
+          <label for="totpCode">{{ t('login.2fa_code_label') }}</label>
+          <input
+            id="totpCode" v-model="totpCode" type="text" inputmode="numeric"
+            pattern="[0-9 ]{6,7}" maxlength="7" autocomplete="one-time-code"
+            :placeholder="t('login.2fa_code_placeholder')"
+            required autofocus :disabled="loading"
+            style="font-size:22px; letter-spacing:0.25em; text-align:center; font-family:'JetBrains Mono','SF Mono',Monaco,monospace"
+          >
+        </div>
+
+        <div v-else class="field">
+          <label for="backupCode">{{ t('login.2fa_backup_label') }}</label>
+          <input
+            id="backupCode" v-model="backupCode" type="text" autocomplete="one-time-code"
+            :placeholder="t('login.2fa_backup_placeholder')"
+            required autofocus :disabled="loading"
+            style="font-size:18px; letter-spacing:0.15em; text-align:center; font-family:'JetBrains Mono','SF Mono',Monaco,monospace; text-transform:uppercase"
+          >
+        </div>
+
+        <button type="submit" class="btn-primary" :disabled="loading || (useBackupCode ? !backupCode : !totpCode)">
+          <span v-if="loading" class="spinner"></span>
+          <span>{{ loading ? t('login.submit_loading') : t('login.2fa_submit') }}</span>
+        </button>
+
+        <div style="display:flex; justify-content:space-between; margin-top:14px;">
+          <a href="#" @click.prevent="cancelTwoFa" style="font-size:13px;color:var(--muted);text-decoration:none;font-weight:500;">{{ t('login.2fa_back') }}</a>
+          <a v-if="hasBackupCodes" href="#" @click.prevent="toggleBackupCode" style="font-size:13px;color:var(--muted);text-decoration:none;font-weight:500;">{{ useBackupCode ? t('login.2fa_use_totp') : t('login.2fa_use_backup') }}</a>
         </div>
       </form>
 
@@ -412,6 +450,12 @@ createApp({
     const loading = ref(false);
     const error = ref('');
     const practiceName = ref('');
+    // 2FA state
+    const requires2fa    = ref(false);
+    const totpCode       = ref('');
+    const backupCode     = ref('');
+    const useBackupCode  = ref(false);
+    const hasBackupCodes = ref(false);
 
     // i18n — reactive translation helper
     const lang = ref(window.i18n ? window.i18n.getLang() : 'de');
@@ -485,6 +529,16 @@ createApp({
       error.value = '';
       loading.value = true;
 
+      const payload = {
+        email: email.value.trim(),
+        password: password.value,
+        trust_device: trustDevice.value,
+      };
+      if (requires2fa.value) {
+        if (useBackupCode.value) payload.backup_code = backupCode.value.trim();
+        else                     payload.totp_code   = totpCode.value.replace(/\s/g, '');
+      }
+
       try {
         const response = await fetch(API_BASE + '/admin/auth/login', {
           method: 'POST',
@@ -492,11 +546,7 @@ createApp({
             'Content-Type': 'application/json',
             ...(PRACTICE_SLUG ? { 'X-Praxmate-Practice': PRACTICE_SLUG } : {}),
           },
-          body: JSON.stringify({
-            email: email.value.trim(),
-            password: password.value,
-            trust_device: trustDevice.value
-          })
+          body: JSON.stringify(payload),
         });
 
         const data = await response.json();
@@ -504,12 +554,15 @@ createApp({
         if (!response.ok) {
           error.value = data.error || t('login.err_generic');
           loading.value = false;
+          if (requires2fa.value) { totpCode.value = ''; backupCode.value = ''; }
           return;
         }
 
         if (data.requires_2fa) {
-          error.value = t('login.err_2fa_needed');
+          requires2fa.value = true;
+          hasBackupCodes.value = !!data.has_backup_codes;
           loading.value = false;
+          setTimeout(() => document.getElementById('totpCode')?.focus(), 50);
           return;
         }
 
@@ -536,7 +589,21 @@ createApp({
       }
     }
 
-    return { email, password, trustDevice, loading, error, login, practiceName, PRACTICE_SLUG, t, lang, switchLang };
+    function cancelTwoFa() {
+      requires2fa.value = false;
+      totpCode.value = ''; backupCode.value = '';
+      useBackupCode.value = false; error.value = '';
+    }
+    function toggleBackupCode() {
+      useBackupCode.value = !useBackupCode.value;
+      totpCode.value = ''; backupCode.value = ''; error.value = '';
+    }
+
+    return {
+      email, password, trustDevice, loading, error, login, practiceName, PRACTICE_SLUG, t, lang, switchLang,
+      requires2fa, totpCode, backupCode, useBackupCode, hasBackupCodes,
+      cancelTwoFa, toggleBackupCode,
+    };
   }
 }).mount('#app');
 </script>

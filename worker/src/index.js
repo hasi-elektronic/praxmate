@@ -26,6 +26,11 @@ import {
   handleLogout,
   handleMe,
   handlePasswordChange,
+  handle2faStatus,
+  handle2faSetup,
+  handle2faVerify,
+  handle2faDisable,
+  handle2faRegenerateBackup,
 } from './routes/admin-auth.js';
 
 // Admin data
@@ -119,11 +124,15 @@ import {
 // Super-admin analytics (MRR + signups + conversion)
 import { handleSuperAnalytics } from './routes/super-analytics.js';
 
-// Super-admin operations tools (tenant detail, health alerts, notes)
+// Super-admin operations tools (tenant detail, health, notes, audit, billing, bulk)
 import {
   handleTenantDetail,
   handleHealth,
+  handleKpiSummary,
   handleAddNote,
+  handleAuditLogList,
+  handleTenantBilling,
+  handleBulkAction,
 } from './routes/super-tools.js';
 
 // Scheduled jobs
@@ -131,11 +140,17 @@ import { runReminders }      from './routes/reminders.js';
 import { runBackup }         from './routes/backup.js';
 import { runTrialReminders } from './routes/trial-reminders.js';
 
+// Super-admin notifications (Slack + email fan-out)
+import { notify } from './lib/notify.js';
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
     const method = request.method;
+
+    // Expose ctx.waitUntil for fire-and-forget Slack/email notifications
+    env.waitUntil = ctx.waitUntil.bind(ctx);
 
     // CORS preflight
     if (method === 'OPTIONS') return handleOptions(request);
@@ -199,6 +214,53 @@ export default {
       // (Removed: internal migrate-stripe-testmode / reset-signup-rl / flag-test-tenant —
       //  migration applied, rate limit cleared, hamdi-test tenant flagged. Deleted for security.)
       // (Removed: emergency password reset endpoint — used once for Hamdi 2026-04-25.)
+
+      // Test super-admin notification fan-out (Slack + email)
+      if (path === '/api/internal/notify-test' && method === 'POST') {
+        if (request.headers.get('X-Migrate-Key') !== 'praxmate-notify-test-2026') {
+          return jsonError('Forbidden', request, 403);
+        }
+        const body = await request.json().catch(() => ({}));
+        const evt = body.event || 'tenant.signup';
+        await notify(env, evt, {
+          practice: { id: 'prc_test', slug: 'demo-test', name: 'Demo (Notify Test)', locale: 'de' },
+          user: { email: 'test@example.com' },
+          plan: 'solo', mode: 'live', amount_eur: '39.00', reason: 'Test',
+        });
+        return jsonResponse({
+          ok: true, event: evt,
+          slack_configured: !!env.ADMIN_SLACK_WEBHOOK_URL,
+          email_configured: !!env.ADMIN_NOTIFY_EMAIL,
+        }, request);
+      }
+
+      // One-time: add 2FA columns to users table
+      if (path === '/api/internal/migrate-totp' && method === 'POST') {
+        if (request.headers.get('X-Migrate-Key') !== 'praxmate-totp-init-2026') {
+          return jsonError('Forbidden', request, 403);
+        }
+        const cols = [
+          { name: 'totp_secret',         ddl: `ALTER TABLE users ADD COLUMN totp_secret TEXT` },
+          { name: 'totp_enabled',        ddl: `ALTER TABLE users ADD COLUMN totp_enabled INTEGER DEFAULT 0` },
+          { name: 'totp_verified_at',    ddl: `ALTER TABLE users ADD COLUMN totp_verified_at TIMESTAMP` },
+          { name: 'totp_backup_codes',   ddl: `ALTER TABLE users ADD COLUMN totp_backup_codes TEXT` },
+        ];
+        const applied = [];
+        const skipped = [];
+        for (const c of cols) {
+          try {
+            await env.DB.prepare(c.ddl).run();
+            applied.push(c.name);
+          } catch (e) {
+            if (/duplicate column name/i.test(String(e.message))) {
+              skipped.push(c.name);
+            } else {
+              return jsonError(`Migration ${c.name} failed: ${e.message}`, request, 500);
+            }
+          }
+        }
+        return jsonResponse({ ok: true, applied, skipped }, request);
+      }
 
       // One-time: add trial_reminder_sent_at column for trial reminder idempotency
       if (path === '/api/internal/migrate-trial-reminder' && method === 'POST') {
@@ -282,6 +344,23 @@ export default {
       }
       if (path === '/api/admin/auth/password/change' && method === 'POST') {
         return await handlePasswordChange(env, request);
+      }
+
+      // 2FA (TOTP)
+      if (path === '/api/admin/auth/2fa/status' && method === 'GET') {
+        return await handle2faStatus(env, request);
+      }
+      if (path === '/api/admin/auth/2fa/setup' && method === 'POST') {
+        return await handle2faSetup(env, request);
+      }
+      if (path === '/api/admin/auth/2fa/verify' && method === 'POST') {
+        return await handle2faVerify(env, request);
+      }
+      if (path === '/api/admin/auth/2fa/disable' && method === 'POST') {
+        return await handle2faDisable(env, request);
+      }
+      if (path === '/api/admin/auth/2fa/regenerate-backup-codes' && method === 'POST') {
+        return await handle2faRegenerateBackup(env, request);
       }
 
       // ============================================================
@@ -441,6 +520,15 @@ export default {
       if (path === '/api/super/health' && method === 'GET') {
         return await handleHealth(env, request);
       }
+      if (path === '/api/super/kpi' && method === 'GET') {
+        return await handleKpiSummary(env, request);
+      }
+      if (path === '/api/super/audit' && method === 'GET') {
+        return await handleAuditLogList(env, request);
+      }
+      if (path === '/api/super/bulk' && method === 'POST') {
+        return await handleBulkAction(env, request);
+      }
       const superTenantDetailMatch = path.match(/^\/api\/super\/tenant\/([a-z0-9-]+|prc_[a-f0-9]+)\/detail$/);
       if (superTenantDetailMatch && method === 'GET') {
         return await handleTenantDetail(env, request, superTenantDetailMatch[1]);
@@ -448,6 +536,10 @@ export default {
       const superTenantNoteMatch = path.match(/^\/api\/super\/tenant\/([a-z0-9-]+|prc_[a-f0-9]+)\/note$/);
       if (superTenantNoteMatch && method === 'POST') {
         return await handleAddNote(env, request, superTenantNoteMatch[1]);
+      }
+      const superTenantBillingMatch = path.match(/^\/api\/super\/tenant\/([a-z0-9-]+|prc_[a-f0-9]+)\/billing$/);
+      if (superTenantBillingMatch && method === 'POST') {
+        return await handleTenantBilling(env, request, superTenantBillingMatch[1]);
       }
       if (path === '/api/super/practices' && method === 'GET') {
         return await handleSuperPracticesList(env, request);
